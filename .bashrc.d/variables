@@ -1,0 +1,6 @@
+#!/bin/bash
+
+export vm='ubuntu@130.61.124.83'
+export mclocal_version='19'
+
+export MOZ_ENABLE_WAYLAND=1

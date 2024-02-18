@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='utf-8'?>
+<child>
+    <object class="AdwPreferencesGroup" id="group-id">
+        <property name="title" translatable="yes"></property>
+    </object>
+</child>

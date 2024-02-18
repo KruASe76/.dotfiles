@@ -1,0 +1,17 @@
+[user]
+	email = kruanse@ya.ru
+	name = KruASe76
+[init]
+	defaultBranch = main
+[core]
+	quotepath = false
+	editor = nano
+[safe]
+	directory = *
+[filter "lfs"]
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true
+	clean = git-lfs clean -- %f
+[credential]
+	helper = store

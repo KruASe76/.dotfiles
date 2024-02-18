@@ -1,0 +1,73 @@
+<?xml version='1.0' encoding='utf-8'?>
+<child>
+    <object class="AdwBin" id="widget-id">
+        <property name="tooltip-text" translatable="yes"></property>
+        <style>
+            <class name="card" />
+        </style>
+        <child>
+            <object class="GtkBox" id="box-id">
+                <property name="valign">center</property>
+                <property name="spacing">6</property>
+                <property name="orientation">vertical</property>
+                <property name="margin-start">5</property>
+                <property name="margin-top">5</property>
+                <property name="margin-end">5</property>
+                <property name="margin-bottom">5</property>
+                <child>
+                    <object class="GtkScrolledWindow">
+                        <property name="min_content_height">200</property>
+                        <child>
+                            <object class="GtkColumnView" id="view-id">
+                                <child>
+                                    <object class="GtkColumnViewColumn" id="prio-col-id">
+                                        <property name="title" translatable="yes">Priority</property>
+                                    </object>
+                                </child>
+                                <child>
+                                    <object class="GtkColumnViewColumn" id="change-color-col-id">
+                                        <property name="title" translatable="yes">Change color</property>
+                                    </object>
+                                </child>
+                                <child>
+                                    <object class="GtkColumnViewColumn" id="color-col-id">
+                                        <property name="title" translatable="yes">Color</property>
+                                    </object>
+                                </child>
+                                <child>
+                                    <object class="GtkColumnViewColumn" id="bold-col-id">
+                                        <property name="title" translatable="yes">Bold</property>
+                                    </object>
+                                </child>
+                                <child>
+                                    <object class="GtkColumnViewColumn" id="italic-col-id">
+                                        <property name="title" translatable="yes">Italic</property>
+                                    </object>
+                                </child>
+                            </object>
+                        </child>
+                    </object>
+                </child>
+                <child>
+                    <object class="GtkBox">
+                        <style>
+                            <class name="toolbar" />
+                        </style>
+                        <child>
+                            <object class="GtkButton" id="add-button-id">
+                                <property name="icon_name">list-add</property>
+                                <property name="label" translatable="yes">Add style</property>
+                            </object>
+                        </child>
+                        <child>
+                            <object class="GtkButton" id="delete-button-id">
+                                <property name="icon_name">edit-delete</property>
+                                <property name="label" translatable="yes">Delete</property>
+                            </object>
+                        </child>
+                    </object>
+                </child>
+            </object>
+        </child>
+    </object>
+</child>

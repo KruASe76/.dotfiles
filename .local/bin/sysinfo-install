@@ -1,0 +1,54 @@
+#!/bin/bash
+
+if [ $USER != "root" ]
+then
+    echo "Run this script as root." >&2
+    exit 1
+fi
+
+
+if [ -d /home/$SUDO_USER/sysinfo ]
+then
+    base_dir=/home/$SUDO_USER/sysinfo/
+elif [ -d /home/$SUDO_USER/.dotfiles/sysinfo ]
+    base_dir=/home/$SUDO_USER/.dotfiles/sysinfo/
+else
+    echo "Unable to locate a diretory with sysinfo." >&2
+    echo "Should be either ~/sysinfo/ or ~/.dotfiles/sysinfo/" >&2
+    exit 2
+fi
+
+
+echo "Copying system configuration files..."
+cp $base_dir/dnf.conf /etc/dnf/dnf.conf
+cp -r $base_dir/yum.repos.d/ /etc/yum.repos.d/
+cp $base_dir/fstab /etc/fstab
+cp $base_dir/sshd_config /etc/ssh/sshd_config && chown root:root && chmod a-rwx,u+rw
+
+echo "Loading dconf..."
+dconf load / < $base_dir/gnome-dconf.ini
+
+dnf_log="dnf_installation.log"
+echo "Installing dnf packages... (see output in $dnf_log)"
+dnf install $(cat $base_dir/dnf-manual.txt) > $dnf_log
+
+flatpak_log="flatpak_installation.log"
+echo "Installing flatpaks (from flathub)... (see output in $flatpak_log)"
+flatpak install flathub $(cat $base_dir/flatpak-flathub.txt) > $flatpak_log
+
+if [ -s $base_dir/flatpak-fedora.txt ]
+then
+    echo "Installing flatpaks (from fedora)... (see output in $flatpak_log after three blank lines)"
+    echo -e "\n\n" >> $flatpak_log
+    flatpak install fedora $(cat $base_dir/flatpak-fedora.txt) >> $flatpak_log
+fi
+
+if [ -s $base_dir/snap.txt ]
+then
+    snap_log="snap_installation.log"
+    echo "Installing snaps... (see output in $snap_log)"
+    snap install $(cat $base_dir/snap.txt) > $snap_log
+fi
+
+
+unset base_dir dnf_log flatpak_log snap_log

@@ -22,7 +22,7 @@ fi
 echo "Copying system configuration files..."
 cp $base_dir/dnf.conf /etc/dnf/dnf.conf
 cp -r $base_dir/yum.repos.d/ /etc/yum.repos.d/
-cp $base_dir/fstab /etc/fstab
+# cp $base_dir/fstab /etc/fstab
 cp $base_dir/sshd_config /etc/ssh/sshd_config && chown root:root && chmod a-rwx,u+rw
 
 echo "Loading dconf..."

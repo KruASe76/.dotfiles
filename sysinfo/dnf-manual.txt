@@ -35,7 +35,6 @@ betterdiscordctl
 catimg
 chromedriver
 chromium
-chsh
 cmatrix
 code
 cowsay
@@ -87,7 +86,6 @@ blueman-nautilus
 file-roller
 file-roller-nautilus
 seahorse-nautilus
-raw-thumbnailer
 hatch
 python3-distutils-extra
 nodejs

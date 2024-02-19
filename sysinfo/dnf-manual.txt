@@ -14,9 +14,7 @@ openssl-devel
 make
 gcc
 gcc-c++
-openh264
 mozilla-openh264
-libheif-freeworld
 docker-ce
 links
 v4l2loopback

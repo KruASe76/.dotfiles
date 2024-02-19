@@ -25,7 +25,11 @@ echo "INSTALLING DNF PACKAGES..."
 sudo dnf --refresh install -y gstreamer1-plugins-{bad-\*,good-\*,base} gstreamer1-plugin-openh264 gstreamer1-plugin-libav --exclude=gstreamer1-plugins-bad-free-devel
 sudo dnf install -y lame\* --exclude=lame-devel
 sudo dnf group upgrade -y --with-optional Multimedia
-sudo dnf install -y $(cat $base_dir/dnf-manual.txt)
+cat $base_dir/dnf-manual.txt | while read package
+do
+    sudo dnf install -y $package
+done
+
 
 echo -e "\n\n"
 echo "INSTALLING FLATPAKS (FROM FLATHUB)..."

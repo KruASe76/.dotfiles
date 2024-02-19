@@ -23,17 +23,17 @@ sudo cp $base_dir/sshd_config /etc/ssh/sshd_config && sudo chown root:root /etc/
 
 dnf_log="dnf_installation.log"
 echo "Installing dnf packages... (see output in $dnf_log)"
-sudo dnf --refresh install $(cat $base_dir/dnf-manual.txt) > $dnf_log
+sudo dnf --refresh install -y $(cat $base_dir/dnf-manual.txt) > $dnf_log
 
 flatpak_log="flatpak_installation.log"
 echo "Installing flatpaks (from flathub)... (see output in $flatpak_log)"
-flatpak install flathub $(cat $base_dir/flatpak-flathub.txt) > $flatpak_log
+flatpak install -y flathub $(cat $base_dir/flatpak-flathub.txt) > $flatpak_log
 
 if [ -s $base_dir/flatpak-fedora.txt ]
 then
     echo "Installing flatpaks (from fedora)... (see output in $flatpak_log after three blank lines)"
     echo -e "\n\n" >> $flatpak_log
-    flatpak install fedora $(cat $base_dir/flatpak-fedora.txt) >> $flatpak_log
+    flatpak install -y fedora $(cat $base_dir/flatpak-fedora.txt) >> $flatpak_log
 fi
 
 if [ -s $base_dir/snap.txt ]

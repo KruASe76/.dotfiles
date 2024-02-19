@@ -31,6 +31,7 @@ cowsay
 cpufetch
 fastfetch
 fastfetch-bash-completion
+ffmpeg-free
 fzf
 git-lfs
 gparted

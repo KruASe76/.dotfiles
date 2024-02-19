@@ -12,6 +12,7 @@ flatpak_blacklist = (
     "LinuxAudio.Plugins",
     "Freedesktop SDK",
     "Decoration",
+    "DLL",
     "theme",
     "launcher.moe",
     "fedora"

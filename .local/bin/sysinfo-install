@@ -23,7 +23,10 @@ sudo cp $base_dir/sshd_config /etc/ssh/sshd_config && sudo chown root:root /etc/
 
 dnf_log="dnf_installation.log"
 echo "Installing dnf packages... (see output in $dnf_log)"
-sudo dnf --refresh install -y $(cat $base_dir/dnf-manual.txt) > $dnf_log
+sudo dnf --refresh install -y gstreamer1-plugins-{bad-\*,good-\*,base} gstreamer1-plugin-openh264 gstreamer1-plugin-libav --exclude=gstreamer1-plugins-bad-free-devel
+sudo dnf install -y lame\* --exclude=lame-devel
+sudo dnf group upgrade -y --with-optional Multimedia
+sudo dnf install -y $(cat $base_dir/dnf-manual.txt) > $dnf_log
 
 flatpak_log="flatpak_installation.log"
 echo "Installing flatpaks (from flathub)... (see output in $flatpak_log)"

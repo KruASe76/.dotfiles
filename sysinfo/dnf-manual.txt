@@ -47,7 +47,6 @@ xclip
 ydotool
 goverlay
 icoutils
-libcurl
 adw-gtk3-theme
 xorg-x11-drv-nvidia-cuda
 bridge-utils

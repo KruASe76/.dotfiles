@@ -17,7 +17,7 @@ fi
 
 echo "Copying system configuration files..."
 sudo cp $base_dir/dnf.conf /etc/dnf/dnf.conf
-sudo cp -r $base_dir/yum.repos.d/ /etc/yum.repos.d/
+sudo cp -ru $base_dir/yum.repos.d/ /etc/
 # sudo cp $base_dir/fstab /etc/fstab
 sudo cp $base_dir/sshd_config /etc/ssh/sshd_config && sudo chown root:root /etc/ssh/sshd_config && sudo chmod a-rwx,u+rw /etc/ssh/sshd_config
 

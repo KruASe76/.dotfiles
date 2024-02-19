@@ -57,7 +57,6 @@ qemu-kvm
 pdftk
 autossh
 speedtest
-mongodb-org
 unrtf
 perl-open
 cpuinfo

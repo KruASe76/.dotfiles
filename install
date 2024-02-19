@@ -16,7 +16,9 @@ parser.add_argument("-e", "--extensions", "--ext", action="store_true", help="wh
 args = parser.parse_args()
 
 
-def remove_link_name(link_name: Path) -> None:
+def prepare_link(link_name: Path) -> None:
+    link_name.parent.mkdir(exist_ok=True)
+
     if not link_name.exists():
         return
     
@@ -31,22 +33,22 @@ for path in cwd.iterdir():
         continue
 
     link_name = Path(Path.home(), path.relative_to(cwd))
-    remove_link_name(link_name)
+    prepare_link(link_name)
     os.symlink(path, link_name)
 
 for config in config_dir.iterdir():
     link_name = Path(Path.home(), ".config", config.relative_to(config_dir))
-    remove_link_name(link_name)
+    prepare_link(link_name)
     os.symlink(config, link_name)
 
 for script_file in local_bin_dir.iterdir():
     link_name = Path(Path.home(), ".local/bin", script_file.relative_to(local_bin_dir))
-    remove_link_name(link_name)
+    prepare_link(link_name)
     os.symlink(script_file, link_name)
 
 if args.extensions:
     link_name = Path(Path.home(), ".local/share/gnome-shell/extensions")
-    remove_link_name(link_name)
+    prepare_link(link_name)
     os.symlink(gnome_extensions_dir, link_name)
 
 

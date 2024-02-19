@@ -3,12 +3,12 @@
 echo "This script should be run as root."
 sudo echo -n
 
-if [ -d /home/$SUDO_USER/sysinfo ]
+if [ -d $HOME/sysinfo ]
 then
-    base_dir=/home/$SUDO_USER/sysinfo/
-elif [ -d /home/$SUDO_USER/.dotfiles/sysinfo ]
+    base_dir=$HOME/sysinfo/
+elif [ -d $HOME/.dotfiles/sysinfo ]
 then
-    base_dir=/home/$SUDO_USER/.dotfiles/sysinfo/
+    base_dir=$HOME/.dotfiles/sysinfo/
 else
     echo "Unable to locate a diretory with sysinfo." >&2
     echo "Should be either ~/sysinfo/ or ~/.dotfiles/sysinfo/" >&2

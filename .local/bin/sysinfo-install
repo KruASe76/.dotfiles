@@ -1,16 +1,13 @@
 #!/bin/bash
 
-if [ $USER != "root" ]
-then
-    echo "Run this script as root." >&2
-    exit 1
-fi
-
+echo "This script should be run as root."
+sudo echo -n
 
 if [ -d /home/$SUDO_USER/sysinfo ]
 then
     base_dir=/home/$SUDO_USER/sysinfo/
 elif [ -d /home/$SUDO_USER/.dotfiles/sysinfo ]
+then
     base_dir=/home/$SUDO_USER/.dotfiles/sysinfo/
 else
     echo "Unable to locate a diretory with sysinfo." >&2

@@ -1,6 +1,5 @@
 #!/bin/bash
 
-echo "This script should be run as root."
 sudo echo -n
 
 if [ -d $HOME/sysinfo ]
@@ -21,9 +20,6 @@ sudo cp $base_dir/dnf.conf /etc/dnf/dnf.conf
 sudo cp -r $base_dir/yum.repos.d/ /etc/yum.repos.d/
 # sudo cp $base_dir/fstab /etc/fstab
 sudo cp $base_dir/sshd_config /etc/ssh/sshd_config && sudo chown root:root /etc/ssh/sshd_config && sudo chmod a-rwx,u+rw /etc/ssh/sshd_config
-
-echo "Loading dconf..."
-sudo dconf load / < $base_dir/gnome-dconf.ini
 
 dnf_log="dnf_installation.log"
 echo "Installing dnf packages... (see output in $dnf_log)"
@@ -47,5 +43,7 @@ then
     sudo snap install $(cat $base_dir/snap.txt) > $snap_log
 fi
 
+echo "Loading dconf..."
+sudo dconf load / < $base_dir/gnome-dconf.ini
 
 unset base_dir dnf_log flatpak_log snap_log

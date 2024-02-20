@@ -1,7 +1,5 @@
 #!/bin/bash
 
-sudo echo -n
-
 if [ -d $HOME/sysinfo ]
 then
     base_dir=$HOME/sysinfo/
@@ -17,13 +15,12 @@ fi
 
 echo "COPYING SYSTEM CONFIGURATION FILES..."
 sudo cp $base_dir/dnf.conf /etc/dnf/dnf.conf
-sudo cp -ru $base_dir/yum.repos.d/ /etc/
+sudo cp -rn $base_dir/yum.repos.d/ /etc/
 # sudo cp $base_dir/fstab /etc/fstab
 sudo cp $base_dir/sshd_config /etc/ssh/sshd_config && sudo chown root:root /etc/ssh/sshd_config && sudo chmod a-rwx,u+rw /etc/ssh/sshd_config
 
 echo "INSTALLING DNF PACKAGES..."
 sudo dnf --refresh install -y gstreamer1-plugins-{bad-\*,good-\*,base} gstreamer1-plugin-openh264 gstreamer1-plugin-libav --exclude=gstreamer1-plugins-bad-free-devel
-sudo dnf group upgrade -y --with-optional Multimedia
 sudo dnf install -y $(cat $base_dir/dnf-manual.txt)
 
 echo -e "\n\n"
@@ -47,4 +44,4 @@ fi
 echo "LOADING DCONF..."
 sudo dconf load / < $base_dir/gnome-dconf.ini
 
-unset base_dir dnf_log
+unset base_dir

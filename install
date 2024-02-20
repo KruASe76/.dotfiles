@@ -10,6 +10,7 @@ cwd = Path(__file__).parent
 config_dir = Path(cwd, ".config")
 local_bin_dir = Path(cwd, ".local/bin")
 gnome_extensions_dir = Path(cwd, ".local/share/gnome-shell/extensions")
+fonts_dir = Path(cwd, ".local/share/fonts")
 
 parser = argparse.ArgumentParser(description="inject symlinks into user directory")
 parser.add_argument("-e", "--extensions", "--ext", action="store_true", help="whether to sync GNOME extensions")
@@ -45,6 +46,10 @@ for script_file in local_bin_dir.iterdir():
     link_name = Path(Path.home(), ".local/bin", script_file.relative_to(local_bin_dir))
     prepare_link(link_name)
     os.symlink(script_file, link_name)
+
+link_name = Path(Path.home(), ".local/share/fonts")
+prepare_link(link_name)
+os.symlink(fonts_dir, link_name)
 
 if args.extensions:
     link_name = Path(Path.home(), ".local/share/gnome-shell/extensions")

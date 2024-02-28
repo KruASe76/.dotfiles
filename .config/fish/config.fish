@@ -17,10 +17,12 @@ if status is-interactive
     abbr -a -- mv 'mv -i'
     abbr -a -- cp 'cp -i'
     abbr -a -- ln 'ln -si'
-    abbr -a -- ll 'ls -oh'
-    abbr -a -- la 'ls -oha'
+    abbr -a -- ls 'eza'
+    abbr -a -- ll 'eza -oh'
+    abbr -a -- la 'eza -oha'
     abbr -a -- mkdir 'mkdir -p'
-    abbr -a -- duc 'du -hs ./*'
+    abbr -a -- duc 'dust -r'
+    abbr -a -- cat 'bat'
 
     abbr -a -- up 'sudo dnf5 --refresh upgrade'
     abbr -a -- upy 'sudo dnf5 --refresh upgrade -y'
@@ -95,6 +97,11 @@ if status is-interactive
 
 
     alias drop-table="echo no way"
+
+
+    bind \ck backward-kill-line
+    bind \cu yank
+    bind \eu yank-pop
 
 
     set -U GOPATH /tmp/go

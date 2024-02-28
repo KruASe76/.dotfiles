@@ -128,7 +128,6 @@ class AbstractPlatform {
             tint_color: (0., 0., 0.),
             switcher_background_color: (0., 0., 0.),
             tint_blend: 0.0,
-            use_theme_color_for_tint_color: false,
             use_glitch_effect: false,
             use_tint: false,
             invert_swipes: false,
@@ -139,7 +138,7 @@ class AbstractPlatform {
     initBackground() {
     	this._background = Meta.BackgroundActor.new_for_screen(global.screen);
 		this._background.hide();
-        global.overlay_group.add_actor(this._background);
+        global.overlay_group.add_child(this._background);
     }
 
     dimBackground() {
@@ -152,7 +151,7 @@ class AbstractPlatform {
     }
 
     removeBackground() {
-    	global.overlay_group.remove_actor(this._background);
+    	global.overlay_group.remove_child(this._background);
     }
 }
 
@@ -174,11 +173,11 @@ export class PlatformGnomeShell extends AbstractPlatform {
             let widgetClass = this.getWidgetClass();
             let parent = new widgetClass({ visible: false, reactive: false, style_class: 'switcher-list'});
             let actor = new widgetClass({ visible: false, reactive: false, style_class: 'item-box' });
-            parent.add_actor(actor);
+            parent.add_child(actor);
             actor.add_style_pseudo_class('selected');
-            Main.uiGroup.add_actor(parent);
+            Main.uiGroup.add_child(parent);
             this._backgroundColor = actor.get_theme_node().get_background_color();
-            Main.uiGroup.remove_actor(parent);
+            Main.uiGroup.remove_child(parent);
             parent = null;
             let color = new GLib.Variant("(ddd)", [this._backgroundColor.red/255, this._backgroundColor.green/255, this._backgroundColor.blue/255]);
             this._extensionSettings.set_value("switcher-background-color", color);
@@ -229,7 +228,6 @@ export class PlatformGnomeShell extends AbstractPlatform {
             "tint-color",
             "tint-blend",
             "switcher-background-color",
-            "use-theme-color-for-tint-color",
             "use-glitch-effect",
             "invert-swipes",
         ];
@@ -349,7 +347,6 @@ export class PlatformGnomeShell extends AbstractPlatform {
                 tint_color: settings.get_value("tint-color").deep_unpack(),
                 tint_blend: settings.get_double("tint-blend"),
                 switcher_background_color: settings.get_value("switcher-background-color").deep_unpack(),
-                use_theme_color_for_tint_color: settings.get_boolean("use-theme-color-for-tint-color"),
                 use_glitch_effect: settings.get_boolean("use-glitch-effect"),
                 use_tint: settings.get_boolean("use-tint"),
                 invert_swipes: settings.get_boolean("invert-swipes"),
@@ -396,7 +393,7 @@ export class PlatformGnomeShell extends AbstractPlatform {
         } else if (params.transition == 'userChoice' && this.getSettings().easing_function == "ease-in-quad" ||
             params.transition == 'easeInQuad') {
             params.mode = Clutter.AnimationMode.EASE_IN_QUAD;
-        } else if (params.transition == 'userChoice' && this.getSettings().easing_function == "ease-out_quad" ||
+        } else if (params.transition == 'userChoice' && this.getSettings().easing_function == "ease-out-quad" ||
             params.transition == 'easeOutQuad') {
             params.mode = Clutter.AnimationMode.EASE_OUT_QUAD;
         } else if (params.transition == 'userChoice' && this.getSettings().easing_function == "ease-in-out-quad" ||
@@ -460,7 +457,7 @@ export class PlatformGnomeShell extends AbstractPlatform {
             params.transition == 'easeLinear') {
             params.mode = Clutter.AnimationMode.LINEAR;
         } else {
-            global.log("Could not find Clutter AnimationMode", params.transition, this.getSettings().easing_function);
+            log("Could not find Clutter AnimationMode", params.transition, this.getSettings().easing_function);
         }
 
         if (params.onComplete) {
@@ -504,7 +501,7 @@ export class PlatformGnomeShell extends AbstractPlatform {
 
         this._backgroundShade.add_effect(shade);
         
-        this._backgroundGroup.add_actor(this._backgroundShade);
+        this._backgroundGroup.add_child(this._backgroundShade);
         this._backgroundGroup.set_child_above_sibling(this._backgroundShade, null);
     
         this._backgroundGroup.hide();

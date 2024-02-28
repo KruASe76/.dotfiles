@@ -18,7 +18,6 @@ mozilla-openh264
 docker-ce
 links
 v4l2loopback
-prismlauncher
 steam
 android-tools
 betterdiscordctl
@@ -78,3 +77,8 @@ seahorse-nautilus
 hatch
 python3-distutils-extra
 nodejs
+java-1.8.0-openjdk
+prismlauncher-qt5
+btop
+bat
+eza

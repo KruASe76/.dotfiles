@@ -87,8 +87,8 @@ export class Switcher {
         this.actor = new widgetClass({ visible: true, reactive: true, });
         this.actor.hide();
         this.previewActor = new widgetClass({ visible: true, reactive: true});
-        this.actor.add_actor(this.previewActor);
-        Main.uiGroup.add_actor(this.actor);
+        this.actor.add_child(this.previewActor);
+        Main.uiGroup.add_child(this.actor);
         
         if (this._parent == null) {
             this._grabModal();
@@ -160,6 +160,59 @@ export class Switcher {
         if (this._parent == null) this._initialDelayTimeoutId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, INITIAL_DELAY_TIMEOUT, this.show.bind(this));
     }
 
+    show() {
+        let monitor = this._updateActiveMonitor();
+
+        // create previews
+        this._createPreviews();
+        for (let i = 0; i < this._windows.length; i++) {
+            this._getWindowTitle(i);
+        }
+
+        for (let preview of this._allPreviews) {
+            preview.set_reactive(false);
+            if (this._parent === null && this._settings.icon_style == "Attached" && this._previews.includes(preview)) {
+                preview.addIcon();
+            }
+            preview.connect('button-press-event', this._previewButtonPressEvent.bind(this, preview));
+        }
+
+        // hide windows and showcd  Coverflow actors
+        if (this._parent === null) global.window_group.hide();
+        
+        if (this._parent === null) this.actor.show();
+        if (this._parent !== null) {
+            this.previewActor.set_scale(0, 0);
+            this.previewActor.set_scale_z(0);
+
+            this._updateWindowTitle();
+            this._updatePreviews(false);
+           
+        }
+        this._enablePerspectiveCorrection();
+        this._initialDelayTimeoutId = 0;
+        for (let preview of this._allPreviews) {
+            if (!this._previews.includes(preview)) {
+                if (this._parent !== null) {
+                    preview.opacity = 0;
+                    preview.x = 0;
+                    preview.y = 0;
+                    preview.scale_x = 0;
+                    preview.scale_y = 0;
+                    preview.scale_z = 0;
+                }
+            }
+        }
+        if (this._parent == null) {
+            for (let switcher of this._subSwitchers.values()) {
+                switcher.show();
+            }
+            this._next();
+        }
+        this._getSwitcherBackgroundColor();
+
+    }
+    
     _gestureBegin(tracker) {
         const baseDistance = 400;
         const progress = this._currentIndex;
@@ -262,58 +315,7 @@ export class Switcher {
         }
     }
 
-    show() {
-        let monitor = this._updateActiveMonitor();
 
-        // create previews
-        this._createPreviews();
-        for (let i = 0; i < this._windows.length; i++) {
-            this._getWindowTitle(i);
-        }
-
-        for (let preview of this._allPreviews) {
-            preview.set_reactive(false);
-            if (this._parent === null && this._settings.icon_style == "Attached" && this._previews.includes(preview)) {
-                preview.addIcon();
-            }
-            preview.connect('button-press-event', this._previewButtonPressEvent.bind(this, preview));
-        }
-
-        // hide windows and showcd  Coverflow actors
-        if (this._parent === null) global.window_group.hide();
-        
-        if (this._parent === null) this.actor.show();
-        if (this._parent !== null) {
-            this.previewActor.set_scale(0, 0);
-            this.previewActor.set_scale_z(0);
-
-            this._updateWindowTitle();
-            this._updatePreviews(false);
-           
-        }
-        this._enablePerspectiveCorrection();
-        this._initialDelayTimeoutId = 0;
-        for (let preview of this._allPreviews) {
-            if (!this._previews.includes(preview)) {
-                if (this._parent !== null) {
-                    preview.opacity = 0;
-                    preview.x = 0;
-                    preview.y = 0;
-                    preview.scale_x = 0;
-                    preview.scale_y = 0;
-                    preview.scale_z = 0;
-                }
-            }
-        }
-        if (this._parent == null) {
-            for (let switcher of this._subSwitchers.values()) {
-                switcher.show();
-            }
-            this._next();
-        }
-        this._getSwitcherBackgroundColor();
-
-    }
 
     _stopClosing() {
         this._animatingClosed = false;
@@ -508,11 +510,11 @@ export class Switcher {
             let widgetClass = this._manager.platform.getWidgetClass();
             let parent = new widgetClass({ visible: false, reactive: false, style_class: 'switcher-list'});
             let actor = new widgetClass({ visible: false, reactive: false, style_class: 'item-box' });
-            parent.add_actor(actor);
+            parent.add_child(actor);
             actor.add_style_pseudo_class('selected');
-            Main.uiGroup.add_actor(parent);
+            Main.uiGroup.add_child(parent);
             this._backgroundColor = actor.get_theme_node().get_background_color();
-            Main.uiGroup.remove_actor(parent);
+            Main.uiGroup.remove_child(parent);
             parent = null;
             let color = new GLib.Variant("(ddd)", [this._backgroundColor.red/255, this._backgroundColor.green/255, this._backgroundColor.blue/255]);
             this._manager.platform._extensionSettings.set_value("switcher-background-color", color);
@@ -558,7 +560,7 @@ export class Switcher {
             text: this._windows[index].get_title(),
             opacity: 0
         });
-        this.previewActor.add_actor(window_title);
+        this.previewActor.add_child(window_title);
         let app_icon_size;
         let label_offset;
         if (this._settings.icon_style == "Classic") {
@@ -614,8 +616,8 @@ export class Switcher {
             });
         }
 
-        application_icon_box.add_actor(icon);
-        this.previewActor.add_actor(application_icon_box);
+        application_icon_box.set_child(icon);
+        this.previewActor.add_child(application_icon_box);
         this._windowIconBoxes[index] = application_icon_box;
     }
 
@@ -913,7 +915,7 @@ export class Switcher {
         if (this._parent === null) this._manager.platform.removeBackground();
 
         this._disablePerspectiveCorrection();
-        Main.uiGroup.remove_actor(this.actor);
+        Main.uiGroup.remove_child(this.actor);
     }
 
     animateClosed(reason=CloseReason.ACTIVATE_SELECTED) {

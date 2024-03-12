@@ -131,7 +131,7 @@ const PrivacyQuickToggle = GObject.registerClass(
 //Class for the privacy quick settings group
 const PrivacyQuickGroup = GObject.registerClass(
   class PrivacyQuickGroup extends QuickSettings.QuickMenuToggle {
-    _init(useQuickSubtitle) {
+    _init(useQuickSubtitle, clickToToggle) {
       //Set up the quick setting toggle
       super._init({
         title: _('Privacy'),
@@ -140,11 +140,20 @@ const PrivacyQuickGroup = GObject.registerClass(
       });
 
       //Set a menu header
-      this.menu.setHeader('preferences-system-privacy-symbolic', _('Privacy Settings'))
+      this.menu.setHeader('preferences-system-privacy-symbolic', _('Privacy Settings'));
 
-      //Open the menu when the body is clicked
+      //Open the menu or toggle all settings when the body is clicked
       this.connect('clicked', () => {
-        this.menu.open();
+        if (clickToToggle) {
+          //Enable / disable every setting according to its bind flag
+          let targetState = this.checked;
+          this._settingsInfo.forEach((settingInfo) => {
+            let newState = targetState ^ (settingInfo[2] == Gio.SettingsBindFlags.INVERT_BOOLEAN);
+            settingInfo[0].set_boolean(settingInfo[1], newState);
+          });
+        } else {
+          this.menu.open();
+        }
       });
 
       //GSettings access
@@ -175,8 +184,9 @@ const PrivacyQuickGroup = GObject.registerClass(
 
         //Update subtitle when settings changed
         let event = 'changed::' + this._settingsInfo[i][1];
-        this._settingsInfo[i][0].connectObject(event,
-          () => this._updateSubtitle(), this);
+        this._settingsInfo[i][0].connectObject(event, () => {
+          this._updateSubtitle(); this._updateVisualState();
+        }, this);
 
         //Link the setting value and the switch state
         this._settingsInfo[i][0].bind(
@@ -193,6 +203,23 @@ const PrivacyQuickGroup = GObject.registerClass(
       //Set the subtitle
       this._useQuickSubtitle = useQuickSubtitle;
       this._updateSubtitle();
+
+      //Set initial enabled / disabled
+      this._updateVisualState();
+    }
+
+    _updateVisualState() {
+      //If all of the privacy settings are disabled, set enableToggle to true
+      let enableToggle = true;
+      this._settingsInfo.forEach((settingInfo) => {
+        let settingEnabled = settingInfo[0].get_boolean(settingInfo[1]);
+        if (settingEnabled == (settingInfo[2] != Gio.SettingsBindFlags.INVERT_BOOLEAN)) {
+          enableToggle = false;
+        }
+      });
+
+      //Set the state of the menu toggle
+      this.checked = enableToggle;
     }
 
     _updateSubtitle() {
@@ -213,15 +240,15 @@ const PrivacyQuickGroup = GObject.registerClass(
       });
 
       if (enabledSettingsCount == 0) {
-        //If no settings are enabled, display 'All disabled'
-        this.subtitle = _('All disabled');
+        //If no settings are enabled, display 'Private'
+        this.subtitle = _('Private');
       } else if (enabledSettingsCount == 1) {
         //If 1 setting is enabled, mention it by name
         this.subtitle = enabledSettingName;
       } else {
         //If multiple are enabled, display how many
-        //Translators: this displays which setting is enabled, e.g. 'Location enabled'
-        this.subtitle = enabledSettingsCount + _(' enabled');
+        //Translators: this displays how many settings are enabled, e.g. '1 allowed'
+        this.subtitle = enabledSettingsCount + _(' allowed');
       }
     }
 
@@ -273,9 +300,9 @@ class QuickSettingsManager {
 }
 
 class QuickGroupManager {
-  constructor(useQuickSubtitle) {
+  constructor(useQuickSubtitle, clickToToggle) {
     //Create quick settings group and add to the system menu
-    this._quickSettingsGroup = new PrivacyQuickGroup(useQuickSubtitle);
+    this._quickSettingsGroup = new PrivacyQuickGroup(useQuickSubtitle, clickToToggle);
     let backgroundApps = QuickSettingsMenu._backgroundApps?.quickSettingsItems?.at(-1) ?? null;
     QuickSettingsMenu.menu.insertItemBefore(this._quickSettingsGroup, backgroundApps);
   }
@@ -375,7 +402,8 @@ class PrivacyExtension {
       this._privacyManager = new QuickSettingsManager();
     } else if (menuType == 'quick-group') {
       let useQuickSubtitle = this._extensionSettings.get_boolean('use-quick-subtitle')
-      this._privacyManager = new QuickGroupManager(useQuickSubtitle);
+      let clickToToggle = this._extensionSettings.get_boolean('click-to-toggle')
+      this._privacyManager = new QuickGroupManager(useQuickSubtitle, clickToToggle);
     } else if (menuType == 'indicator') {
       let forceIconRight = this._extensionSettings.get_boolean('move-icon-right');
       this._privacyManager = new IndicatorSettingsManager(forceIconRight);

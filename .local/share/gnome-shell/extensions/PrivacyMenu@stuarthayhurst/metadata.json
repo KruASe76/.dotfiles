@@ -9,9 +9,10 @@
   "name": "Privacy Quick Settings",
   "settings-schema": "org.gnome.shell.extensions.privacy-menu",
   "shell-version": [
-    "45"
+    "45",
+    "46"
   ],
   "url": "https://github.com/stuarthayhurst/privacy-menu-extension",
   "uuid": "PrivacyMenu@stuarthayhurst",
-  "version": 23
+  "version": 24
 }

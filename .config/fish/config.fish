@@ -79,7 +79,7 @@ if status is-interactive
 
     abbr -a -- mclocal '~/games/mcservers/Divine_1-$mclocal_version/'
     abbr -a mcrun "java -Xms2048M -Xmx8192M -jar server.jar nogui"
-    abbr -a mcdebug --set-cursor "java -Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005 -Xms2048M -Xmx2048M -jar % nogui"
+    abbr -a mcdebug --set-cursor "java -Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005 -Xms2048M -Xmx2048M -jar server.jar nogui"
 
     abbr -a -- webui-sd '~/stable-diffusion-webui/ && bash webui.sh --medvram --disable-nan-check --no-half-vae --xformers --gradio-img2img-tool color-sketch --gradio-inpaint-tool color-sketch'
     abbr -a -- webui-sd-cpu 'bash ~/stable-diffusion-webui/webui.sh --medvram --disable-nan-check --no-half-vae --use-cpu all --precision full --no-half --xformers'
@@ -121,3 +121,17 @@ if status is-interactive
     # firefox wayland fix
     set -U MOZ_ENABLE_WAYLAND 1
 end
+
+# >>> conda initialize >>>
+# !! Contents within this block are managed by 'conda init' !!
+if test -f /home/kruase/anaconda3/bin/conda
+    eval /home/kruase/anaconda3/bin/conda "shell.fish" "hook" $argv | source
+else
+    if test -f "/home/kruase/anaconda3/etc/fish/conf.d/conda.fish"
+        . "/home/kruase/anaconda3/etc/fish/conf.d/conda.fish"
+    else
+        set -x PATH "/home/kruase/anaconda3/bin" $PATH
+    end
+end
+# <<< conda initialize <<<
+

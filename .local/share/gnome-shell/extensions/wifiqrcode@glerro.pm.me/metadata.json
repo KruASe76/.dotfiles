@@ -7,9 +7,10 @@
   "gettext-domain": "gnome-shell-extension-wifiqrcode",
   "name": "Wifi QR Code",
   "shell-version": [
-    "45"
+    "45",
+    "46"
   ],
   "url": "https://gitlab.gnome.org/glerro/gnome-shell-extension-wifiqrcode",
   "uuid": "wifiqrcode@glerro.pm.me",
-  "version": 13
+  "version": 14
 }

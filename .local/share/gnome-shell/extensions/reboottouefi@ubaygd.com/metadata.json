@@ -5,9 +5,10 @@
   "license": "GPLv3",
   "name": "RebootToUEFI",
   "shell-version": [
-    "45"
+    "45",
+    "46"
   ],
   "url": "https://github.com/UbayGD/reboottouefi",
   "uuid": "reboottouefi@ubaygd.com",
-  "version": 17
+  "version": 18
 }

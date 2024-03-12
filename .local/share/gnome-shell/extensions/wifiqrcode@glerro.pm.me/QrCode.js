@@ -5,7 +5,7 @@
  *
  * QrCode.js
  *
- * Copyright (c) 2021-2023 Gianni Lerro {glerro} ~ <glerro@pm.me>
+ * Copyright (c) 2021-2024 Gianni Lerro {glerro} ~ <glerro@pm.me>
  *
  * Wifi QR Code is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by the
@@ -21,7 +21,7 @@
  * with Wifi QR Code. If not, see <https://www.gnu.org/licenses/>.
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
- * SPDX-FileCopyrightText: 2021-2023 Gianni Lerro <glerro@pm.me>
+ * SPDX-FileCopyrightText: 2021-2024 Gianni Lerro <glerro@pm.me>
  */
 
 'use strict';
@@ -36,11 +36,13 @@ import {gettext as _} from 'resource:///org/gnome/shell/extensions/extension.js'
 
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import * as MessageTray from 'resource:///org/gnome/shell/ui/messageTray.js';
+import * as Config from 'resource:///org/gnome/shell/misc/config.js';
 
 import Cairo from 'cairo';
 
 import * as QrCodeGen from './libs/qrcodegen.js';
 
+const SHELL_MAJOR = parseInt(Config.PACKAGE_VERSION.split('.')[0]);
 const MIN_SQUARE_SIZE = 1.0;
 const MIN_BORDER = 1;
 const MIN_WIDTH = 150;
@@ -64,7 +66,7 @@ export const QrCodeBox = GObject.registerClass({
         this._extensionName = this._extension.metadata.name;
 
         let _qrCodeActor = new QrCodeActor(this._extension, this._getWifiSettingsString(device), 200, 2);
-        this.add_actor(_qrCodeActor);
+        this.add_child(_qrCodeActor);
     }
 
     _getWifiSettingsString(device) {
@@ -148,10 +150,10 @@ export const QrCodeBox = GObject.registerClass({
     }
 });
 
-// Extend the Actor class from Clutter.
+// Extend the DrawingArea class from St.
 const QrCodeActor = GObject.registerClass({
     GTypeName: 'QrCodeActor',
-}, class QrCodeActor extends Clutter.Actor {
+}, class QrCodeActor extends St.DrawingArea {
     constructor(extension, qrcodetext = 'Invalid Text', size = 100, border = 2) {
         super({
             layout_manager: new Clutter.BinLayout(),
@@ -175,19 +177,11 @@ const QrCodeActor = GObject.registerClass({
         this._qrcode = QRC.encodeText(this._qrcodetext, QRC.Ecc.MEDIUM);
 
         if (this._qrcode !== null || this._qrcode !== undefined) {
-            // Create a 2D canvas, courtesy of Clutter
-            this.canvas = new Clutter.Canvas();
-            this.canvas.set_size(this._size, this._size);
-
-            // Add the canvas to the Clutter Actor
-            this.set_content(this.canvas);
             this.set_size(this._size, this._size);
+            this.connectObject('repaint', this.draw.bind(this), this);
 
-            // Connect the draw signal to the draw function
-            this.canvas.connectObject('draw',  (canvas, cr, width, height) => this.draw(canvas, cr, width, height), this);
-
-            // Invalidate the canvas to emitt the draw signal
-            this.canvas.invalidate();
+            // Emitt the repaint signal
+            this.queue_repaint();
         } else {
             console.log(`${this._extensionName}: An error occurred generating the QR Code`);
         }
@@ -253,7 +247,14 @@ const QrCodeActor = GObject.registerClass({
                 Clipboard.set_content(CLIPBOARD_TYPE, 'image/png', data);
 
                 // Show Notification
-                this._notifySource = new MessageTray.Source('', 'edit-paste-symbolic');
+                if (SHELL_MAJOR > 45) {
+                    this._notifySource = new MessageTray.Source({
+                        title: 'Gnome Shell Extension',
+                        iconName: 'edit-paste-symbolic',
+                    });
+                } else {
+                    this._notifySource = new MessageTray.Source('', 'edit-paste-symbolic');
+                }
                 this._notifySource.connectObject('destroy', () => (this._notifySource = null), this);
                 Main.messageTray.add(this._notifySource);
 
@@ -265,14 +266,16 @@ const QrCodeActor = GObject.registerClass({
         }
     }
 
-    // Draw the QR Code into the Clutter.Actor content
-    draw(canvas, cr, width, height) {
+    // Draw the QR Code into the St.DrawingArea
+    draw() {
         let _qrSize = this._qrcode.size;
         let _border = this._border;
 
+        let [width, height] = this.get_surface_size();
         let _rowSize = _border + _qrSize + _border;
         let _squareSize = (width / _rowSize) < MIN_SQUARE_SIZE ? MIN_SQUARE_SIZE : width / _rowSize;
 
+        let cr = this.get_context();
         // Set Antialiasing mode to none (bilevel alpha mask)
         cr.setAntialias(Cairo.Antialias.NONE);
 

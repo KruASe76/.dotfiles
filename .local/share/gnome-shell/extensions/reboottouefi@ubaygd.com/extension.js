@@ -13,11 +13,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- * SPDX-License-Identifier: GPL-2.0-or-later
+ * SPDX-License-Identifier: GPL-3.0-only
  */
-
 /* exported init */
-
 import GLib from 'gi://GLib';
 import Gio from 'gi://Gio';
 import Clutter from 'gi://Clutter';
@@ -26,8 +24,7 @@ import Pango from 'gi://Pango';
 import { panel } from 'resource:///org/gnome/shell/ui/main.js';
 import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
 import * as ModalDialog from 'resource:///org/gnome/shell/ui/modalDialog.js';
-import {Extension, gettext as _} from 'resource:///org/gnome/shell/extensions/extension.js';
-
+import { Extension, gettext as _, } from 'resource:///org/gnome/shell/extensions/extension.js';
 const ManagerInterface = `<node>
   <interface name="org.freedesktop.login1.Manager">
     <method name="SetRebootToFirmwareSetup">
@@ -39,151 +36,124 @@ const ManagerInterface = `<node>
   </interface>
 </node>`;
 const Manager = Gio.DBusProxy.makeProxyWrapper(ManagerInterface);
-
 export default class RebootToUefiExtension extends Extension {
-  menu;
-  proxy;
-  rebootToUefiItem;
-  /** @type {number} */
-  counter;
-  /** @type {number} */
-  seconds;
-  /** @type {number} */
-  counterIntervalId;
-  /** @type {number} */
-  messageIntervalId;
-  sourceId;
-
-  _modifySystemItem() {
-    this.menu = panel.statusArea.quickSettings._system?.quickSettingsItems[0].menu;
-
-    this.proxy = new Manager(Gio.DBus.system, 'org.freedesktop.login1', '/org/freedesktop/login1');
-
-    this.rebootToUefiItem = new PopupMenu.PopupMenuItem(`${_('Restart to UEFI')}...`);
-
-    this.rebootToUefiItem.connect('activate', () => {
-      this.counter = 60;
-      this.seconds = this.counter;
-
-      const dialog = this._buildDialog();
-      dialog.open();
-
-      this.counterIntervalId = setInterval(() => {
-        if (this.counter > 0) {
-          this.counter--;
-          if (this.counter % 10 === 0) {
+    menu;
+    proxy;
+    rebootToUefiItem;
+    counter;
+    seconds;
+    counterIntervalId;
+    messageIntervalId;
+    sourceId;
+    constructor(metadata) {
+        super(metadata);
+    }
+    _modifySystemItem() {
+        this.menu =
+            panel.statusArea.quickSettings._system?.quickSettingsItems[0].menu;
+        this.proxy = Manager(Gio.DBus.system, 'org.freedesktop.login1', '/org/freedesktop/login1');
+        this.rebootToUefiItem = new PopupMenu.PopupMenuItem(`${_('Restart to UEFI')}...`);
+        this.rebootToUefiItem.connect('activate', () => {
+            this.counter = 60;
             this.seconds = this.counter;
-          }
-        } else {
-          this._clearIntervals();
-          this._reboot();
+            const dialog = this._buildDialog();
+            dialog.open(Date.now(), true);
+            this.counterIntervalId = setInterval(() => {
+                if (this.counter > 0) {
+                    this.counter--;
+                    if (this.counter % 10 === 0) {
+                        this.seconds = this.counter;
+                    }
+                }
+                else {
+                    this._clearIntervals();
+                    this._reboot();
+                }
+            }, 1000);
+        });
+        this.menu.addMenuItem(this.rebootToUefiItem, 2);
+    }
+    _queueModifySystemItem() {
+        this.sourceId = GLib.idle_add(GLib.PRIORITY_DEFAULT, () => {
+            if (!panel.statusArea.quickSettings._system)
+                return GLib.SOURCE_CONTINUE;
+            this._modifySystemItem();
+            return GLib.SOURCE_REMOVE;
+        });
+    }
+    enable() {
+        if (!panel.statusArea.quickSettings._system) {
+            this._queueModifySystemItem();
         }
-      }, 1000);
-
-    });
-
-    this.menu.addMenuItem(this.rebootToUefiItem, 2);
-  }
-
-  _queueModifySystemItem() {
-    this.sourceId = GLib.idle_add(GLib.PRIORITY_DEFAULT, () => {
-        if (!panel.statusArea.quickSettings._system)
-            return GLib.SOURCE_CONTINUE;
-
-        this._modifySystemItem();
-        return GLib.SOURCE_REMOVE;
-    });
-  }
-
-  constructor(metadata) {
-    super(metadata);
-  }
-
-  enable() {
-    if (!panel.statusArea.quickSettings._system) {
-      this._queueModifySystemItem();
-    } else {
-      this._modifySystemItem();
+        else {
+            this._modifySystemItem();
+        }
     }
-  }
-
-  disable() {
-    this._clearIntervals();
-    this.rebootToUefiItem?.destroy();
-    this.rebootToUefiItem = null;
-    this.proxy = null;
-    if (this.sourceId) {
-      GLib.Source.remove(this.sourceId);
-      this.sourceId = null;
+    disable() {
+        this._clearIntervals();
+        this.rebootToUefiItem?.destroy();
+        this.rebootToUefiItem = null;
+        this.proxy = null;
+        if (this.sourceId) {
+            GLib.Source.remove(this.sourceId);
+            this.sourceId = null;
+        }
     }
-  }
-
-  _reboot() {
-    this.proxy.SetRebootToFirmwareSetupRemote(true);
-    this.proxy.RebootRemote(false);
-  }
-
-  _buildDialog() {
-    const dialog = new ModalDialog.ModalDialog({styleClass: "modal-dialog"});
-    dialog.setButtons([
-      {
-        label: _("Cancel"),
-        action: () => {
-          this._clearIntervals();
-          dialog.close();
-        },
-        key: Clutter.KEY_Escape,
-        default: false,
-      },
-      {
-        label: _("Restart"),
-        action: () => {
-          this._clearIntervals();
-          this._reboot();
-        },
-        default: false,
-      },
-    ]);
-
-    const dialogTitle = new St.Label({
-      text: _('Restart to UEFI'),
-      // style_class: 'dialog-title' // TODO investigate why css classes are not working
-      style: "font-weight: bold;font-size:18px"
-    });
-
-    let dialogMessage = new St.Label({
-      text: this._getDialogMessageText(),
-    });
-    dialogMessage.clutter_text.ellipsize = Pango.EllipsizeMode.NONE;
-    dialogMessage.clutter_text.line_wrap = true;
-
-    const titleBox = new St.BoxLayout({
-      x_align: Clutter.ActorAlign.CENTER,
-    });
-    titleBox.add(new St.Label({ text: '  ' }));
-    titleBox.add(dialogTitle);
-
-    let box = new St.BoxLayout({ y_expand: true, vertical: true });
-    box.add(titleBox);
-    box.add(new St.Label({ text: '  ' }));
-    box.add(dialogMessage);
-
-    this.messageIntervalId = setInterval(() => {
-      dialogMessage?.set_text(this._getDialogMessageText());
-    }, 500);
-
-    dialog.contentLayout.add(box);
-
-    return dialog;
-  }
-
-  _getDialogMessageText() {
-    return _(`The system will restart automatically in %d seconds.`).replace('%d', this.seconds);
-  }
-
-  _clearIntervals() {
-    clearInterval(this.counterIntervalId);
-    clearInterval(this.messageIntervalId);
-  }
-
+    _reboot() {
+        this.proxy?.SetRebootToFirmwareSetupRemote(true);
+        this.proxy?.RebootRemote(false);
+    }
+    _buildDialog() {
+        const dialog = new ModalDialog.ModalDialog({ styleClass: 'modal-dialog' });
+        dialog.setButtons([
+            {
+                label: _('Cancel'),
+                action: () => {
+                    this._clearIntervals();
+                    dialog.close(Date.now());
+                },
+                key: Clutter.KEY_Escape,
+                default: false,
+            },
+            {
+                label: _('Restart'),
+                action: () => {
+                    this._clearIntervals();
+                    this._reboot();
+                },
+                default: false,
+            },
+        ]);
+        const dialogTitle = new St.Label({
+            text: _('Restart to UEFI'),
+            // style_class: 'dialog-title' // TODO investigate why css classes are not working
+            style: 'font-weight: bold;font-size:18px',
+        });
+        let dialogMessage = new St.Label({
+            text: this._getDialogMessageText(),
+        });
+        dialogMessage.clutterText.ellipsize = Pango.EllipsizeMode.NONE;
+        dialogMessage.clutterText.lineWrap = true;
+        const titleBox = new St.BoxLayout({
+            xAlign: Clutter.ActorAlign.CENTER,
+        });
+        titleBox.add_child(new St.Label({ text: '  ' }));
+        titleBox.add_child(dialogTitle);
+        let box = new St.BoxLayout({ yExpand: true, vertical: true });
+        box.add_child(titleBox);
+        box.add_child(new St.Label({ text: '  ' }));
+        box.add_child(dialogMessage);
+        this.messageIntervalId = setInterval(() => {
+            dialogMessage?.set_text(this._getDialogMessageText());
+        }, 500);
+        dialog.contentLayout.add_child(box);
+        return dialog;
+    }
+    _getDialogMessageText() {
+        return _(`The system will restart automatically in %d seconds.`).replace('%d', String(this.seconds));
+    }
+    _clearIntervals() {
+        clearInterval(this.counterIntervalId);
+        clearInterval(this.messageIntervalId);
+    }
 }

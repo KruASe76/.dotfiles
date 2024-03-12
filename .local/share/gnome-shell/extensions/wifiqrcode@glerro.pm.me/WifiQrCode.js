@@ -5,7 +5,7 @@
  *
  * WifiQrCode.js
  *
- * Copyright (c) 2021-2023 Gianni Lerro {glerro} ~ <glerro@pm.me>
+ * Copyright (c) 2021-2024 Gianni Lerro {glerro} ~ <glerro@pm.me>
  *
  * Wifi QR Code is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by the
@@ -21,7 +21,7 @@
  * with Wifi QR Code. If not, see <https://www.gnu.org/licenses/>.
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
- * SPDX-FileCopyrightText: 2021-2023 Gianni Lerro <glerro@pm.me>
+ * SPDX-FileCopyrightText: 2021-2024 Gianni Lerro <glerro@pm.me>
  */
 
 'use strict';
@@ -55,9 +55,10 @@ export class WifiQrCode {
             this._timeoutId = null;
         }
 
-        this._network = Main.panel.statusArea.quickSettings._network;
+        this._quickSettings = Main.panel.statusArea.quickSettings;
 
-        if (this._network) {
+        if (this._quickSettings._network) {
+            this._network = this._quickSettings._network;
             if (!this._network._client) {
                 // Shell not initialized completely wait for max of 100 * 1s
                 console.log(`${this._extensionName}: Gnome Shell is not inizialized`);
@@ -73,6 +74,13 @@ export class WifiQrCode {
 
                 this._signalManager.addSignal(this._client, 'device-added', this._deviceAdded.bind(this));
                 this._signalManager.addSignal(this._client, 'device-removed', this._deviceRemoved.bind(this));
+            }
+        } else {
+            // Shell not initialized completely wait for max of 100 * 1s
+            console.log(`${this._extensionName}: Gnome Shell is not inizialized`);
+            if ((this._nAttempts += 1) < 100) {
+                this._timeoutId = GLib.timeout_add(GLib.PRIORITY_DEFAULT,
+                    1000, this._checkDevices.bind(this));
             }
         }
     }
@@ -122,8 +130,8 @@ export class WifiQrCode {
 
                 wrapper.QrCodeBox = new QrCode.QrCodeBox(this._extension, device, false);
 
-                wrapper.QrCodeMenuSection.actor.add(wrapper.switchMenuItem);
-                wrapper.QrCodeMenuSection.actor.add(wrapper.QrCodeBox);
+                wrapper.QrCodeMenuSection.actor.add_child(wrapper.switchMenuItem);
+                wrapper.QrCodeMenuSection.actor.add_child(wrapper.QrCodeBox);
 
                 // Add a timer to automatically close the switch menu for privacy
                 wrapper.switchMenuItem.connectObject('toggled', () => {

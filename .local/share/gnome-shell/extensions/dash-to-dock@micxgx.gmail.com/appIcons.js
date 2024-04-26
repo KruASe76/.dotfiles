@@ -40,7 +40,7 @@ import {Extension} from './dependencies/shell/extensions/extension.js';
 
 // Use __ () and N__() for the extension gettext domain, and reuse
 // the shell domain with the default _() and N_()
-const {gettext: __} = Extension;
+const {gettext: __, ngettext} = Extension;
 
 const DBusMenu = await DBusMenuUtils.haveDBusMenu();
 
@@ -377,7 +377,7 @@ const DockAbstractAppIcon = GObject.registerClass({
     }
 
     /**
-     * Update taraget for minimization animation
+     * Update target for minimization animation
      */
     updateIconGeometry() {
         // If (for unknown reason) the actor is not on the stage the reported size
@@ -997,7 +997,7 @@ const DockAppIconMenu = class DockAppIconMenu extends PopupMenu.PopupMenu {
         });
         source.connect('destroy', () => this.destroy());
 
-        Main.uiGroup.add_actor(this.actor);
+        Main.uiGroup.add_child(this.actor);
 
         const {remoteModel} = Docking.DockManager.getDefault();
         const remoteModelApp = remoteModel?.lookupById(this._source?.app?.id);
@@ -1148,7 +1148,7 @@ const DockAppIconMenu = class DockAppIconMenu extends PopupMenu.PopupMenu {
             if (Shell.AppSystem.get_default().lookup_app('org.gnome.Software.desktop') &&
                 (this._source instanceof DockAppIcon)) {
                 this._appendSeparator();
-                const item = this._appendMenuItem(_('Show Details'));
+                const item = this._appendMenuItem(_('App Details'));
                 item.connect('activate', () => {
                     const id = this._source.app.get_id();
                     const args = GLib.Variant.new('(ss)', [id, '']);
@@ -1199,7 +1199,8 @@ const DockAppIconMenu = class DockAppIconMenu extends PopupMenu.PopupMenu {
             if (this._source.windowsCount === 1) {
                 this._quitMenuItem.label.set_text(_('Quit'));
             } else {
-                this._quitMenuItem.label.set_text(__('Quit %d Windows').format(
+                this._quitMenuItem.label.set_text(ngettext(
+                    'Quit %d Window', 'Quit %d Windows', this._source.windowsCount).format(
                     this._source.windowsCount));
             }
 
@@ -1361,6 +1362,14 @@ export const DockShowAppsIcon = GObject.registerClass({
         this._menu = null;
         this._menuManager = new PopupMenu.PopupMenuManager(this);
         this._menuTimeoutId = 0;
+    }
+
+    _createIcon(size) {
+        this._iconActor = super._createIcon(size);
+        this._iconActor.fallbackIconName = this._iconActor.iconName;
+        this._iconActor.fallbackGicon = this._iconActor.gicon;
+        this._iconActor.iconName = `view-app-grid-${Main.sessionMode.currentMode}-symbolic`;
+        return this._iconActor;
     }
 
     vfunc_leave_event(...args) {

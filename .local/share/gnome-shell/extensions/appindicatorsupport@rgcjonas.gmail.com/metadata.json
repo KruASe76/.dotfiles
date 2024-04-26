@@ -5,9 +5,10 @@
   "name": "AppIndicator and KStatusNotifierItem Support",
   "settings-schema": "org.gnome.shell.extensions.appindicator",
   "shell-version": [
-    "45"
+    "45",
+    "46"
   ],
   "url": "https://github.com/ubuntu/gnome-shell-extension-appindicator",
   "uuid": "appindicatorsupport@rgcjonas.gmail.com",
-  "version": 57
+  "version": 58
 }

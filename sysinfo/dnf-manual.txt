@@ -19,8 +19,8 @@ docker-ce
 links
 v4l2loopback
 steam
+portproton
 android-tools
-betterdiscordctl
 catimg
 chromedriver
 chromium
@@ -31,6 +31,7 @@ cpufetch
 fastfetch
 fastfetch-bash-completion
 ffmpeg-free
+mpv
 fzf
 git-lfs
 gparted
@@ -44,8 +45,6 @@ unrar
 vim
 xclip
 ydotool
-goverlay
-icoutils
 adw-gtk3-theme
 xorg-x11-drv-nvidia-cuda
 bridge-utils
@@ -65,7 +64,6 @@ pandoc
 trash-cli
 smartmontools
 figlet
-java-17-openjdk-devel
 libgda
 libgda-sqlite
 community-mysql-server
@@ -77,8 +75,19 @@ seahorse-nautilus
 hatch
 python3-distutils-extra
 nodejs
-java-1.8.0-openjdk
+yarn
+java-1.8.0-openjdk-devel
+java-11-openjdk-devel
+java-17-openjdk-devel
+java-21-openjdk-devel
 prismlauncher-qt5
+obs-studio
 btop
 bat
 eza
+opencv
+opencv-contrib
+opencv-doc
+python3-opencv
+python3-matplotlib
+python3-numpy

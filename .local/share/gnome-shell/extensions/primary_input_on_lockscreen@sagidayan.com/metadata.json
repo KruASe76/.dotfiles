@@ -7,9 +7,10 @@
     "user"
   ],
   "shell-version": [
-    "45"
+    "45",
+    "46"
   ],
   "url": "https://gitlab.com/sagidayan/primary-input-on-lockscreen",
   "uuid": "primary_input_on_lockscreen@sagidayan.com",
-  "version": 7
+  "version": 8
 }

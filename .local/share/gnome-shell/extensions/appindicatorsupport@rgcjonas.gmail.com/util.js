@@ -19,8 +19,6 @@ import GLib from 'gi://GLib';
 import GObject from 'gi://GObject';
 import St from 'gi://St';
 
-const ByteArray = imports.byteArray;
-
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 import * as Config from 'resource:///org/gnome/shell/misc/config.js';
 import * as Signals from 'resource:///org/gnome/shell/misc/signals.js';
@@ -102,7 +100,8 @@ export async function getProcessName(connectionName, cancellable = null,
     const cmdFile = Gio.File.new_for_path(`/proc/${pid}/cmdline`);
     const inputStream = await cmdFile.read_async(priority, cancellable);
     const bytes = await inputStream.read_bytes_async(2048, priority, cancellable);
-    return ByteArray.toString(bytes.toArray().map(v => !v ? 0x20 : v));
+    const textDecoder = new TextDecoder();
+    return textDecoder.decode(bytes.toArray().map(v => !v ? 0x20 : v));
 }
 
 export async function* introspectBusObject(bus, name, cancellable,
@@ -374,6 +373,20 @@ export function tryCleanupOldIndicators() {
     }
 
     new Set(indicators).forEach(i => i.destroy());
+}
+
+export function addActor(obj, actor) {
+    if (obj.add_actor)
+        obj.add_actor(actor);
+    else
+        obj.add_child(actor);
+}
+
+export function removeActor(obj, actor) {
+    if (obj.remove_actor)
+        obj.remove_actor(actor);
+    else
+        obj.remove_child(actor);
 }
 
 export const CancellableChild = GObject.registerClass({

@@ -130,6 +130,11 @@ export class DbusMenuItem extends Signals.EventEmitter {
         this.emit('property-changed', prop, this.propertyGetVariant(prop));
     }
 
+    resetProperties() {
+        Object.entries(PropertyStore.DefaultValues).forEach(([prop, value]) =>
+            this.propertySet(prop, value));
+    }
+
     getChildrenIds() {
         return this._children_ids.concat(); // clone it!
     }
@@ -296,6 +301,8 @@ export const DBusClient = GObject.registerClass({
             const item = this._items.get(id);
             if (!item)
                 return;
+
+            item.resetProperties();
 
             for (const [prop, value] of Object.entries(properties))
                 item.propertySet(prop, value);
@@ -495,6 +502,9 @@ export const DBusClient = GObject.registerClass({
 
     // we don't need to cache and burst-send that since it will not happen that frequently
     async sendAboutToShow(id) {
+        if (this._hasAboutToShow === false)
+            return;
+
         /* Some indicators (you, dropbox!) don't use the right signature
          * and don't return a boolean, so we need to support both cases */
         try {
@@ -507,6 +517,11 @@ export const DBusClient = GObject.registerClass({
                 ret.is_of_type(new GLib.VariantType('()')))
                 this._requestLayoutUpdate();
         } catch (e) {
+            if (e.matches(Gio.DBusError, Gio.DBusError.UNKNOWN_METHOD) ||
+                e.matches(Gio.DBusError, Gio.DBusError.FAILED)) {
+                this._hasAboutToShow = false;
+                return;
+            }
             if (!e.matches(Gio.IOErrorEnum, Gio.IOErrorEnum.CANCELLED))
                 logError(e);
         }

@@ -43,6 +43,7 @@ const {signals: Signals} = imports;
 
 const DOCK_DWELL_CHECK_INTERVAL = 100;
 const ICON_ANIMATOR_DURATION = 3000;
+const STARTUP_ANIMATION_TIME = 500;
 
 export const State = Object.freeze({
     HIDDEN:  0,
@@ -243,6 +244,10 @@ const DockedDash = GObject.registerClass({
         this._autohideIsEnabled = null;
         this._intellihideIsEnabled = null;
 
+        // This variable marks if Meta.disable_unredirect_for_display() is called
+        // to help restore the original state when intelihide is disabled.
+        this._unredirectDisabled = false;
+
         // Create intellihide object to monitor windows overlapping
         this._intellihide = new Intellihide.Intellihide(this.monitorIndex);
 
@@ -397,7 +402,7 @@ const DockedDash = GObject.registerClass({
         // Add dash container actor and the container to the Chrome.
         this.set_child(this._slider);
         this._slider.set_child(this._box);
-        this._box.add_actor(this.dash);
+        this._box.add_child(this.dash);
 
         // Add aligning container without tracking it for input region
         this._trackDock();
@@ -463,7 +468,6 @@ const DockedDash = GObject.registerClass({
         if (Main.overview.visibleTarget)
             this._onOverviewShowing();
 
-
         this._updateAutoHideBarriers();
     }
 
@@ -480,6 +484,8 @@ const DockedDash = GObject.registerClass({
 
         if (this._triggerTimeoutId)
             GLib.source_remove(this._triggerTimeoutId);
+
+        this._restoreUnredirect();
 
         // Remove barrier timeout
         if (this._removeBarrierTimeoutId > 0)
@@ -662,6 +668,13 @@ const DockedDash = GObject.registerClass({
         ]);
     }
 
+    _restoreUnredirect() {
+        if (this._unredirectDisabled) {
+            Meta.enable_unredirect_for_display(global.display);
+            this._unredirectDisabled = false;
+        }
+    }
+
     /**
      * This is call when visibility settings change
      */
@@ -680,10 +693,12 @@ const DockedDash = GObject.registerClass({
         else
             this.remove_style_class_name('autohide');
 
-        if (this._intellihideIsEnabled)
+        if (this._intellihideIsEnabled) {
             this._intellihide.enable();
-        else
+        } else {
             this._intellihide.disable();
+            this._restoreUnredirect();
+        }
 
         this._updateDashVisibility();
     }
@@ -813,6 +828,10 @@ const DockedDash = GObject.registerClass({
     }
 
     _animateIn(time, delay) {
+        if (!this._unredirectDisabled && this._intellihideIsEnabled) {
+            Meta.disable_unredirect_for_display(global.display);
+            this._unredirectDisabled = true;
+        }
         this._dockState = State.SHOWING;
         this.dash.iconAnimator.start();
         this._delayedHide = false;
@@ -850,6 +869,10 @@ const DockedDash = GObject.registerClass({
             mode: Clutter.AnimationMode.EASE_OUT_QUAD,
             onComplete: () => {
                 this._dockState = State.HIDDEN;
+                if (this._intellihideIsEnabled && this._unredirectDisabled) {
+                    Meta.enable_unredirect_for_display(global.display);
+                    this._unredirectDisabled = false;
+                }
                 // Remove queued barried removal if any
                 if (this._removeBarrierTimeoutId > 0)
                     GLib.source_remove(this._removeBarrierTimeoutId);
@@ -866,7 +889,7 @@ const DockedDash = GObject.registerClass({
         // If we don't have extended barrier features, then we need
         // to support the old tray dwelling mechanism.
         if (this._autohideIsEnabled &&
-            (!global.display.supports_extended_barriers() ||
+            (!Utils.supportsExtendedBarriers() ||
              !DockManager.settings.requirePressureToShow)) {
             const pointerWatcher = PointerWatcher.getPointerWatcher();
             this._dockWatch = pointerWatcher.addWatch(
@@ -954,7 +977,7 @@ const DockedDash = GObject.registerClass({
 
     _updatePressureBarrier() {
         const {settings} = DockManager;
-        this._canUsePressure = global.display.supports_extended_barriers();
+        this._canUsePressure = Utils.supportsExtendedBarriers();
         const {pressureThreshold} = settings;
 
         // Remove existing pressure barrier
@@ -1115,7 +1138,7 @@ const DockedDash = GObject.registerClass({
 
             if (this._pressureBarrier && this._dockState === State.HIDDEN) {
                 this._barrier = new Meta.Barrier({
-                    display: global.display,
+                    backend: global.backend,
                     x1,
                     x2,
                     y1,
@@ -2064,7 +2087,7 @@ export class DockManager {
         this.emit('docks-ready');
     }
 
-    _prepareStartupAnimation(callback) {
+    _prepareStartupAnimation() {
         DockManager.allDocks.forEach(dock => {
             const {dash} = dock;
 
@@ -2075,36 +2098,9 @@ export class DockManager {
                 translation_y: 0,
             });
         });
-
-        // We need to ensure that if docks are destroyed before animation is
-        // completed, then we still ensure the animation runs anyways.
-        const label = Labels.STARTUP_ANIMATION;
-        this._signalsHandler.removeWithLabel(label);
-
-        // This shouldn't really ever happen, but in theory the manager
-        // could be destroyed at any time, in such case complete the animation
-        this._signalsHandler.addWithLabel(label, this, 'destroy', () =>
-            Main.overview.runStartupAnimation(callback));
-
-        const waitForDocksReady = () => {
-            global.window_group.remove_clip();
-            this._signalsHandler.addWithLabel(label, this, 'docks-ready', () => {
-                this._signalsHandler.removeWithLabel(label);
-                Main.overview.runStartupAnimation(callback);
-            });
-        };
-
-        if (this._allDocks.length) {
-            this._signalsHandler.addWithLabel(label, this, 'docks-destroyed',
-                () => waitForDocksReady());
-        } else {
-            waitForDocksReady();
-        }
     }
 
-    _runStartupAnimation(callback) {
-        const {STARTUP_ANIMATION_TIME} = Layout;
-
+    _runStartupAnimation() {
         DockManager.allDocks.forEach(dock => {
             const {dash} = dock;
 
@@ -2123,23 +2119,12 @@ export class DockManager {
                 break;
             }
 
-            const mainDockProperties = {};
-            if (dock === this.mainDock) {
-                mainDockProperties.onComplete = () => {
-                    this._signalsHandler.removeWithLabel(Labels.STARTUP_ANIMATION);
-                    if (callback)
-                        callback();
-                };
-            }
-
             dash.ease({
                 opacity: 255,
                 translation_x: 0,
                 translation_y: 0,
-                delay: STARTUP_ANIMATION_TIME,
                 duration: STARTUP_ANIMATION_TIME,
                 mode: Clutter.AnimationMode.EASE_OUT_QUAD,
-                ...mainDockProperties,
             });
         });
     }
@@ -2199,113 +2184,14 @@ export class DockManager {
                 return [0, 0];
             });
 
-        const {ControlsManager} = OverviewControls;
         // FIXME: https://gitlab.gnome.org/GNOME/gnome-shell/-/merge_requests/2890
         // const { ControlsManagerLayout } = OverviewControls;
         const ControlsManagerLayout = this.overviewControls.layout_manager.constructor;
 
-        this._methodInjections.removeWithLabel(Labels.STARTUP_ANIMATION);
-        this._methodInjections.addWithLabel(Labels.STARTUP_ANIMATION,
-            Main.layoutManager.constructor.prototype, '_startupAnimationComplete',
-            originalMethod => {
-                originalMethod.call(Main.layoutManager);
-                this._methodInjections.removeWithLabel(Labels.STARTUP_ANIMATION);
-                this._signalsHandler.removeWithLabel(Labels.STARTUP_ANIMATION);
-            });
-
-        if (Main.layoutManager._startingUp && Main.layoutManager._waitLoaded) {
-            // Disable this on versions that will include:
-            //  https://gitlab.gnome.org/GNOME/gnome-shell/-/merge_requests/2763
-            this._methodInjections.addWithLabel(Labels.STARTUP_ANIMATION,
-                Main.layoutManager.constructor.prototype,
-                '_prepareStartupAnimation', function (originalMethod, ...args) {
-                    /* eslint-disable no-invalid-this */
-                    const dockManager = DockManager.getDefault();
-                    const temporaryInjections = new Utils.InjectionsHandler(
-                        dockManager);
-
-                    const waitLoadedHandlingMonitors = (_, bgManager) => {
-                        return new Promise((resolve, reject) => {
-                            const connections = new Utils.GlobalSignalsHandler(
-                                dockManager);
-                            connections.add(bgManager, 'loaded', () => {
-                                connections.destroy();
-                                resolve();
-                            });
-
-                            connections.add(Utils.getMonitorManager(), 'monitors-changed', () => {
-                                connections.destroy();
-
-                                reject(new GLib.Error(Gio.IOErrorEnum,
-                                    Gio.IOErrorEnum.CANCELLED, 'Loading was cancelled'));
-                            });
-                        });
-                    };
-
-                    async function updateBg(originalUpdateBg, ...bgArgs) {
-                        while (true) {
-                            try {
-                                // eslint-disable-next-line no-await-in-loop
-                                await originalUpdateBg.call(this, ...bgArgs);
-                                break;
-                            } catch (e) {
-                                if (!e.matches(Gio.IOErrorEnum, Gio.IOErrorEnum.CANCELLED)) {
-                                    logError(e);
-                                    return;
-                                }
-                            }
-                        }
-                    }
-
-                    temporaryInjections.add(this.constructor.prototype,
-                        '_waitLoaded', waitLoadedHandlingMonitors);
-                    temporaryInjections.add(this.constructor.prototype,
-                        '_updateBackgrounds', updateBg);
-
-                    dockManager._signalsHandler.addWithLabel(Labels.STARTUP_ANIMATION,
-                        Utils.getMonitorManager(), 'monitors-changed', () => {
-                            const {x, y, width, height} = this.primaryMonitor;
-                            global.window_group.set_clip(x, y, width, height);
-                            this._coverPane?.set({
-                                width: global.screen_width,
-                                height: global.screen_height,
-                            });
-                        });
-
-                    try {
-                        originalMethod.call(this, ...args);
-                    } finally {
-                        temporaryInjections.destroy();
-                    }
-                    /* eslint-enable no-invalid-this */
-                });
-        }
-
-        this._methodInjections.addWithLabel(Labels.STARTUP_ANIMATION, ControlsManager.prototype,
-            'runStartupAnimation', async function (originalMethod, callback) {
-                /* eslint-disable no-invalid-this */
-                try {
-                    const injections = new Utils.InjectionsHandler();
-                    const dockManager = DockManager.getDefault();
-                    dockManager._prepareStartupAnimation(callback);
-                    injections.add(dockManager.mainDock.dash, 'ease', () => {});
-                    let callbackArgs = [];
-                    const ret = await originalMethod.call(this,
-                        (...args) => (callbackArgs = [...args]));
-                    injections.destroy();
-
-                    const onComplete = () => callback(...callbackArgs);
-                    dockManager._prepareStartupAnimation(onComplete);
-                    dockManager._runStartupAnimation(onComplete);
-                    return ret;
-                } catch (e) {
-                    logError(e);
-                    return undefined;
-                }
-                /* eslint-enable no-invalid-this */
-            });
-
         const maybeAdjustBoxSize = (state, box, spacing) => {
+            // ensure that an undefined value will be converted into a valid one
+            spacing = spacing ?? 0;
+
             if (state === OverviewControls.ControlsState.WINDOW_PICKER) {
                 const searchBox = this.overviewControls._searchEntry.get_allocation_box();
                 const {shouldShow: wsThumbnails} = this.overviewControls._thumbnailsBox;
@@ -2315,8 +2201,7 @@ export class DockManager {
                     box.y2 -= spacing;
                 }
 
-                box.y2 -= searchBox.get_height() + spacing;
-                box.y2 -= spacing;
+                box.y2 -= searchBox.get_height() + 2 * spacing;
             }
 
             return box;
@@ -2353,7 +2238,10 @@ export class DockManager {
                 workAreaBox.set_origin(startX, startY);
                 workAreaBox.set_size(workArea.width, workArea.height);
 
-                maybeAdjustBoxToDock(undefined, workAreaBox, this.spacing);
+                // GNOME 46 changes "spacing" to "_spacing".
+                const spacing = this.spacing ?? this._spacing;
+
+                maybeAdjustBoxToDock(undefined, workAreaBox, spacing);
                 const oldStartY = workAreaBox.y1;
 
                 const propertyInjections = new Utils.PropertyInjectionsHandler();
@@ -2410,7 +2298,33 @@ export class DockManager {
                     return originalFunction.call(this, state, ...args);
 
                 const box = workspaceBoxOriginFixer.call(this, originalFunction, state, ...args);
-                return maybeAdjustBoxSize(state, box, this.spacing);
+                // GNOME 46 changes "spacing" to "_spacing".
+                const spacing = this.spacing ?? this._spacing;
+                const dock = DockManager.getDefault().getDockByMonitor(Main.layoutManager.primaryIndex);
+                if (!dock)
+                    return box;
+                else
+                    return maybeAdjustBoxSize(state, box, spacing);
+                /* eslint-enable no-invalid-this */
+            },
+        ], [
+            WorkspacesView.SecondaryMonitorDisplay.prototype,
+            '_getWorkspacesBoxForState',
+            function (originalFunction, state, ...args) {
+                /* eslint-disable no-invalid-this */
+                if (state === OverviewControls.ControlsState.HIDDEN)
+                    return originalFunction.call(this, state, ...args);
+
+                const box = workspaceBoxOriginFixer.call(this, originalFunction, state, ...args);
+                const dock = DockManager.getDefault().getDockByMonitor(this._monitorIndex);
+                if (!dock)
+                    return box;
+                if (state === OverviewControls.ControlsState.WINDOW_PICKER &&
+                    dock.position === St.Side.BOTTOM) {
+                    const [, preferredHeight] = dock.get_preferred_height(box.get_width());
+                    box.y2 -= preferredHeight;
+                }
+                return box;
                 /* eslint-enable no-invalid-this */
             },
         ], [
@@ -2498,35 +2412,19 @@ export class DockManager {
                 });
         }
 
-        if (Main.layoutManager._startingUp && Main.sessionMode.hasOverview &&
-            this._settings.disableOverviewOnStartup) {
-            this._methodInjections.addWithLabel(Labels.STARTUP_ANIMATION,
-                Overview.Overview.prototype,
-                'runStartupAnimation', (_originalFunction, callback) => {
-                    const monitor = Main.layoutManager.primaryMonitor;
-                    const x = monitor.x + monitor.width / 2.0;
-                    const y = monitor.y + monitor.height / 2.0;
-                    const {STARTUP_ANIMATION_TIME} = Layout;
+        if (Main.layoutManager._startingUp) {
+            this._prepareStartupAnimation();
 
-                    this._prepareStartupAnimation(callback);
-                    Main.uiGroup.set_pivot_point(
-                        x / global.screen_width,
-                        y / global.screen_height);
-                    Main.uiGroup.set({
-                        scale_x: 0.75,
-                        scale_y: 0.75,
-                        opacity: 0,
-                    });
+            const hadOverview = Main.sessionMode.hasOverview;
 
-                    Main.uiGroup.ease({
-                        scale_x: 1,
-                        scale_y: 1,
-                        opacity: 255,
-                        duration: STARTUP_ANIMATION_TIME,
-                        mode: Clutter.AnimationMode.EASE_OUT_QUAD,
-                        onComplete: callback,
-                    });
+            // Convince LayoutManager to use the legacy startup animation:
+            if (this._settings.disableOverviewOnStartup)
+                Main.sessionMode.hasOverview = false;
 
+            this._signalsHandler.addWithLabel(Labels.STARTUP_ANIMATION,
+                Main.layoutManager, 'startup-complete', () => {
+                    this._signalsHandler.removeWithLabel(Labels.STARTUP_ANIMATION);
+                    Main.sessionMode.hasOverview = hadOverview;
                     this._runStartupAnimation();
                 });
         }

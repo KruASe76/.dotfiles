@@ -4,9 +4,10 @@
   "name": "Gnome 4x UI Improvements",
   "settings-schema": "org.gnome.shell.extensions.gnome-ui-tune",
   "shell-version": [
-    "45"
+    "45",
+    "46"
   ],
   "url": "https://github.com/axxapy/gnome-ui-tune",
   "uuid": "gnome-ui-tune@itstime.tech",
-  "version": 20
+  "version": 21
 }

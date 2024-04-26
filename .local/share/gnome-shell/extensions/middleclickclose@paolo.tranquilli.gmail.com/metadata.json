@@ -5,9 +5,10 @@
   "name": "Quick Close in Overview",
   "settings-schema": "org.gnome.shell.extensions.middleclickclose",
   "shell-version": [
-    "45"
+    "45",
+    "46"
   ],
   "url": "https://github.com/p91paul/middleclickclose",
   "uuid": "middleclickclose@paolo.tranquilli.gmail.com",
-  "version": 29
+  "version": 30
 }

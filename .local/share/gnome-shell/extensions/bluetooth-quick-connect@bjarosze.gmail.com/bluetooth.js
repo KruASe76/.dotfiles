@@ -61,16 +61,14 @@ class BluetoothController extends Signals.EventEmitter {
   }
   _connectDeviceNotify(device) {
     const path = device.get_object_path();
-    if (this._deviceNotifyConnected.has(path))
-      return;
+    if (this._deviceNotifyConnected.has(path)) return;
     this._deviceNotifyConnected.add(path);
     this._connectSignal(device, "notify", (device2) => {
       this.emit("device-changed", device2);
     });
   }
   _connectSignal(subject, signal_name, method) {
-    if (!this._signals)
-      this._signals = [];
+    if (!this._signals) this._signals = [];
     const signal_id = subject.connect(signal_name, method);
     this._signals.push({
       subject,
@@ -78,8 +76,7 @@ class BluetoothController extends Signals.EventEmitter {
     });
   }
   _disconnectSignals() {
-    if (!this._signals)
-      return;
+    if (!this._signals) return;
     for (const signal of this._signals) {
       signal.subject.disconnect(signal.signal_id);
     }

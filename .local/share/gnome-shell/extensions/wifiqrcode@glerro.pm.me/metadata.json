@@ -12,5 +12,6 @@
   ],
   "url": "https://gitlab.gnome.org/glerro/gnome-shell-extension-wifiqrcode",
   "uuid": "wifiqrcode@glerro.pm.me",
-  "version": 14
+  "version": 15,
+  "version-name": "2.2.0"
 }

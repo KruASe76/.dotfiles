@@ -103,8 +103,7 @@ class BluetoothQuickConnect extends Extension {
     });
     this._connectSignal(this._controller, "device-changed", (_ctrl, device) => {
       this._logger.log(`Device changed event: ${device.alias || device.name}`);
-      if (device.paired)
-        this._syncMenuItem(device);
+      if (device.paired) this._syncMenuItem(device);
       else
         this._logger.log(
           `Skipping change event for unpaired device ${device.alias || device.name}`
@@ -138,8 +137,7 @@ class BluetoothQuickConnect extends Extension {
     return menuItem;
   }
   _connectIdleMonitor() {
-    if (this._idleMonitorId)
-      return;
+    if (this._idleMonitorId) return;
     this._logger.log("Connecting idle monitor");
     this._idleMonitorId = GLib.timeout_add(
       GLib.PRIORITY_DEFAULT,
@@ -153,15 +151,13 @@ class BluetoothQuickConnect extends Extension {
     );
   }
   _disconnectIdleMonitor() {
-    if (!this._idleMonitorId)
-      return;
+    if (!this._idleMonitorId) return;
     this._logger.log("Disconnecting idle monitor");
     GLib.Source.remove(this._idleMonitorId);
     this._idleMonitorId = null;
   }
   _connectSignal(subject, signal_name, method) {
-    if (!this._signals)
-      this._signals = [];
+    if (!this._signals) this._signals = [];
     const signal_id = subject.connect(signal_name, method);
     this._signals.push({
       subject,
@@ -169,8 +165,7 @@ class BluetoothQuickConnect extends Extension {
     });
   }
   _disconnectSignals() {
-    if (!this._signals)
-      return;
+    if (!this._signals) return;
     for (const signal of this._signals) {
       signal.subject.disconnect(signal.signal_id);
     }
@@ -183,8 +178,7 @@ class BluetoothQuickConnect extends Extension {
   }
   _addDevicesToMenu(skipDevice = null) {
     for (const device of this._controller.getDevices().sort((a, b) => {
-      if (!a.name)
-        return 0;
+      if (!a.name) return 0;
       return a.name.localeCompare(b.name || "");
     })) {
       if (device.paired && device.get_object_path() !== skipDevice) {

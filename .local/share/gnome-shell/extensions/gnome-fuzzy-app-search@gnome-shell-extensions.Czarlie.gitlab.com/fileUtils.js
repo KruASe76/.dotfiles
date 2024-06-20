@@ -67,7 +67,7 @@ export const writeToFile = (path, string) => {
  *
  * @param {string} - The path of the directory
  *
- * @return {Promise.<string[]>} - A Promise resolving to an array of the
+ * @return {Promise.<Set<string>} - A Promise resolving to an array of the
  *                                filenames inside the directory.
  */
 export const listDirectory = (path) => {

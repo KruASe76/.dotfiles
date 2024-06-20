@@ -57,9 +57,9 @@ export class Index {
 
         this.indexPath = `${getCacheDir()}/${this.indexId}`;
 
-        this.indexed = Gio.File.new_for_path(
-            `${this.indexPath}/tokenScores.json`,
-        ).query_exists(null);
+        // this.indexed = Gio.File.new_for_path(
+        //     `${this.indexPath}/tokenScores.json`,
+        // ).query_exists(null);
 
         this.#checksum = GLib.Checksum.new(GLib.ChecksumType.SHA256);
         this.#readyCallback = () => {};
@@ -68,9 +68,43 @@ export class Index {
 
         this.loadTokenScorePromise = fileUtils
             .readFileOr(`${this.indexPath}/tokenScores.json`, "{}")
-            .then((contents) => JSON.parse(contents))
-            .then((tokenScores) => {
-                this.tokenScores = tokenScores;
+            .then(async (contents) => {
+                try {
+                    this.tokenScores = JSON.parse(contents);
+                    this.markReady();
+                } catch (error) {
+                    logError(
+                        error,
+                        `${metadata.uuid}: index failed to load previous state with error, deleting index and starting fresh`,
+                    );
+
+                    const indexFiles = await fileUtils.listDirectory(
+                        `${this.indexPath}/known`,
+                    );
+
+                    await Promise.all(
+                        [...indexFiles].map(
+                            (file) =>
+                                new Promise((resolve, reject) => {
+                                    // Priority 0
+                                    Gio.File.new_for_path(
+                                        `${this.indexPath}/known/${file}`,
+                                    ).delete_async(0, null, (file, res) => {
+                                        try {
+                                            resolve(file.delete_finish(res));
+                                        } catch (e) {
+                                            logError(
+                                                error,
+                                                `${metadata.uuid}: failed deleting ${file}`,
+                                            );
+                                            resolve(e);
+                                        }
+                                    });
+                                }),
+                        ),
+                    );
+                    this.tokenScores = {};
+                }
             });
     }
 
@@ -104,7 +138,7 @@ export class Index {
             if (token in this.tokenScores && id in this.tokenScores[token]) {
                 delete this.tokenScores[token][id];
 
-                if (Object.keys(this.tokenScores[token]).length == 0) {
+                if (Object.keys(this.tokenScores[token]).length === 0) {
                     delete this.tokenScores[token];
                 }
             }
@@ -143,6 +177,8 @@ export class Index {
      * @return {string} - The created entry's sha256 hash
      */
     async createIndexEntry(indexObject) {
+        await this.loadTokenScorePromise;
+
         const tokenScores = this.scorer(indexObject);
 
         const indexObjectHash = this.#hashIndexObject(indexObject);
@@ -168,6 +204,8 @@ export class Index {
      * @param {string} hash - The hash identifying the entry.
      */
     async removeIndexEntry(hash) {
+        await this.loadTokenScorePromise;
+
         const fileContents = await fileUtils.readFileOr(
             `${this.indexPath}/known/${hash}`,
         );
@@ -224,6 +262,8 @@ export class Index {
      * @async
      */
     async updateIndex(allIndexObjects) {
+        await this.loadTokenScorePromise;
+
         log(
             `${metadata.uuid}: updating index '${this.indexId}' with ${allIndexObjects.length} items`,
         );

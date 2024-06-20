@@ -1,12 +1,13 @@
 # This file contains fish universal variable definitions.
 # VERSION: 3.0
-SETUVAR ALSOFT_DRIVERS:pulse
-SETUVAR FLYCTL_INSTALL:/home/kruase/\x2efly
-SETUVAR --path GOPATH:/tmp/go
-SETUVAR MOZ_ENABLE_WAYLAND:1
+SETUVAR --export ALSOFT_DRIVERS:pulse
+SETUVAR --export FLYCTL_INSTALL:/home/kruase/\x2efly
+SETUVAR --export --path GOPATH:/tmp/go
+SETUVAR --export LANG:en_US\x2eutf8
+SETUVAR --export MOZ_ENABLE_WAYLAND:1
 SETUVAR --export PYENV_ROOT:/home/kruase/\x2epyenv
 SETUVAR RANGER_LOAD_DEFAULT_RC:\x1d
-SETUVAR WANDB_API_KEY:5a73c29b2380fe211377d34a097aa8386f17ae40
+SETUVAR --export WANDB_API_KEY:78dd2427fa426342c4dddbfdf8e18ca42dcfe6f1
 SETUVAR XCURSOR_THEME:Adwaita
 SETUVAR __fish_initialized:3400
 SETUVAR _fish_abbr_appimage_2D_build:\x2d\x2dset\x2dcursor\x20VERSION\x3d\x25\x20\x7e/tools/appimagetool\x2d730\x2dx86_64\x2eAppImage
@@ -62,5 +63,5 @@ SETUVAR fish_pager_color_prefix:F8F8F2
 SETUVAR fish_pager_color_progress:F8F8F2
 SETUVAR fish_pager_color_selected_background:\x2dr
 SETUVAR fish_user_paths:/home/kruase/\x2ecargo/bin\x1e/home/kruase/\x2epyenv/shims\x1e/opt/gradle/gradle\x2d8\x2e1/bin\x1e/home/kruase/\x2epyenv/bin\x1e/home/kruase/\x2efly/bin\x1e/home/kruase/\x2elocal/share/JetBrains/Toolbox/scripts\x1e/home/kruase/\x2elocal/bin\x1e/usr/lib64/ccache
-SETUVAR mclocal_version:20
-SETUVAR vm:ubuntu\x40130\x2e61\x2e124\x2e83
+SETUVAR --export mclocal_version:20
+SETUVAR --export vm:ubuntu\x40130\x2e61\x2e124\x2e83

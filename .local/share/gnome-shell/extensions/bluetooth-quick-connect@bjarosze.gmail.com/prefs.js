@@ -33,18 +33,17 @@ class BluetoothQuickConnectPreferences extends ExtensionPreferences {
     this._builder.add_from_file(`${this._extension.path}/Settings.ui`);
     this._widget = this._builder.get_object("items_container");
     this._builder.get_object("auto_power_off_settings_button")?.connect("clicked", () => {
-      const dialog = new Gtk.Dialog({
+      const dialog = new Adw.Window({
         title: "Auto power off settings",
         // @ts-expect-error, wrong types maybe
         transient_for: this._widget?.get_ancestor(Gtk.Window),
-        // @ts-expect-error, technical limitation, uses boolean
-        use_header_bar: true,
-        modal: true
+        modal: true,
+        default_width: 600
       });
-      const box = this._builder?.get_object("auto_power_off_settings");
-      dialog.get_content_area().append(box);
-      dialog.connect("response", (dialog2) => {
-        dialog2.get_content_area().remove(box);
+      const toolbarview = this._builder?.get_object("auto_power_off_settings");
+      dialog.set_content(toolbarview);
+      dialog.connect("close-request", (dialog2) => {
+        dialog2.set_content(null);
         dialog2.destroy();
       });
       dialog.show();
@@ -53,8 +52,7 @@ class BluetoothQuickConnectPreferences extends ExtensionPreferences {
     return this._widget;
   }
   _bind() {
-    if (!this._settings || !this._builder)
-      return;
+    if (!this._settings || !this._builder) return;
     const autoPowerOnSwitch = this._builder.get_object("auto_power_on_switch");
     this._settings.bind(
       "bluetooth-auto-power-on",

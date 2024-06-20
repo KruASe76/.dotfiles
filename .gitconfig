@@ -1,15 +1,31 @@
 [user]
-	email = kruanse@ya.ru
-	name = KruASe76
+    email = kruanse@ya.ru
+    name = KruASe76
 [init]
-	defaultBranch = main
+    defaultBranch = main
 [core]
-	quotepath = false
-	editor = nano
+    quotepath = false
+    editor = nano
 [safe]
-	directory = *
+    directory = *
 [filter "lfs"]
-	smudge = git-lfs smudge -- %f
-	process = git-lfs filter-process
-	required = true
-	clean = git-lfs clean -- %f
+    smudge = git-lfs smudge -- %f
+    process = git-lfs filter-process
+    required = true
+    clean = git-lfs clean -- %f
+[alias]
+    conf = config --global --edit
+    st = status -s
+    sta = status
+    a = add -A
+    cm = commit -m
+    cam = commit -am
+    amend = commit -a --amend
+    pom = push origin main
+    pomf = push -f origin main
+    pr = pull --rebase
+    sw = switch
+    br = branch
+    bra = branch -a
+    rb = rebase
+    rbc = rebase --continue

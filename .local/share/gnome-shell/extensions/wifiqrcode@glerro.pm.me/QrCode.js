@@ -250,18 +250,31 @@ const QrCodeActor = GObject.registerClass({
                 if (SHELL_MAJOR > 45) {
                     this._notifySource = new MessageTray.Source({
                         title: 'Gnome Shell Extension',
+                        iconName: 'org.gnome.Shell.Extensions-symbolic',
+                    });
+                    this._notification = new MessageTray.Notification({
+                        source: this._notifySource,
+                        title: 'Wifi QR Code',
+                        body: _('QR Code copied to clipboard'),
                         iconName: 'edit-paste-symbolic',
+                        isTransient: true,
+                        resident: false,
                     });
                 } else {
-                    this._notifySource = new MessageTray.Source('', 'edit-paste-symbolic');
+                    this._notifySource = new MessageTray.Source('Gnome Shell Extension',
+                        'edit-paste-symbolic');
+                    this._notification = new MessageTray.Notification(this._notifySource,
+                        'Wifi QR Code', _('QR Code copied to clipboard'));
+                    this._notification.setTransient(true);
                 }
+
                 this._notifySource.connectObject('destroy', () => (this._notifySource = null), this);
                 Main.messageTray.add(this._notifySource);
 
-                let notification = new MessageTray.Notification(this._notifySource, 'Wifi QR Code', _('QR Code copied to clipboard'));
-                notification.setTransient(true);
-
-                this._notifySource.showNotification(notification);
+                if (SHELL_MAJOR > 45)
+                    this._notifySource.addNotification(this._notification);
+                else
+                    this._notifySource.showNotification(this._notification);
             }
         }
     }

@@ -6,6 +6,7 @@ akmod-nvidia
 dnf-utils
 util-linux-user
 gnome-tweaks
+touchegg
 tk-devel
 bzip2-devel
 readline-devel
@@ -63,7 +64,7 @@ speech-dispatcher-utils
 pandoc
 trash-cli
 smartmontools
-figlet
+toilet
 libgda
 libgda-sqlite
 community-mysql-server
@@ -91,3 +92,4 @@ opencv-doc
 python3-opencv
 python3-matplotlib
 python3-numpy
+maven

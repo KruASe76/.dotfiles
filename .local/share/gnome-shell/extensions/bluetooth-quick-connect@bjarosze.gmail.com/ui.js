@@ -34,7 +34,7 @@ class PopupSwitchWithButtonMenuItem extends PopupMenu.PopupSwitchMenuItem {
   _reconnectTimeout = null;
   constructor(client, device, logger, params) {
     const label = device.alias || device.name || "(unknown)";
-    super(label, device.connected, {});
+    super(label, device.connected);
     this._handleIcon(device);
     this._client = client;
     this._logger = logger;
@@ -53,8 +53,7 @@ class PopupSwitchWithButtonMenuItem extends PopupMenu.PopupSwitchMenuItem {
     this.sync(device);
   }
   _handleIcon(device) {
-    if (!device.icon)
-      return;
+    if (!device.icon) return;
     const deviceIcon = new St.Icon({
       styleClass: "popup-menu-icon",
       iconName: device.icon
@@ -77,10 +76,8 @@ class PopupSwitchWithButtonMenuItem extends PopupMenu.PopupSwitchMenuItem {
     this._device = device;
     this.setToggleState(device.connected);
     this.visible = device.paired;
-    if (this._showRefreshButton && device.connected)
-      this._refreshButton.show();
-    else
-      this._refreshButton.hide();
+    if (this._showRefreshButton && device.connected) this._refreshButton.show();
+    else this._refreshButton.hide();
     this._disablePending();
     if (device.connected) {
       if (device.batteryPercentage && device.batteryPercentage > 0) {
@@ -135,8 +132,7 @@ class PopupSwitchWithButtonMenuItem extends PopupMenu.PopupSwitchMenuItem {
         this._afterReconnectTimeout = null;
         return GLib.SOURCE_REMOVE;
       });
-      if (this._closeMenuOnAction)
-        this.emit("activate", Clutter.get_current_event());
+      if (this._closeMenuOnAction) this.emit("activate", Clutter.get_current_event());
     });
     return button;
   }
@@ -163,8 +159,7 @@ class PopupSwitchWithButtonMenuItem extends PopupMenu.PopupSwitchMenuItem {
     }
     if (event.type() === Clutter.EventType.KEY_PRESS && event.get_key_symbol() === Clutter.KEY_space)
       return;
-    if (this._closeMenuOnAction)
-      this.emit("activate", event);
+    if (this._closeMenuOnAction) this.emit("activate", event);
   }
   toggle() {
     super.toggle();
@@ -199,7 +194,7 @@ class BatteryInfoWidgetClass extends St.BoxLayout {
     super({ visible: false, style: "spacing: 3px;" });
     this._icon = new St.Icon({ styleClass: "popup-menu-icon" });
     this.add_child(this._icon);
-    this._icon.iconName = null;
+    this._icon.iconName = "battery-missing-symbolic";
     this._label = new St.Label({
       xAlign: Clutter.ActorAlign.START,
       yAlign: Clutter.ActorAlign.CENTER,
@@ -209,10 +204,8 @@ class BatteryInfoWidgetClass extends St.BoxLayout {
     this._label.naturalWidth = this._label.width;
     this._label.text = "";
     this.add_child(this._label);
-    if (!showBatteryValue)
-      this._label.hide();
-    if (!showBatteryIcon)
-      this._icon.hide();
+    if (!showBatteryValue) this._label.hide();
+    if (!showBatteryIcon) this._icon.hide();
   }
   setPercentage(value) {
     if (value == null) {

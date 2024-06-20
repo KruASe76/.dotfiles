@@ -9,12 +9,11 @@
   "license": "GNU General Public License v3.0",
   "license-html": "This program comes with ABSOLUTELY NO WARRANTY.\nSee the <a href=\"https://www.gnu.org/licenses/gpl-3.0.html\">GNU General Public License v3.0</a> for details.",
   "name": "GNOME Fuzzy App Search",
-  "original-author": "Franjo Filo <fffilo666@gmail.com>",
-  "original-author-html": "Franjo Filo &lt;<a href=\"mailto:fffilo666@gmail.com\">fffilo666@gmail.com</a>&gt;",
   "shell-version": [
-    "45"
+    "45",
+    "46"
   ],
   "url": "https://gitlab.com/czarlie/gnome-fuzzy-app-search",
   "uuid": "gnome-fuzzy-app-search@gnome-shell-extensions.Czarlie.gitlab.com",
-  "version": 20
+  "version": 24
 }

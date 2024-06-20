@@ -20,8 +20,7 @@ class Logger {
     this._enabled = settings.isDebugModeEnabled();
   }
   log(message) {
-    if (!this._enabled)
-      return;
+    if (!this._enabled) return;
     console.log(`[bluetooth-quick-connect] ${message}`);
   }
   warn(message) {

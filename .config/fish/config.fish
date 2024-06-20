@@ -3,10 +3,13 @@ if status is-interactive
     fish_add_path $HOME/.local/bin
     fish_add_path /home/kruase/.local/share/JetBrains/Toolbox/scripts
 
+    # English!
+    alias git="LC_ALL=en_US.utf8 command git"
+
     # Custom variables
-    set -U vm ubuntu@130.61.124.83
-    set -U mclocal_version 20
-    set -U ALSOFT_DRIVERS pulse
+    set -Ux vm ubuntu@130.61.124.83
+    set -Ux mclocal_version 20
+    set -Ux ALSOFT_DRIVERS pulse
 
     # Abbreviations
     abbr -a fc 'nano ~/.config/fish/config.fish && source ~/.config/fish/config.fish'
@@ -96,22 +99,26 @@ if status is-interactive
     abbr -a playit 'playit -c ~/.config/playit.toml'
 
     abbr -a nf 'fastfetch'
+    abbr -a gitfetch 'onefetch'
+    abbr -a figlet 'toilet -f mono12'
+    abbr -a toilet 'toilet -f mono12'
+    abbr -a cmatrix 'cmatrix -b'
     abbr -a hollywood 'docker run -it --rm bcbcarl/hollywood'
 
-
+    # Aliases
     alias drop-table="echo no way"
 
-
+    # Custom keybinds
     bind \ck backward-kill-line
     bind \cu yank
     bind \eu yank-pop
     bind -e \cd
 
 
-    set -U GOPATH /tmp/go
+    set -Ux GOPATH /tmp/go
 
     # flyctl setup
-    set -U FLYCTL_INSTALL $HOME/.fly
+    set -Ux FLYCTL_INSTALL $HOME/.fly
     fish_add_path $FLYCTL_INSTALL/bin
 
     # pyenv setup
@@ -119,11 +126,11 @@ if status is-interactive
     fish_add_path $PYENV_ROOT/bin
     pyenv init - | source
 
-    # wandb token
-    set -U WANDB_API_KEY 5a73c29b2380fe211377d34a097aa8386f17ae40
-
     # firefox wayland fix
-    set -U MOZ_ENABLE_WAYLAND 1
+    set -Ux MOZ_ENABLE_WAYLAND 1
+
+    # wandb api key
+    set -Ux WANDB_API_KEY (cat $HOME/.wandb)
 end
 
 # >>> conda initialize >>>

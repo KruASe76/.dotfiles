@@ -130,7 +130,7 @@ if status is-interactive
     set -Ux MOZ_ENABLE_WAYLAND 1
 
     # wandb api key
-    set -Ux WANDB_API_KEY (cat $HOME/.wandb)
+    set -gx WANDB_API_KEY (cat $HOME/.wandb)
 end
 
 # >>> conda initialize >>>

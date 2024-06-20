@@ -7,7 +7,6 @@ SETUVAR --export LANG:en_US\x2eutf8
 SETUVAR --export MOZ_ENABLE_WAYLAND:1
 SETUVAR --export PYENV_ROOT:/home/kruase/\x2epyenv
 SETUVAR RANGER_LOAD_DEFAULT_RC:\x1d
-SETUVAR --export WANDB_API_KEY:78dd2427fa426342c4dddbfdf8e18ca42dcfe6f1
 SETUVAR XCURSOR_THEME:Adwaita
 SETUVAR __fish_initialized:3400
 SETUVAR _fish_abbr_appimage_2D_build:\x2d\x2dset\x2dcursor\x20VERSION\x3d\x25\x20\x7e/tools/appimagetool\x2d730\x2dx86_64\x2eAppImage

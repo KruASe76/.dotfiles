@@ -112,6 +112,7 @@ Additional code was contributed by:
 * Larissa Reis
 * Vladislav Svitlichniy
 * ell nix
+* Jonatan Hatakeyama Zeidler
 
 Thanks to all translators!
 

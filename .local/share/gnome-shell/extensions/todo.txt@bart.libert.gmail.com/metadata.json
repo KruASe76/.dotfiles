@@ -4,9 +4,9 @@
   "gettext-domain": "todotxt",
   "name": "Todo.txt",
   "shell-version": [
-    "45"
+    "46"
   ],
   "url": "https://gitlab.com/todo.txt-gnome-shell-extension/todo-txt-gnome-shell-extension",
   "uuid": "todo.txt@bart.libert.gmail.com",
-  "version": 43
+  "version": 44
 }

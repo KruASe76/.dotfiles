@@ -64,7 +64,7 @@ const Capture = GObject.registerClass({
             y: -10,
         });
 
-        Main.uiGroup.add_actor(this._areaSelection);
+        Main.uiGroup.add_child(this._areaSelection);
 
         this._areaResolution = new St.Label({
             style_class: 'area-resolution',
@@ -73,7 +73,7 @@ const Capture = GObject.registerClass({
         this._areaResolution.opacity = 255;
         this._areaResolution.set_position(0, 0);
 
-        Main.uiGroup.add_actor(this._areaResolution);
+        Main.uiGroup.add_child(this._areaResolution);
 
         this._grab = Main.pushModal(this._areaSelection);
 
@@ -110,9 +110,8 @@ const Capture = GObject.registerClass({
      */
     _onCaptureEvent(actor, event) {
         if (event.type() === Clutter.EventType.KEY_PRESS) {
-            if (event.get_key_symbol() === Clutter.KEY_Escape) {
+            if (event.get_key_symbol() === Clutter.KEY_Escape)
                 this._stop();
-            }
         }
 
         this.emit('captured-event', event);
@@ -167,9 +166,9 @@ const Capture = GObject.registerClass({
 
         this._areaSelection.disconnect(this._signalCapturedEvent);
         this._setDefaultCursor();
-        Main.uiGroup.remove_actor(this._areaSelection);
+        Main.uiGroup.remove_child(this._areaSelection);
         Main.popModal(this._grab);
-        Main.uiGroup.remove_actor(this._areaResolution);
+        Main.uiGroup.remove_child(this._areaResolution);
         this._areaSelection.destroy();
         this.emit('stop');
     }
@@ -276,11 +275,10 @@ var SelectionWindow = GObject.registerClass({
 
         this._selectedWindow = _selectWindow(this._windows, x, y);
 
-        if (this._selectedWindow) {
+        if (this._selectedWindow)
             this._highlightWindow(this._selectedWindow);
-        } else {
+        else
             this._clearHighlight();
-        }
 
 
         if (type === Clutter.EventType.BUTTON_PRESS) {
@@ -296,21 +294,14 @@ var SelectionWindow = GObject.registerClass({
 
                 Lib.TalkativeLog(`-£-windows pre wx: ${wx} wy: ${wy} height: ${h}  width: ${w}`);
 
-                if (wx < 0) {
+                if (wx < 0)
                     wx = 0;
-                }
-
-                if (wy < 0) {
+                if (wy < 0)
                     wy = 0;
-                }
-
-                if (wx + w > maxWidth) {
+                if (wx + w > maxWidth)
                     w = maxWidth - wx;
-                }
-
-                if (wy + h > maxHeight) {
+                if (wy + h > maxHeight)
                     h = maxHeight - wy;
-                }
 
                 Lib.TalkativeLog(`-£-windows post wx: ${wx} wy: ${wy} height: ${h} width: ${w}`);
 
@@ -420,23 +411,22 @@ var AreaRecording = GObject.registerClass({
         var tmpH = Main.layoutManager.currentMonitor.height;
         var tmpW = Main.layoutManager.currentMonitor.width;
 
-        Main.uiGroup.add_actor(this._areaRecording);
+        Main.uiGroup.add_child(this._areaRecording);
 
         Main.overview.connect('showing', () => {
             Lib.TalkativeLog('-£-overview opening');
 
-            Main.uiGroup.remove_actor(this._areaRecording);
+            Main.uiGroup.remove_child(this._areaRecording);
         });
 
         Main.overview.connect('hidden', () => {
             Lib.TalkativeLog('-£-overview closed');
 
-            Main.uiGroup.add_actor(this._areaRecording);
+            Main.uiGroup.add_child(this._areaRecording);
         });
 
-        if (recX + recW <= tmpW - 5 && recY + recH <= tmpH - 5) {
+        if (recX + recW <= tmpW - 5 && recY + recH <= tmpH - 5)
             this.drawArea(recX - 2, recY - 2, recW + 4, recH + 4);
-        }
     }
 
     /**

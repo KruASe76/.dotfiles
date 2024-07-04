@@ -1,33 +1,33 @@
 import Gio from 'gi://Gio';
 import GLib from 'gi://GLib';
+import * as extension_js from 'resource:///org/gnome/shell/extensions/extension.js';
 import Shell from 'gi://Shell';
-import { Extension } from 'resource:///org/gnome/shell/extensions/extension.js';
+import Meta from 'gi://Meta';
 import Clutter from 'gi://Clutter';
+import { Button } from 'resource:///org/gnome/shell/ui/panelMenu.js';
+import { PopupSwitchMenuItem, PopupDummyMenu, PopupSeparatorMenuItem, PopupMenuItem } from 'resource:///org/gnome/shell/ui/popupMenu.js';
 import GObject from 'gi://GObject';
 import St from 'gi://St';
-import * as panelMenu from 'resource:///org/gnome/shell/ui/panelMenu.js';
-import * as popupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
-import * as dialog from 'resource:///org/gnome/shell/ui/dialog.js';
-import * as modalDialog from 'resource:///org/gnome/shell/ui/modalDialog.js';
+import { MessageDialogContent } from 'resource:///org/gnome/shell/ui/dialog.js';
+import { ModalDialog } from 'resource:///org/gnome/shell/ui/modalDialog.js';
 import GSound from 'gi://GSound';
 import Cogl from 'gi://Cogl';
 import GdkPixbuf from 'gi://GdkPixbuf';
 import * as animationUtils from 'resource:///org/gnome/shell/misc/animationUtils.js';
-import * as layout from 'resource:///org/gnome/shell/ui/layout.js';
+import { MonitorConstraint } from 'resource:///org/gnome/shell/ui/layout.js';
 import * as main from 'resource:///org/gnome/shell/ui/main.js';
-import * as messageTray from 'resource:///org/gnome/shell/ui/messageTray.js';
-import * as lightbox from 'resource:///org/gnome/shell/ui/lightbox.js';
-import Gda from 'gi://Gda';
+import { Notification, Source } from 'resource:///org/gnome/shell/ui/messageTray.js';
+import { Lightbox } from 'resource:///org/gnome/shell/ui/lightbox.js';
+import Gda from 'gi://Gda?version>=5.0';
 import Pango from 'gi://Pango';
 import Graphene from 'gi://Graphene';
-import Meta from 'gi://Meta';
 import formatDistanceToNow from './thirdparty/date_fns_formatDistanceToNow.js';
 import * as dateLocale from './thirdparty/date_fns_locale.js';
 import PrismJS from './thirdparty/prismjs.js';
 import prettyBytes from './thirdparty/pretty_bytes.js';
 import Soup from 'gi://Soup';
 import * as htmlparser2 from './thirdparty/htmlparser2.js';
-import converter from './thirdparty/hex_color_converter.js';
+import convert from './thirdparty/hex_color_converter.js';
 import hljs from './thirdparty/highlight_js_lib_core.js';
 import bash from './thirdparty/highlight_js_lib_languages_bash.js';
 import c from './thirdparty/highlight_js_lib_languages_c.js';
@@ -56,6 +56,28 @@ import typescript from './thirdparty/highlight_js_lib_languages_typescript.js';
 import yaml from './thirdparty/highlight_js_lib_languages_yaml.js';
 import isUrl from './thirdparty/is_url.js';
 import { validateHTMLColorRgb, validateHTMLColorHex, validateHTMLColorName } from './thirdparty/validate_color.js';
+
+function _mergeNamespaces(n, m) {
+    for (let i = 0; i < m.length; i++) {
+        const e = m[i];
+        if (typeof e !== 'string' && !Array.isArray(e)) { for (const k in e) {
+            if (k !== 'default' && !(k in n)) {
+                const d = Object.getOwnPropertyDescriptor(e, k);
+                if (d) {
+                    Object.defineProperty(n, k, d.get ? d : {
+                        enumerable: true,
+                        get: function () { return e[k]; }
+                    });
+                }
+            }
+        } }
+    }
+    return Object.freeze(n);
+}
+
+const extension = /*#__PURE__*/_mergeNamespaces({
+    __proto__: null
+}, [extension_js]);
 
 function __decorate(decorators, target, key, desc) {
     let c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -92,7 +114,7 @@ function registerGObjectClass(target) {
 }
 
 const logger = (prefix) => (content) => console.log(`[pano] [${prefix}] ${content}`);
-const debug$7 = logger('shell-utils');
+const debug$8 = logger('shell-utils');
 const deleteFile = (file) => {
     return new Promise((resolve, reject) => {
         file.delete_async(GLib.PRIORITY_DEFAULT, null, (_file, res) => {
@@ -208,7 +230,7 @@ const loadInterfaceXML = (ext, iface) => {
         return new TextDecoder().decode(bytes);
     }
     catch (e) {
-        debug$7(`Failed to load D-Bus interface ${iface}`);
+        debug$8(`Failed to load D-Bus interface ${iface}`);
     }
     return null;
 };
@@ -230,7 +252,7 @@ const playAudio = () => {
         }, null);
     }
     catch (err) {
-        debug$7(`failed to play audio: ${err}`);
+        debug$8(`failed to play audio: ${err}`);
     }
 };
 const removeSoundContext = () => {
@@ -259,15 +281,15 @@ const openLinkInBrowser = (url) => {
         Gio.app_info_launch_default_for_uri(url, null);
     }
     catch (e) {
-        debug$7(`Failed to open url ${url}`);
+        debug$8(`Failed to open url ${url}`);
     }
 };
 function gettext(ext) {
     return ext.gettext.bind(ext);
 }
 
-const debug$6 = logger('clear-history-dialog');
-let ClearHistoryDialog = class ClearHistoryDialog extends modalDialog.ModalDialog {
+const debug$7 = logger('clear-history-dialog');
+let ClearHistoryDialog = class ClearHistoryDialog extends ModalDialog {
     constructor(ext, onClear) {
         super();
         const _ = gettext(ext);
@@ -282,11 +304,11 @@ let ClearHistoryDialog = class ClearHistoryDialog extends modalDialog.ModalDialo
             label: _('Clear'),
             action: this.onClearButtonPressed.bind(this),
         });
-        const content = new dialog.MessageDialogContent({
+        const content = new MessageDialogContent({
             title: _('Clear History'),
             description: _('Are you sure you want to clear history?'),
         });
-        this.contentLayout.vfunc_add(content);
+        this.contentLayout.add_child(content);
     }
     onCancelButtonPressed() {
         this.close();
@@ -299,7 +321,7 @@ let ClearHistoryDialog = class ClearHistoryDialog extends modalDialog.ModalDialo
             await this.onClear();
         }
         catch (err) {
-            debug$6(`err: ${err}`);
+            debug$7(`err: ${err}`);
         }
         this.close();
     }
@@ -322,39 +344,111 @@ function getPanoItemTypes(ext) {
 }
 const ICON_PACKS = ['default', 'legacy'];
 
-const global$1 = Shell.Global.get();
+// compatibility functions for Gda 5.0 and 6.0
+function isGda6Builder(builder) {
+    return builder.add_expr_value.length === 1;
+}
+/**
+ * This is hack for libgda6 <> libgda5 compatibility.
+ *
+ * @param value any
+ * @returns expr id
+ */
+function add_expr_value(builder, value) {
+    if (isGda6Builder(builder)) {
+        return builder.add_expr_value(value);
+    }
+    return builder.add_expr_value(null, value);
+}
+// compatibility functions for gnome-shell 45 / 46
+function isGnome45Notifications() {
+    return Source.prototype.addNotification === undefined;
+}
+function newNotification(source, text, banner, transient_, params) {
+    if (isGnome45Notifications()) {
+        // @ts-expect-error gnome 45 type
+        const notification = new Notification(source, text, banner, {
+            datetime: GLib.DateTime.new_now_local(),
+            ...params,
+        });
+        notification.setTransient(transient_);
+        return notification;
+    }
+    return new Notification({
+        source: source,
+        title: text,
+        body: banner,
+        datetime: GLib.DateTime.new_now_local(),
+        isTransient: transient_,
+        ...params,
+    });
+}
+function newMessageTraySource(title, iconName) {
+    if (isGnome45Notifications()) {
+        // @ts-expect-error gnome 45 type
+        return new Source(title, iconName);
+    }
+    return new Source({ title, iconName });
+}
+function addNotification(source, notification) {
+    if (source.showNotification !== undefined) {
+        // @ts-expect-error gnome 45 type, can also be in some earlier versions of gnome 46, so using an explicit check for undefined, so that it works everywhere
+        source.showNotification(notification);
+    }
+    else {
+        source.addNotification(notification);
+    }
+}
+function scrollViewAddChild(scrollView, actor) {
+    if (scrollView.add_actor !== undefined) {
+        // @ts-expect-error gnome 45 type, or even some gnome 46 distros do support that, so using this check, instead of isGnome45()!
+        scrollView.add_actor(actor);
+    }
+    else {
+        scrollView.set_child(actor);
+    }
+}
+function getScrollViewAdjustment(scrollView, type) {
+    if (scrollView.vadjustment !== undefined) {
+        if (type === 'v') {
+            return scrollView.vadjustment;
+        }
+        return scrollView.hadjustment;
+    }
+    else {
+        if (type === 'v') {
+            return scrollView.vscroll.adjustment;
+        }
+        return scrollView.hscroll.adjustment;
+    }
+}
+
+const global$2 = Shell.Global.get();
 const notify = (ext, text, body, iconOrPixbuf, pixelFormat) => {
     const _ = gettext(ext);
-    const source = new messageTray.Source(_('Pano'), 'edit-copy-symbolic');
+    const source = newMessageTraySource(_('Pano'), 'edit-copy-symbolic');
     main.messageTray.add(source);
     let notification;
     if (iconOrPixbuf) {
         if (iconOrPixbuf instanceof GdkPixbuf.Pixbuf) {
             const content = St.ImageContent.new_with_preferred_size(iconOrPixbuf.width, iconOrPixbuf.height);
             content.set_bytes(iconOrPixbuf.read_pixel_bytes(), pixelFormat || Cogl.PixelFormat.RGBA_8888, iconOrPixbuf.width, iconOrPixbuf.height, iconOrPixbuf.rowstride);
-            notification = new messageTray.Notification(source, text, body, {
-                datetime: GLib.DateTime.new_now_local(),
-                gicon: content,
-            });
+            notification = newNotification(source, text, body, true, { gicon: content });
         }
         else {
-            notification = new messageTray.Notification(source, text, body, {
-                datetime: GLib.DateTime.new_now_local(),
-                gicon: iconOrPixbuf,
-            });
+            notification = newNotification(source, text, body, true, { gicon: iconOrPixbuf });
         }
     }
     else {
-        notification = new messageTray.Notification(source, text, body, {});
+        notification = newNotification(source, text, body, true, {});
     }
-    notification.setTransient(true);
-    source.showNotification(notification);
+    addNotification(source, notification);
 };
 const wiggle = (actor, { offset, duration, wiggleCount }) => animationUtils.wiggle(actor, { offset, duration, wiggleCount });
 const wm = main.wm;
 const getMonitors = () => main.layoutManager.monitors;
 const getMonitorIndexForPointer = () => {
-    const [x, y] = global$1.get_pointer();
+    const [x, y] = global$2.get_pointer();
     const monitors = getMonitors();
     for (let i = 0; i <= monitors.length; i++) {
         const monitor = monitors[i];
@@ -368,7 +462,7 @@ const getMonitorIndexForPointer = () => {
     }
     return main.layoutManager.primaryIndex;
 };
-const getMonitorConstraint = () => new layout.MonitorConstraint({
+const getMonitorConstraint = () => new MonitorConstraint({
     index: getMonitorIndexForPointer(),
 });
 const addTopChrome = (actor, options) => main.layoutManager.addTopChrome(actor, options);
@@ -413,7 +507,8 @@ const isVertical = (position) => {
     return position === WINDOW_POSITIONS.LEFT || position === WINDOW_POSITIONS.RIGHT;
 };
 
-let SettingsMenu = class SettingsMenu extends panelMenu.Button {
+const debug$6 = logger('settings-menu');
+let SettingsMenu = class SettingsMenu extends Button {
     constructor(ext, onClear, onToggle) {
         const _ = gettext(ext);
         super(0.5, 'Pano Indicator', false);
@@ -423,10 +518,10 @@ let SettingsMenu = class SettingsMenu extends panelMenu.Button {
         const isInIncognito = this.settings.get_boolean('is-in-incognito');
         this.icon = new St.Icon({
             gicon: Gio.icon_new_for_string(`${this.ext.path}/icons/hicolor/scalable/actions/${ICON_PACKS[this.settings.get_uint('icon-pack')]}-indicator${isInIncognito ? '-incognito-symbolic' : '-symbolic'}.svg`),
-            style_class: 'system-status-icon indicator-icon',
+            styleClass: 'system-status-icon indicator-icon',
         });
         this.add_child(this.icon);
-        const switchMenuItem = new popupMenu.PopupSwitchMenuItem(_('Incognito Mode'), this.settings.get_boolean('is-in-incognito'));
+        const switchMenuItem = new PopupSwitchMenuItem(_('Incognito Mode'), this.settings.get_boolean('is-in-incognito'));
         switchMenuItem.connect('toggled', (item) => {
             this.settings.set_boolean('is-in-incognito', item.state);
         });
@@ -439,20 +534,25 @@ let SettingsMenu = class SettingsMenu extends panelMenu.Button {
             const isInIncognito = this.settings.get_boolean('is-in-incognito');
             this.icon.set_gicon(Gio.icon_new_for_string(`${this.ext.path}/icons/hicolor/scalable/actions/${ICON_PACKS[this.settings.get_uint('icon-pack')]}-indicator${isInIncognito ? '-incognito-symbolic' : '-symbolic'}.svg`));
         });
-        this.menu.addMenuItem(switchMenuItem);
-        this.menu.addMenuItem(new popupMenu.PopupSeparatorMenuItem());
-        const clearHistoryItem = new popupMenu.PopupMenuItem(_('Clear History'));
-        clearHistoryItem.connect('activate', () => {
-            const dialog = new ClearHistoryDialog(this.ext, onClear);
-            dialog.open();
-        });
-        this.menu.addMenuItem(clearHistoryItem);
-        this.menu.addMenuItem(new popupMenu.PopupSeparatorMenuItem());
-        const settingsItem = new popupMenu.PopupMenuItem(_('Settings'));
-        settingsItem.connect('activate', () => {
-            openExtensionPreferences(this.ext);
-        });
-        this.menu.addMenuItem(settingsItem);
+        if (this.menu instanceof PopupDummyMenu) {
+            debug$6('error: menu us PopupDummyMenu, but it should be a normal menu!');
+        }
+        else {
+            this.menu.addMenuItem(switchMenuItem);
+            this.menu.addMenuItem(new PopupSeparatorMenuItem());
+            const clearHistoryItem = new PopupMenuItem(_('Clear History'));
+            clearHistoryItem.connect('activate', () => {
+                const dialog = new ClearHistoryDialog(this.ext, onClear);
+                dialog.open();
+            });
+            this.menu.addMenuItem(clearHistoryItem);
+            this.menu.addMenuItem(new PopupSeparatorMenuItem());
+            const settingsItem = new PopupMenuItem(_('Settings'));
+            settingsItem.connect('activate', () => {
+                openExtensionPreferences(this.ext);
+            });
+            this.menu.addMenuItem(settingsItem);
+        }
     }
     animate() {
         if (this.settings.get_boolean('wiggle-indicator')) {
@@ -460,16 +560,17 @@ let SettingsMenu = class SettingsMenu extends panelMenu.Button {
         }
     }
     vfunc_event(event) {
-        if (!this.menu || event.type() !== Clutter.EventType.BUTTON_PRESS) {
-            return Clutter.EVENT_PROPAGATE;
+        if (event.type() === Clutter.EventType.BUTTON_PRESS) {
+            if ([Clutter.BUTTON_PRIMARY, Clutter.BUTTON_MIDDLE].includes(event.get_button())) {
+                this.onToggle();
+                return Clutter.EVENT_STOP;
+            }
+            else if (this.menu && event.get_button() === Clutter.BUTTON_SECONDARY) {
+                this.menu.toggle();
+                return Clutter.EVENT_STOP;
+            }
         }
-        if (event.get_button() === Clutter.BUTTON_PRIMARY || event.get_button() === Clutter.BUTTON_MIDDLE) {
-            this.onToggle();
-        }
-        else if (event.get_button() === Clutter.BUTTON_SECONDARY) {
-            this.menu.toggle();
-        }
-        return Clutter.EVENT_PROPAGATE;
+        return super.vfunc_event(event);
     }
     destroy() {
         if (this.incognitoChangeId) {
@@ -495,6 +596,8 @@ SettingsMenu = __decorate([
 
 class PanoIndicator {
     constructor(ext, onClear, onToggle) {
+        this.indicatorChangeSignalId = null;
+        this.settingsMenu = null;
         this.extension = ext;
         this.onClear = onClear;
         this.onToggle = onToggle;
@@ -556,23 +659,23 @@ let MonitorBox = class MonitorBox extends St.BoxLayout {
         });
         this.add_constraint(constraint);
         const backgroundStack = new St.Widget({
-            layout_manager: new Clutter.BinLayout(),
-            x_expand: true,
-            y_expand: true,
+            layoutManager: new Clutter.BinLayout(),
+            xExpand: true,
+            yExpand: true,
         });
         const _backgroundBin = new St.Bin({ child: backgroundStack });
-        const _monitorConstraint = new layout.MonitorConstraint({});
+        const _monitorConstraint = new MonitorConstraint({});
         _backgroundBin.add_constraint(_monitorConstraint);
-        this.add_actor(_backgroundBin);
-        this._lightbox = new lightbox.Lightbox(this, {
+        this.add_child(_backgroundBin);
+        this._lightbox = new Lightbox(this, {
             inhibitEvents: true,
             radialEffect: false,
         });
         this._lightbox.highlight(_backgroundBin);
-        this._lightbox.set({ style_class: 'pano-monitor-box' });
+        this._lightbox.styleClass = 'pano-monitor-box';
         const _eventBlocker = new Clutter.Actor({ reactive: true });
-        backgroundStack.add_actor(_eventBlocker);
-        main.uiGroup.add_actor(this);
+        backgroundStack.add_child(_eventBlocker);
+        main.uiGroup.add_child(this);
     }
     open() {
         this._lightbox.lightOn();
@@ -581,6 +684,13 @@ let MonitorBox = class MonitorBox extends St.BoxLayout {
     close() {
         this._lightbox.lightOff();
         this.hide();
+    }
+    vfunc_touch_event(event) {
+        if (event.type() === Clutter.EventType.TOUCH_END) {
+            this.emit('hide_window');
+            return Clutter.EVENT_STOP;
+        }
+        return Clutter.EVENT_PROPAGATE;
     }
     destroy() {
         super.destroy();
@@ -595,92 +705,6 @@ MonitorBox.metaInfo = {
 MonitorBox = __decorate([
     registerGObjectClass
 ], MonitorBox);
-
-// compatibility functions for Gda 5.0 and 6.0
-function isGda6Builder(builder) {
-    return builder.add_expr_value.length === 1;
-}
-/**
- * This is hack for libgda6 <> libgda5 compatibility.
- *
- * @param value any
- * @returns expr id
- */
-function add_expr_value(builder, value) {
-    if (isGda6Builder(builder)) {
-        return builder.add_expr_value(value);
-    }
-    return builder.add_expr_value(null, value);
-}
-// compatibility functions for Clutter 12 - 13
-// ButtoNEvent
-function isClutter13ButtonEvent(event) {
-    return typeof event.get_state === 'function' && typeof event.get_button === 'function';
-}
-class ButtonEventProxy {
-    constructor(event) {
-        this.event = event;
-        //
-    }
-    get_state() {
-        return this.event.modifier_state;
-    }
-    get_button() {
-        return this.event.button;
-    }
-}
-function getV13ButtonEvent(event) {
-    if (isClutter13ButtonEvent(event)) {
-        return event;
-    }
-    return new ButtonEventProxy(event);
-}
-// KeyEvent
-function isClutter13KeyEvent(event) {
-    return (typeof event.type === 'function' &&
-        typeof event.get_state === 'function' &&
-        typeof event.get_key_symbol === 'function');
-}
-class KeyEventProxy {
-    constructor(event) {
-        this.event = event;
-        //
-    }
-    type() {
-        return this.event.type;
-    }
-    get_state() {
-        return this.event.modifier_state;
-    }
-    get_key_symbol() {
-        return this.event.keyval;
-    }
-}
-function getV13KeyEvent(event) {
-    if (isClutter13KeyEvent(event)) {
-        return event;
-    }
-    return new KeyEventProxy(event);
-}
-// ScrollEvent
-function isClutter13ScrollEvent(event) {
-    return typeof event.get_scroll_direction === 'function';
-}
-class ScrollEventProxy {
-    constructor(event) {
-        this.event = event;
-        //
-    }
-    get_scroll_direction() {
-        return this.event.direction;
-    }
-}
-function getV13ScrollEvent(event) {
-    if (isClutter13ScrollEvent(event)) {
-        return event;
-    }
-    return new ScrollEventProxy(event);
-}
 
 const debug$5 = logger('database');
 class ClipboardQuery {
@@ -760,11 +784,13 @@ class ClipboardQueryBuilder {
     }
 }
 class Database {
+    constructor() {
+        this.connection = null;
+    }
     init(ext) {
-        this.settings = getCurrentExtensionSettings(ext);
         this.connection = new Gda.Connection({
             provider: Gda.Config.get_provider('SQLite'),
-            cnc_string: `DB_DIR=${getDbPath(ext)};DB_NAME=pano`,
+            cncString: `DB_DIR=${getDbPath(ext)};DB_NAME=pano`,
         });
         this.connection.open();
     }
@@ -800,6 +826,7 @@ class Database {
             stmt_type: Gda.SqlStatementType.INSERT,
         });
         builder.set_table('clipboard');
+        //Note: casting required, since this is a gjs convention, that you don't have to pass a  GObject.Value, this is needed for teh C API, but GJS constructs it on the fly
         builder.add_field_value_as_gvalue('itemType', dbItem.itemType);
         builder.add_field_value_as_gvalue('content', dbItem.content);
         builder.add_field_value_as_gvalue('copyDate', dbItem.copyDate.toISOString());
@@ -836,6 +863,7 @@ class Database {
             stmt_type: Gda.SqlStatementType.UPDATE,
         });
         builder.set_table('clipboard');
+        //Note: casting required, since this is a gjs convention, that you don't have to pass a  GObject.Value, this is needed for teh C API, but GJS constructs it on the fly
         builder.add_field_value_as_gvalue('itemType', dbItem.itemType);
         builder.add_field_value_as_gvalue('content', dbItem.content);
         builder.add_field_value_as_gvalue('copyDate', dbItem.copyDate.toISOString());
@@ -872,22 +900,26 @@ class Database {
         const iter = dm.create_iter();
         const itemList = [];
         while (iter.move_next()) {
+            //Note: casting required, since this is a gjs convention, that any GObject.Value is just the value (e.g. string, number etc.) this types are from C, so there is no dynamic return value so they have to use GObject.Value
             const id = iter.get_value_for_field('id');
             const itemType = iter.get_value_for_field('itemType');
             const content = iter.get_value_for_field('content');
+            const contentUnescaped = Gda.default_unescape_string(content) ?? content;
             const copyDate = iter.get_value_for_field('copyDate');
             const isFavorite = iter.get_value_for_field('isFavorite');
             const matchValue = iter.get_value_for_field('matchValue');
+            const matchValueUnescaped = Gda.default_unescape_string(matchValue) ?? matchValue;
             const searchValue = iter.get_value_for_field('searchValue');
+            const searchValueUnescaped = searchValue ? Gda.default_unescape_string(searchValue) ?? searchValue : undefined;
             const metaData = iter.get_value_for_field('metaData');
             itemList.push({
                 id,
                 itemType,
-                content,
+                content: contentUnescaped,
                 copyDate: new Date(copyDate),
                 isFavorite: !!isFavorite,
-                matchValue,
-                searchValue,
+                matchValue: matchValueUnescaped,
+                searchValue: searchValueUnescaped,
                 metaData,
             });
         }
@@ -915,26 +947,26 @@ const localeKey = Object.keys(dateLocale).find((key) => langs.includes(key));
 let PanoItemHeader = class PanoItemHeader extends St.BoxLayout {
     constructor(ext, itemType, date) {
         super({
-            style_class: `pano-item-header pano-item-header-${itemType.classSuffix}`,
+            styleClass: `pano-item-header pano-item-header-${itemType.classSuffix}`,
             vertical: false,
         });
         this.itemType = itemType;
         this.titleContainer = new St.BoxLayout({
-            style_class: 'pano-item-title-container',
+            styleClass: 'pano-item-title-container',
             vertical: true,
-            x_expand: true,
+            xExpand: true,
         });
         this.iconContainer = new St.BoxLayout({
-            style_class: 'pano-icon-container',
+            styleClass: 'pano-icon-container',
         });
         this.settings = getCurrentExtensionSettings(ext);
         const themeContext = St.ThemeContext.get_for_stage(Shell.Global.get().get_stage());
-        this.set_height(56 * themeContext.scale_factor);
+        this.set_height(56 * themeContext.scaleFactor);
         themeContext.connect('notify::scale-factor', () => {
-            this.set_height(56 * themeContext.scale_factor);
+            this.set_height(56 * themeContext.scaleFactor);
         });
         const icon = new St.Icon({
-            style_class: 'pano-item-title-icon',
+            styleClass: 'pano-item-title-icon',
             gicon: Gio.icon_new_for_string(`${ext.path}/icons/hicolor/scalable/actions/${ICON_PACKS[this.settings.get_uint('icon-pack')]}-${itemType.iconPath}`),
         });
         this.iconContainer.add_child(icon);
@@ -943,36 +975,45 @@ let PanoItemHeader = class PanoItemHeader extends St.BoxLayout {
         });
         this.titleLabel = new St.Label({
             text: itemType.title,
-            style_class: 'pano-item-title',
-            x_expand: true,
+            styleClass: 'pano-item-title',
+            xExpand: true,
         });
         this.titleContainer.add_child(this.titleLabel);
+        const options = {
+            addSuffix: true,
+        };
+        if (localeKey !== undefined) {
+            const locale = dateLocale[localeKey];
+            if (locale) {
+                options.locale = locale;
+            }
+        }
         this.dateLabel = new St.Label({
-            text: formatDistanceToNow(date, { addSuffix: true, locale: localeKey ? dateLocale[localeKey] : undefined }),
-            style_class: 'pano-item-date',
-            x_expand: true,
-            y_expand: true,
-            x_align: Clutter.ActorAlign.FILL,
-            y_align: Clutter.ActorAlign.CENTER,
+            text: formatDistanceToNow(date, options),
+            styleClass: 'pano-item-date',
+            xExpand: true,
+            yExpand: true,
+            xAlign: Clutter.ActorAlign.FILL,
+            yAlign: Clutter.ActorAlign.CENTER,
         });
         this.dateUpdateIntervalId = GLib.timeout_add_seconds(GLib.PRIORITY_DEFAULT, 60, () => {
-            this.dateLabel.set_text(formatDistanceToNow(date, { addSuffix: true, locale: localeKey ? dateLocale[localeKey] : undefined }));
+            this.dateLabel.set_text(formatDistanceToNow(date, options));
             return GLib.SOURCE_CONTINUE;
         });
         this.titleContainer.add_child(this.dateLabel);
         this.actionContainer = new St.BoxLayout({
-            style_class: 'pano-item-actions',
-            x_expand: true,
-            y_expand: true,
-            x_align: Clutter.ActorAlign.END,
-            y_align: Clutter.ActorAlign.START,
+            styleClass: 'pano-item-actions',
+            xExpand: true,
+            yExpand: true,
+            xAlign: Clutter.ActorAlign.END,
+            yAlign: Clutter.ActorAlign.START,
         });
         const favoriteIcon = new St.Icon({
-            style_class: 'pano-item-action-button-icon',
-            icon_name: 'starred-symbolic',
+            styleClass: 'pano-item-action-button-icon',
+            iconName: 'starred-symbolic',
         });
         this.favoriteButton = new St.Button({
-            style_class: 'pano-item-action-button pano-item-favorite-button',
+            styleClass: 'pano-item-action-button pano-item-favorite-button',
             child: favoriteIcon,
         });
         this.favoriteButton.connect('clicked', () => {
@@ -980,11 +1021,11 @@ let PanoItemHeader = class PanoItemHeader extends St.BoxLayout {
             return Clutter.EVENT_PROPAGATE;
         });
         const removeIcon = new St.Icon({
-            style_class: 'pano-item-action-button-icon pano-item-action-button-remove-icon',
-            icon_name: 'window-close-symbolic',
+            styleClass: 'pano-item-action-button-icon pano-item-action-button-remove-icon',
+            iconName: 'window-close-symbolic',
         });
         const removeButton = new St.Button({
-            style_class: 'pano-item-action-button pano-item-remove-button',
+            styleClass: 'pano-item-action-button pano-item-remove-button',
             child: removeIcon,
         });
         removeButton.connect('clicked', () => {
@@ -1042,12 +1083,13 @@ let PanoItem = class PanoItem extends St.BoxLayout {
         super({
             name: 'pano-item',
             visible: true,
-            pivot_point: Graphene.Point.alloc().init(0.5, 0.5),
+            pivotPoint: Graphene.Point.alloc().init(0.5, 0.5),
             reactive: true,
-            style_class: 'pano-item',
+            styleClass: 'pano-item',
             vertical: true,
-            track_hover: true,
+            trackHover: true,
         });
+        this.selected = null;
         this.clipboardManager = clipboardManager;
         this.dbItem = dbItem;
         this.settings = getCurrentExtensionSettings(ext);
@@ -1070,7 +1112,7 @@ let PanoItem = class PanoItem extends St.BoxLayout {
             if (this.dbItem.itemType === 'LINK' && this.settings.get_boolean('open-links-in-browser')) {
                 return;
             }
-            if (this.settings.get_boolean('paste-on-select')) {
+            if (this.settings.get_boolean('paste-on-select') && this.clipboardManager.isTracking) {
                 // See https://github.com/SUPERCILEX/gnome-clipboard-history/blob/master/extension.js#L606
                 this.timeoutId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 250, () => {
                     getVirtualKeyboard().notify_keyval(Clutter.get_current_event_time(), Clutter.KEY_Control_L, Clutter.KeyState.RELEASED);
@@ -1102,13 +1144,13 @@ let PanoItem = class PanoItem extends St.BoxLayout {
             return Clutter.EVENT_PROPAGATE;
         });
         this.body = new St.BoxLayout({
-            style_class: 'pano-item-body',
-            clip_to_allocation: true,
+            styleClass: 'pano-item-body',
+            clipToAllocation: true,
             vertical: true,
-            x_align: Clutter.ActorAlign.FILL,
-            y_align: Clutter.ActorAlign.FILL,
-            x_expand: true,
-            y_expand: true,
+            xAlign: Clutter.ActorAlign.FILL,
+            yAlign: Clutter.ActorAlign.FILL,
+            xExpand: true,
+            yExpand: true,
         });
         this.add_child(this.header);
         this.add_child(this.body);
@@ -1134,9 +1176,9 @@ let PanoItem = class PanoItem extends St.BoxLayout {
             this.set_x_align(Clutter.ActorAlign.START);
             this.set_y_align(Clutter.ActorAlign.FILL);
         }
-        const { scale_factor } = St.ThemeContext.get_for_stage(Shell.Global.get().get_stage());
-        this.body.set_height(this.settings.get_int('item-size') * scale_factor - this.header.get_height());
-        this.body.set_width(this.settings.get_int('item-size') * scale_factor);
+        const { scaleFactor } = St.ThemeContext.get_for_stage(Shell.Global.get().get_stage());
+        this.body.set_height(this.settings.get_int('item-size') * scaleFactor - this.header.get_height());
+        this.body.set_width(this.settings.get_int('item-size') * scaleFactor);
     }
     setSelected(selected) {
         if (selected) {
@@ -1149,8 +1191,7 @@ let PanoItem = class PanoItem extends St.BoxLayout {
         }
         this.selected = selected;
     }
-    vfunc_key_press_event(_event) {
-        const event = getV13KeyEvent(_event);
+    vfunc_key_press_event(event) {
         if (event.get_key_symbol() === Clutter.KEY_Return ||
             event.get_key_symbol() === Clutter.KEY_ISO_Enter ||
             event.get_key_symbol() === Clutter.KEY_KP_Enter) {
@@ -1169,9 +1210,15 @@ let PanoItem = class PanoItem extends St.BoxLayout {
         }
         return Clutter.EVENT_PROPAGATE;
     }
-    vfunc_button_release_event(_event) {
-        const event = getV13ButtonEvent(_event);
+    vfunc_button_release_event(event) {
         if (event.get_button() === 1) {
+            this.emit('activated');
+            return Clutter.EVENT_STOP;
+        }
+        return Clutter.EVENT_PROPAGATE;
+    }
+    vfunc_touch_event(event) {
+        if (event.type() === Clutter.EventType.TOUCH_END) {
             this.emit('activated');
             return Clutter.EVENT_STOP;
         }
@@ -1204,7 +1251,7 @@ PanoItem = __decorate([
     registerGObjectClass
 ], PanoItem);
 
-const global = Shell.Global.get();
+const global$1 = Shell.Global.get();
 const debug$4 = logger('clipboard-manager');
 const MimeType = {
     TEXT: ['text/plain', 'text/plain;charset=utf-8', 'UTF8_STRING'],
@@ -1212,6 +1259,12 @@ const MimeType = {
     GNOME_FILE: ['x-special/gnome-copied-files'],
     SENSITIVE: ['x-kde-passwordManagerHint'],
 };
+let ContentType;
+(function (ContentType) {
+    ContentType[ContentType["IMAGE"] = 0] = "IMAGE";
+    ContentType[ContentType["FILE"] = 1] = "FILE";
+    ContentType[ContentType["TEXT"] = 2] = "TEXT";
+})(ContentType || (ContentType = {}));
 const FileOperation = {
     CUT: 'cut',
     COPY: 'copy',
@@ -1252,13 +1305,13 @@ const compareClipboardContent = (content1, content2) => {
     if (content1.type !== content2.type) {
         return false;
     }
-    if (content1.type === 2 /* ContentType.TEXT */) {
+    if (content1.type === ContentType.TEXT) {
         return content1.value === content2.value;
     }
-    if (content1.type === 0 /* ContentType.IMAGE */ && content2.type === 0 /* ContentType.IMAGE */) {
+    if (content1.type === ContentType.IMAGE && content2.type === ContentType.IMAGE) {
         return arraybufferEqual(content1.value, content2.value);
     }
-    if (content1.type === 1 /* ContentType.FILE */ && content2.type === 1 /* ContentType.FILE */) {
+    if (content1.type === ContentType.FILE && content2.type === ContentType.FILE) {
         return (content1.value.operation === content2.value.operation &&
             content1.value.fileList.length === content2.value.fileList.length &&
             content1.value.fileList.every((file, index) => file === content2.value.fileList[index]));
@@ -1270,7 +1323,7 @@ let ClipboardManager = class ClipboardManager extends GObject.Object {
         super();
         this.settings = getCurrentExtensionSettings(ext);
         this.clipboard = St.Clipboard.get_default();
-        this.selection = global.get_display().get_selection();
+        this.selection = global$1.get_display().get_selection();
         this.lastCopiedContent = null;
     }
     startTracking() {
@@ -1291,7 +1344,7 @@ let ClipboardManager = class ClipboardManager extends GObject.Object {
             if (this.settings.get_boolean('is-in-incognito')) {
                 return;
             }
-            const focussedWindow = Shell.Global.get().display.focus_window;
+            const focussedWindow = Shell.Global.get().display.focusWindow;
             const wmClass = focussedWindow?.get_wm_class();
             if (wmClass &&
                 this.settings.get_boolean('watch-exclusion-list') &&
@@ -1330,25 +1383,27 @@ let ClipboardManager = class ClipboardManager extends GObject.Object {
         });
     }
     stopTracking() {
-        this.selection.disconnect(this.selectionChangedId);
+        if (this.selectionChangedId) {
+            this.selection.disconnect(this.selectionChangedId);
+        }
         this.isTracking = false;
         this.lastCopiedContent = null;
     }
     setContent({ content }) {
         const syncPrimary = this.settings.get_boolean('sync-primary');
-        if (content.type === 2 /* ContentType.TEXT */) {
+        if (content.type === ContentType.TEXT) {
             if (syncPrimary) {
                 this.clipboard.set_text(St.ClipboardType.PRIMARY, content.value);
             }
             this.clipboard.set_text(St.ClipboardType.CLIPBOARD, content.value);
         }
-        else if (content.type === 0 /* ContentType.IMAGE */) {
+        else if (content.type === ContentType.IMAGE) {
             if (syncPrimary) {
                 this.clipboard.set_content(St.ClipboardType.PRIMARY, MimeType.IMAGE[0], new GLib.Bytes(content.value));
             }
             this.clipboard.set_content(St.ClipboardType.CLIPBOARD, MimeType.IMAGE[0], new GLib.Bytes(content.value));
         }
-        else if (content.type === 1 /* ContentType.FILE */) {
+        else if (content.type === ContentType.FILE) {
             if (syncPrimary) {
                 this.clipboard.set_content(St.ClipboardType.PRIMARY, MimeType.GNOME_FILE[0], new GLib.Bytes(new TextEncoder().encode([content.value.operation, ...content.value.fileList].join('\n'))));
             }
@@ -1381,7 +1436,7 @@ let ClipboardManager = class ClipboardManager extends GObject.Object {
                         const fileContent = content.split('\n').filter((c) => !!c);
                         const hasOperation = fileContent[0] === FileOperation.CUT || fileContent[0] === FileOperation.COPY;
                         resolve(new ClipboardContent({
-                            type: 1 /* ContentType.FILE */,
+                            type: ContentType.FILE,
                             value: {
                                 operation: hasOperation ? fileContent[0] : FileOperation.COPY,
                                 fileList: hasOperation ? fileContent.slice(1) : fileContent,
@@ -1402,7 +1457,7 @@ let ClipboardManager = class ClipboardManager extends GObject.Object {
                     const data = bytes instanceof GLib.Bytes ? bytes.get_data() : bytes;
                     if (data && data.length > 0) {
                         resolve(new ClipboardContent({
-                            type: 0 /* ContentType.IMAGE */,
+                            type: ContentType.IMAGE,
                             value: data,
                         }));
                         return;
@@ -1414,7 +1469,7 @@ let ClipboardManager = class ClipboardManager extends GObject.Object {
                 this.clipboard.get_text(clipboardType, (_, text) => {
                     if (text && text.trim()) {
                         resolve(new ClipboardContent({
-                            type: 2 /* ContentType.TEXT */,
+                            type: ContentType.TEXT,
                             value: text,
                         }));
                         return;
@@ -1520,7 +1575,7 @@ const stringify = (o, language) => {
 };
 const markupCode = (text, charLength) => {
     const result = INVISIBLE_SPACE +
-        stringify(PrismJS.util.encode(PrismJS.tokenize(text.slice(0, charLength), PrismJS.languages.javascript)), 'javascript');
+        stringify(PrismJS.util.encode(PrismJS.tokenize(text.slice(0, charLength), PrismJS.languages['javascript'])), 'javascript');
     return result;
 };
 
@@ -1529,11 +1584,11 @@ let CodePanoItem = class CodePanoItem extends PanoItem {
         super(ext, clipboardManager, dbItem);
         this.codeItemSettings = this.settings.get_child('code-item');
         this.label = new St.Label({
-            style_class: 'pano-item-body-code-content',
-            clip_to_allocation: true,
+            styleClass: 'pano-item-body-code-content',
+            clipToAllocation: true,
         });
-        this.label.clutter_text.use_markup = true;
-        this.label.clutter_text.ellipsize = Pango.EllipsizeMode.END;
+        this.label.clutterText.useMarkup = true;
+        this.label.clutterText.ellipsize = Pango.EllipsizeMode.END;
         this.body.add_child(this.label);
         this.connect('activated', this.setClipboardContent.bind(this));
         this.setStyle();
@@ -1549,11 +1604,11 @@ let CodePanoItem = class CodePanoItem extends PanoItem {
         this.header.set_style(`background-color: ${headerBgColor}; color: ${headerColor};`);
         this.body.set_style(`background-color: ${bodyBgColor}`);
         this.label.set_style(`font-size: ${bodyFontSize}px; font-family: ${bodyFontFamily};`);
-        this.label.clutter_text.set_markup(markupCode(this.dbItem.content.trim(), characterLength));
+        this.label.clutterText.set_markup(markupCode(this.dbItem.content.trim(), characterLength));
     }
     setClipboardContent() {
         this.clipboardManager.setContent(new ClipboardContent({
-            type: 2 /* ContentType.TEXT */,
+            type: ContentType.TEXT,
             value: this.dbItem.content,
         }));
     }
@@ -1569,25 +1624,25 @@ let ColorPanoItem = class ColorPanoItem extends PanoItem {
         this.colorItemSettings = this.settings.get_child('color-item');
         const colorContainer = new St.BoxLayout({
             vertical: false,
-            x_expand: true,
-            y_expand: true,
-            y_align: Clutter.ActorAlign.FILL,
-            x_align: Clutter.ActorAlign.FILL,
-            style_class: 'color-container',
+            xExpand: true,
+            yExpand: true,
+            yAlign: Clutter.ActorAlign.FILL,
+            xAlign: Clutter.ActorAlign.FILL,
+            styleClass: 'color-container',
             style: `background-color: ${this.dbItem.content};`,
         });
         this.label = new St.Label({
-            x_align: Clutter.ActorAlign.CENTER,
-            y_align: Clutter.ActorAlign.CENTER,
-            x_expand: true,
-            y_expand: true,
+            xAlign: Clutter.ActorAlign.CENTER,
+            yAlign: Clutter.ActorAlign.CENTER,
+            xExpand: true,
+            yExpand: true,
             text: this.dbItem.content,
-            style_class: 'color-label',
+            styleClass: 'color-label',
         });
         colorContainer.add_child(this.label);
         colorContainer.add_constraint(new Clutter.AlignConstraint({
             source: this,
-            align_axis: Clutter.AlignAxis.Y_AXIS,
+            alignAxis: Clutter.AlignAxis.Y_AXIS,
             factor: 0.005,
         }));
         this.body.add_child(colorContainer);
@@ -1607,7 +1662,7 @@ let ColorPanoItem = class ColorPanoItem extends PanoItem {
     }
     setClipboardContent() {
         this.clipboardManager.setContent(new ClipboardContent({
-            type: 2 /* ContentType.TEXT */,
+            type: ContentType.TEXT,
             value: this.dbItem.content,
         }));
     }
@@ -1623,23 +1678,23 @@ let EmojiPanoItem = class EmojiPanoItem extends PanoItem {
         this.emojiItemSettings = this.settings.get_child('emoji-item');
         const emojiContainer = new St.BoxLayout({
             vertical: false,
-            x_expand: true,
-            y_expand: true,
-            y_align: Clutter.ActorAlign.FILL,
-            x_align: Clutter.ActorAlign.FILL,
-            style_class: 'emoji-container',
+            xExpand: true,
+            yExpand: true,
+            yAlign: Clutter.ActorAlign.FILL,
+            xAlign: Clutter.ActorAlign.FILL,
+            styleClass: 'emoji-container',
         });
         this.label = new St.Label({
-            x_align: Clutter.ActorAlign.CENTER,
-            y_align: Clutter.ActorAlign.CENTER,
-            x_expand: true,
-            y_expand: true,
+            xAlign: Clutter.ActorAlign.CENTER,
+            yAlign: Clutter.ActorAlign.CENTER,
+            xExpand: true,
+            yExpand: true,
             text: this.dbItem.content,
-            style_class: 'pano-item-body-emoji-content',
+            styleClass: 'pano-item-body-emoji-content',
         });
-        this.label.clutter_text.line_wrap = true;
-        this.label.clutter_text.line_wrap_mode = Pango.WrapMode.WORD_CHAR;
-        this.label.clutter_text.ellipsize = Pango.EllipsizeMode.END;
+        this.label.clutterText.lineWrap = true;
+        this.label.clutterText.lineWrapMode = Pango.WrapMode.WORD_CHAR;
+        this.label.clutterText.ellipsize = Pango.EllipsizeMode.END;
         emojiContainer.add_child(this.label);
         this.body.add_child(emojiContainer);
         this.connect('activated', this.setClipboardContent.bind(this));
@@ -1657,7 +1712,7 @@ let EmojiPanoItem = class EmojiPanoItem extends PanoItem {
     }
     setClipboardContent() {
         this.clipboardManager.setContent(new ClipboardContent({
-            type: 2 /* ContentType.TEXT */,
+            type: ContentType.TEXT,
             value: this.dbItem.content,
         }));
     }
@@ -1674,11 +1729,11 @@ let FilePanoItem = class FilePanoItem extends PanoItem {
         this.body.add_style_class_name('pano-item-body-file');
         this.fileItemSettings = this.settings.get_child('file-item');
         const container = new St.BoxLayout({
-            style_class: 'copied-files-container',
+            styleClass: 'copied-files-container',
             vertical: true,
-            x_expand: true,
-            y_expand: false,
-            y_align: Clutter.ActorAlign.FILL,
+            xExpand: true,
+            yExpand: false,
+            yAlign: Clutter.ActorAlign.FILL,
         });
         this.fileList
             .map((f) => {
@@ -1688,25 +1743,25 @@ let FilePanoItem = class FilePanoItem extends PanoItem {
             .forEach((uri) => {
             const bl = new St.BoxLayout({
                 vertical: false,
-                style_class: 'copied-file-name',
-                x_expand: true,
-                x_align: Clutter.ActorAlign.FILL,
-                clip_to_allocation: true,
-                y_align: Clutter.ActorAlign.FILL,
+                styleClass: 'copied-file-name',
+                xExpand: true,
+                xAlign: Clutter.ActorAlign.FILL,
+                clipToAllocation: true,
+                yAlign: Clutter.ActorAlign.FILL,
             });
             bl.add_child(new St.Icon({
-                icon_name: this.operation === FileOperation.CUT ? 'edit-cut-symbolic' : 'edit-copy-symbolic',
-                x_align: Clutter.ActorAlign.START,
-                icon_size: 14,
-                style_class: 'file-icon',
+                iconName: this.operation === FileOperation.CUT ? 'edit-cut-symbolic' : 'edit-copy-symbolic',
+                xAlign: Clutter.ActorAlign.START,
+                iconSize: 14,
+                styleClass: 'file-icon',
             }));
             const uriLabel = new St.Label({
                 text: uri,
-                style_class: 'pano-item-body-file-name-label',
-                x_align: Clutter.ActorAlign.FILL,
-                x_expand: true,
+                styleClass: 'pano-item-body-file-name-label',
+                xAlign: Clutter.ActorAlign.FILL,
+                xExpand: true,
             });
-            uriLabel.clutter_text.ellipsize = Pango.EllipsizeMode.MIDDLE;
+            uriLabel.clutterText.ellipsize = Pango.EllipsizeMode.MIDDLE;
             bl.add_child(uriLabel);
             container.add_child(bl);
         });
@@ -1727,7 +1782,7 @@ let FilePanoItem = class FilePanoItem extends PanoItem {
     }
     setClipboardContent() {
         this.clipboardManager.setContent(new ClipboardContent({
-            type: 1 /* ContentType.FILE */,
+            type: ContentType.FILE,
             value: { fileList: this.fileList, operation: this.operation },
         }));
     }
@@ -1745,52 +1800,52 @@ let ImagePanoItem = class ImagePanoItem extends PanoItem {
         this.imageItemSettings = this.settings.get_child('image-item');
         const { width, height, size } = JSON.parse(dbItem.metaData || '{}');
         this.metaContainer = new St.BoxLayout({
-            style_class: 'pano-item-body-meta-container',
+            styleClass: 'pano-item-body-meta-container',
             vertical: true,
-            x_expand: true,
-            y_expand: true,
-            y_align: Clutter.ActorAlign.END,
-            x_align: Clutter.ActorAlign.FILL,
+            xExpand: true,
+            yExpand: true,
+            yAlign: Clutter.ActorAlign.END,
+            xAlign: Clutter.ActorAlign.FILL,
         });
         const resolutionContainer = new St.BoxLayout({
             vertical: false,
-            x_expand: true,
-            y_align: Clutter.ActorAlign.FILL,
-            x_align: Clutter.ActorAlign.FILL,
-            style_class: 'pano-item-body-image-resolution-container',
+            xExpand: true,
+            yAlign: Clutter.ActorAlign.FILL,
+            xAlign: Clutter.ActorAlign.FILL,
+            styleClass: 'pano-item-body-image-resolution-container',
         });
         this.resolutionTitle = new St.Label({
             text: 'Resolution',
-            x_align: Clutter.ActorAlign.START,
-            x_expand: true,
-            style_class: 'pano-item-body-image-meta-title',
+            xAlign: Clutter.ActorAlign.START,
+            xExpand: true,
+            styleClass: 'pano-item-body-image-meta-title',
         });
         this.resolutionValue = new St.Label({
             text: `${width} x ${height}`,
-            x_align: Clutter.ActorAlign.END,
-            x_expand: false,
-            style_class: 'pano-item-body-image-meta-value',
+            xAlign: Clutter.ActorAlign.END,
+            xExpand: false,
+            styleClass: 'pano-item-body-image-meta-value',
         });
         resolutionContainer.add_child(this.resolutionTitle);
         resolutionContainer.add_child(this.resolutionValue);
         const sizeContainer = new St.BoxLayout({
             vertical: false,
-            x_expand: true,
-            y_align: Clutter.ActorAlign.FILL,
-            x_align: Clutter.ActorAlign.FILL,
-            style_class: 'pano-item-body-image-size-container',
+            xExpand: true,
+            yAlign: Clutter.ActorAlign.FILL,
+            xAlign: Clutter.ActorAlign.FILL,
+            styleClass: 'pano-item-body-image-size-container',
         });
         this.sizeLabel = new St.Label({
             text: 'Size',
-            x_align: Clutter.ActorAlign.START,
-            x_expand: true,
-            style_class: 'pano-item-body-image-meta-title',
+            xAlign: Clutter.ActorAlign.START,
+            xExpand: true,
+            styleClass: 'pano-item-body-image-meta-title',
         });
         this.sizeValue = new St.Label({
             text: prettyBytes(size),
-            x_align: Clutter.ActorAlign.END,
-            x_expand: false,
-            style_class: 'pano-item-body-image-meta-value',
+            xAlign: Clutter.ActorAlign.END,
+            xExpand: false,
+            styleClass: 'pano-item-body-image-meta-value',
         });
         sizeContainer.add_child(this.sizeLabel);
         sizeContainer.add_child(this.sizeValue);
@@ -1798,7 +1853,7 @@ let ImagePanoItem = class ImagePanoItem extends PanoItem {
         this.metaContainer.add_child(sizeContainer);
         this.metaContainer.add_constraint(new Clutter.AlignConstraint({
             source: this,
-            align_axis: Clutter.AlignAxis.Y_AXIS,
+            alignAxis: Clutter.AlignAxis.Y_AXIS,
             factor: 0.001,
         }));
         this.body.add_child(this.metaContainer);
@@ -1840,7 +1895,7 @@ let ImagePanoItem = class ImagePanoItem extends PanoItem {
             return;
         }
         this.clipboardManager.setContent(new ClipboardContent({
-            type: 0 /* ContentType.IMAGE */,
+            type: ContentType.IMAGE,
             value: data,
         }));
     }
@@ -1872,25 +1927,25 @@ let LinkPanoItem = class LinkPanoItem extends PanoItem {
         }
         this.body.add_style_class_name('pano-item-body-link');
         this.metaContainer = new St.BoxLayout({
-            style_class: 'pano-item-body-meta-container',
+            styleClass: 'pano-item-body-meta-container',
             vertical: true,
-            x_expand: true,
-            y_expand: false,
-            y_align: Clutter.ActorAlign.END,
-            x_align: Clutter.ActorAlign.FILL,
+            xExpand: true,
+            yExpand: false,
+            yAlign: Clutter.ActorAlign.END,
+            xAlign: Clutter.ActorAlign.FILL,
         });
         this.titleLabel = new St.Label({
             text: titleText,
-            style_class: 'link-title-label',
+            styleClass: 'link-title-label',
         });
         this.descriptionLabel = new St.Label({
             text: descriptionText,
-            style_class: 'link-description-label',
+            styleClass: 'link-description-label',
         });
-        this.descriptionLabel.clutter_text.single_line_mode = true;
+        this.descriptionLabel.clutterText.singleLineMode = true;
         this.linkLabel = new St.Label({
             text: this.dbItem.content,
-            style_class: 'link-label',
+            styleClass: 'link-label',
         });
         let imageFilePath = `file:///${ext.path}/images/${DEFAULT_LINK_PREVIEW_IMAGE_NAME}`;
         if (image && Gio.File.new_for_uri(`file://${getCachePath(ext)}/${image}.png`).query_exists(null)) {
@@ -1898,11 +1953,11 @@ let LinkPanoItem = class LinkPanoItem extends PanoItem {
         }
         const imageContainer = new St.BoxLayout({
             vertical: true,
-            x_expand: true,
-            y_expand: true,
-            y_align: Clutter.ActorAlign.FILL,
-            x_align: Clutter.ActorAlign.FILL,
-            style_class: 'image-container',
+            xExpand: true,
+            yExpand: true,
+            yAlign: Clutter.ActorAlign.FILL,
+            xAlign: Clutter.ActorAlign.FILL,
+            styleClass: 'image-container',
             style: `background-image: url(${imageFilePath});`,
         });
         this.metaContainer.add_child(this.titleLabel);
@@ -1914,11 +1969,11 @@ let LinkPanoItem = class LinkPanoItem extends PanoItem {
         this.setStyle();
         this.linkItemSettings.connect('changed', this.setStyle.bind(this));
         const openLinkIcon = new St.Icon({
-            icon_name: 'web-browser-symbolic',
-            style_class: 'pano-item-action-button-icon',
+            iconName: 'web-browser-symbolic',
+            styleClass: 'pano-item-action-button-icon',
         });
         const openLinkButton = new St.Button({
-            style_class: 'pano-item-action-button pano-item-open-link-button',
+            styleClass: 'pano-item-action-button pano-item-open-link-button',
             child: openLinkIcon,
         });
         openLinkButton.connect('clicked', () => {
@@ -1961,13 +2016,12 @@ let LinkPanoItem = class LinkPanoItem extends PanoItem {
     }
     setClipboardContent() {
         this.clipboardManager.setContent(new ClipboardContent({
-            type: 2 /* ContentType.TEXT */,
+            type: ContentType.TEXT,
             value: this.dbItem.content,
         }));
     }
-    vfunc_key_press_event(_event) {
-        super.vfunc_key_press_event(_event);
-        const event = getV13KeyEvent(_event);
+    vfunc_key_press_event(event) {
+        super.vfunc_key_press_event(event);
         if (this.settings.get_boolean('open-links-in-browser') &&
             event.get_state() === Clutter.ModifierType.CONTROL_MASK &&
             (event.get_key_symbol() === Clutter.KEY_Return ||
@@ -1977,9 +2031,8 @@ let LinkPanoItem = class LinkPanoItem extends PanoItem {
         }
         return Clutter.EVENT_PROPAGATE;
     }
-    vfunc_button_release_event(_event) {
-        super.vfunc_button_release_event(_event);
-        const event = getV13ButtonEvent(_event);
+    vfunc_button_release_event(event) {
+        super.vfunc_button_release_event(event);
         if (event.get_button() === 1 &&
             event.get_state() === Clutter.ModifierType.CONTROL_MASK &&
             this.settings.get_boolean('open-links-in-browser')) {
@@ -1997,11 +2050,11 @@ let TextPanoItem = class TextPanoItem extends PanoItem {
         super(ext, clipboardManager, dbItem);
         this.textItemSettings = this.settings.get_child('text-item');
         this.label = new St.Label({
-            style_class: 'pano-item-body-text-content',
+            styleClass: 'pano-item-body-text-content',
         });
-        this.label.clutter_text.line_wrap = true;
-        this.label.clutter_text.line_wrap_mode = Pango.WrapMode.WORD_CHAR;
-        this.label.clutter_text.ellipsize = Pango.EllipsizeMode.END;
+        this.label.clutterText.lineWrap = true;
+        this.label.clutterText.lineWrapMode = Pango.WrapMode.WORD_CHAR;
+        this.label.clutterText.ellipsize = Pango.EllipsizeMode.END;
         this.body.add_child(this.label);
         this.connect('activated', this.setClipboardContent.bind(this));
         this.setStyle();
@@ -2025,7 +2078,7 @@ let TextPanoItem = class TextPanoItem extends PanoItem {
     }
     setClipboardContent() {
         this.clipboardManager.setContent(new ClipboardContent({
-            type: 2 /* ContentType.TEXT */,
+            type: ContentType.TEXT,
             value: this.dbItem.content,
         }));
     }
@@ -2047,8 +2100,9 @@ const getDocument = async (url) => {
     };
     try {
         const message = Soup.Message.new('GET', url);
-        message.request_headers.append('User-Agent', DEFAULT_USER_AGENT);
-        const response = await session.send_and_read_async(message, GLib.PRIORITY_DEFAULT, null);
+        message.requestHeaders.append('User-Agent', DEFAULT_USER_AGENT);
+        //note: casting required, since this is a gjs convention, to return an promise, instead of accepting a 4. value as callback (thats a C convention, since there's no Promise out of the box, but a callback works)
+        const response = (await session.send_and_read_async(message, GLib.PRIORITY_DEFAULT, null));
         if (response == null) {
             debug$2(`no response from ${url}`);
             return defaultResult;
@@ -2061,7 +2115,9 @@ const getDocument = async (url) => {
         const data = decoder.decode(bytes);
         let titleMatch = false;
         let titleTag = '';
-        let title = '', description = '', imageUrl = '';
+        let title;
+        let description;
+        let imageUrl;
         const p = new htmlparser2.Parser({
             onopentag(name, attribs) {
                 if (name === 'meta') {
@@ -2091,7 +2147,7 @@ const getDocument = async (url) => {
                             attribs['name'] === 'twitter:image' ||
                             attribs['name'] === 'image')) {
                         imageUrl = attribs['content'];
-                        if (imageUrl.startsWith('/')) {
+                        if (imageUrl && imageUrl.startsWith('/')) {
                             const uri = GLib.uri_parse(url, GLib.UriFlags.NONE);
                             imageUrl = `${uri.get_scheme()}://${uri.get_host()}${imageUrl}`;
                         }
@@ -2139,8 +2195,9 @@ const getImage = async (ext, imageUrl) => {
                 return [checksum, cachedImage];
             }
             const message = Soup.Message.new('GET', imageUrl);
-            message.request_headers.append('User-Agent', DEFAULT_USER_AGENT);
-            const response = await session.send_and_read_async(message, GLib.PRIORITY_DEFAULT, null);
+            message.requestHeaders.append('User-Agent', DEFAULT_USER_AGENT);
+            //note: casting required, since this is a gjs convention, to return an promise, instead of accepting a 4. value as callback (thats a C convention, since there's no Promise out of the box, but a callback works)
+            const response = (await session.send_and_read_async(message, GLib.PRIORITY_DEFAULT, null));
             if (!response) {
                 debug$2('no response while fetching the image');
                 return [null, null];
@@ -2225,15 +2282,15 @@ const findOrCreateDbItem = async (ext, clip) => {
     const { value, type } = clip.content;
     const queryBuilder = new ClipboardQueryBuilder();
     switch (type) {
-        case 1 /* ContentType.FILE */:
+        case ContentType.FILE:
             queryBuilder.withItemTypes(['FILE']).withMatchValue(`${value.operation}${value.fileList.sort().join('')}`);
             break;
-        case 0 /* ContentType.IMAGE */:
+        case ContentType.IMAGE:
             queryBuilder
                 .withItemTypes(['IMAGE'])
                 .withMatchValue(GLib.compute_checksum_for_bytes(GLib.ChecksumType.MD5, new GLib.Bytes(value)));
             break;
-        case 2 /* ContentType.TEXT */:
+        case ContentType.TEXT:
             queryBuilder.withItemTypes(['LINK', 'TEXT', 'CODE', 'COLOR', 'EMOJI']).withMatchValue(value).build();
             break;
         default:
@@ -2250,7 +2307,7 @@ const findOrCreateDbItem = async (ext, clip) => {
         });
     }
     switch (type) {
-        case 1 /* ContentType.FILE */:
+        case ContentType.FILE:
             return db.save({
                 content: JSON.stringify(value.fileList),
                 copyDate: new Date(),
@@ -2265,7 +2322,7 @@ const findOrCreateDbItem = async (ext, clip) => {
                     .join('')}`,
                 metaData: value.operation,
             });
-        case 0 /* ContentType.IMAGE */:
+        case ContentType.IMAGE:
             const checksum = GLib.compute_checksum_for_bytes(GLib.ChecksumType.MD5, new GLib.Bytes(value));
             if (!checksum) {
                 return null;
@@ -2286,11 +2343,14 @@ const findOrCreateDbItem = async (ext, clip) => {
                     size: value.length,
                 }),
             });
-        case 2 /* ContentType.TEXT */:
+        case ContentType.TEXT:
             const trimmedValue = value.trim();
             if (trimmedValue.toLowerCase().startsWith('http') && isValidUrl(trimmedValue)) {
                 const linkPreviews = getCurrentExtensionSettings(ext).get_boolean('link-previews');
-                let description = '', imageUrl = '', title = '', checksum = '';
+                let description;
+                let imageUrl;
+                let title;
+                let checksum;
                 const copyDate = new Date();
                 let linkDbItem = db.save({
                     content: trimmedValue,
@@ -2302,7 +2362,7 @@ const findOrCreateDbItem = async (ext, clip) => {
                     metaData: JSON.stringify({
                         title: title ? encodeURI(title) : '',
                         description: description ? encodeURI(description) : '',
-                        image: checksum || '',
+                        image: checksum ?? '',
                     }),
                 });
                 if (linkPreviews && linkDbItem) {
@@ -2310,7 +2370,7 @@ const findOrCreateDbItem = async (ext, clip) => {
                     description = document.description;
                     title = document.title;
                     imageUrl = document.imageUrl;
-                    checksum = (await getImage(ext, imageUrl))[0] || '';
+                    checksum = (await getImage(ext, imageUrl))[0] ?? undefined;
                     linkDbItem = db.update({
                         id: linkDbItem.id,
                         content: trimmedValue,
@@ -2322,7 +2382,7 @@ const findOrCreateDbItem = async (ext, clip) => {
                         metaData: JSON.stringify({
                             title: title ? encodeURI(title) : '',
                             description: description ? encodeURI(description) : '',
-                            image: checksum || '',
+                            image: checksum ?? '',
                         }),
                     });
                 }
@@ -2388,7 +2448,12 @@ const createPanoItem = async (ext, clipboardManager, clip) => {
     }
     if (dbItem) {
         if (getCurrentExtensionSettings(ext).get_boolean('send-notification-on-copy')) {
-            sendNotification(ext, dbItem);
+            try {
+                sendNotification(ext, dbItem);
+            }
+            catch (err) {
+                console.error('PANO: ' + err.toString());
+            }
         }
         return createPanoItemFromDb(ext, clipboardManager, dbItem);
     }
@@ -2437,6 +2502,14 @@ const createPanoItemFromDb = (ext, clipboardManager, dbItem) => {
     });
     return panoItem;
 };
+function converter(color) {
+    try {
+        return convert(color);
+    }
+    catch (_err) {
+        return null;
+    }
+}
 const removeItemResources = (ext, dbItem) => {
     db.delete(dbItem.id);
     if (dbItem.itemType === 'LINK') {
@@ -2453,63 +2526,64 @@ const removeItemResources = (ext, dbItem) => {
         }
     }
 };
-const sendNotification = async (ext, dbItem) => {
-    return new Promise(() => {
-        const _ = gettext(ext);
-        if (dbItem.itemType === 'IMAGE') {
-            const { width, height, size } = JSON.parse(dbItem.metaData || '{}');
-            notify(ext, _('Image Copied'), _('Width: %spx, Height: %spx, Size: %s').format(width, height, prettyBytes(size)), GdkPixbuf.Pixbuf.new_from_file(`${getImagesPath(ext)}/${dbItem.content}.png`));
+const sendNotification = (ext, dbItem) => {
+    const _ = gettext(ext);
+    if (dbItem.itemType === 'IMAGE') {
+        const { width, height, size } = JSON.parse(dbItem.metaData || '{}');
+        notify(ext, _('Image Copied'), _('Width: %spx, Height: %spx, Size: %s').format(width, height, prettyBytes(size)), GdkPixbuf.Pixbuf.new_from_file(`${getImagesPath(ext)}/${dbItem.content}.png`));
+    }
+    else if (dbItem.itemType === 'TEXT') {
+        notify(ext, _('Text Copied'), dbItem.content.trim());
+    }
+    else if (dbItem.itemType === 'CODE') {
+        notify(ext, _('Code Copied'), dbItem.content.trim());
+    }
+    else if (dbItem.itemType === 'EMOJI') {
+        notify(ext, _('Emoji Copied'), dbItem.content);
+    }
+    else if (dbItem.itemType === 'LINK') {
+        const { title, description, image } = JSON.parse(dbItem.metaData || '{}');
+        const pixbuf = image ? GdkPixbuf.Pixbuf.new_from_file(`${getCachePath(ext)}/${image}.png`) : undefined;
+        notify(ext, decodeURI(`${_('Link Copied')}${title ? ` - ${title}` : ''}`), `${dbItem.content}${description ? `\n\n${decodeURI(description)}` : ''}`, pixbuf, Cogl.PixelFormat.RGB_888);
+    }
+    else if (dbItem.itemType === 'COLOR') {
+        // Create pixbuf from color
+        const pixbuf = GdkPixbuf.Pixbuf.new(GdkPixbuf.Colorspace.RGB, true, 8, 1, 1);
+        let color = null;
+        // check if content has alpha
+        if (dbItem.content.includes('rgba')) {
+            color = converter(dbItem.content);
         }
-        else if (dbItem.itemType === 'TEXT') {
-            notify(ext, _('Text Copied'), dbItem.content.trim());
+        else if (validateHTMLColorRgb(dbItem.content)) {
+            color = `${converter(dbItem.content)}ff`;
         }
-        else if (dbItem.itemType === 'CODE') {
-            notify(ext, _('Code Copied'), dbItem.content.trim());
+        else if (validateHTMLColorHex(dbItem.content)) {
+            color = `${dbItem.content}ff`;
         }
-        else if (dbItem.itemType === 'EMOJI') {
-            notify(ext, _('Emoji Copied'), dbItem.content);
+        if (color) {
+            pixbuf.fill(parseInt(color.replace('#', '0x'), 16));
+            notify(ext, _('Color Copied'), dbItem.content, pixbuf);
         }
-        else if (dbItem.itemType === 'LINK') {
-            const { title, description, image } = JSON.parse(dbItem.metaData || '{}');
-            const pixbuf = image ? GdkPixbuf.Pixbuf.new_from_file(`${getCachePath(ext)}/${image}.png`) : undefined;
-            notify(ext, decodeURI(`${_('Link Copied')}${title ? ` - ${title}` : ''}`), `${dbItem.content}${description ? `\n\n${decodeURI(description)}` : ''}`, pixbuf, Cogl.PixelFormat.RGB_888);
-        }
-        else if (dbItem.itemType === 'COLOR') {
-            // Create pixbuf from color
-            const pixbuf = GdkPixbuf.Pixbuf.new(GdkPixbuf.Colorspace.RGB, true, 8, 1, 1);
-            let color = null;
-            // check if content has alpha
-            if (dbItem.content.includes('rgba')) {
-                color = converter(dbItem.content);
-            }
-            else if (validateHTMLColorRgb(dbItem.content)) {
-                color = `${converter(dbItem.content)}ff`;
-            }
-            else if (validateHTMLColorHex(dbItem.content)) {
-                color = `${dbItem.content}ff`;
-            }
-            if (color) {
-                pixbuf.fill(parseInt(color.replace('#', '0x'), 16));
-                notify(ext, _('Color Copied'), dbItem.content, pixbuf);
-            }
-        }
-        else if (dbItem.itemType === 'FILE') {
-            const operation = dbItem.metaData;
-            const fileListSize = JSON.parse(dbItem.content).length;
-            notify(ext, _('File %s').format(operation === FileOperation.CUT ? 'cut' : 'copied'), _('There are %s file(s)').format(fileListSize));
-        }
-    });
+    }
+    else if (dbItem.itemType === 'FILE') {
+        const operation = dbItem.metaData;
+        const fileListSize = JSON.parse(dbItem.content).length;
+        notify(ext, _('File %s').format(operation === FileOperation.CUT ? 'cut' : 'copied'), _('There are %s file(s)').format(fileListSize));
+    }
 };
 
-//TODO: the list member of St1.BoxLayout are of type Clutter.Actor and we have to cast constantly from PanoItem to Clutter.Actor and reverse, fix that somehow
+//TODO: the list member of St.BoxLayout are of type Clutter.Actor and we have to cast constantly from PanoItem to Clutter.Actor and reverse, fix that somehow
 let PanoScrollView = class PanoScrollView extends St.ScrollView {
     constructor(ext, clipboardManager, searchBox) {
         super({
-            overlay_scrollbars: true,
-            x_expand: true,
-            y_expand: true,
+            overlayScrollbars: true,
+            xExpand: true,
+            yExpand: true,
         });
         this.currentFocus = null;
+        this.currentFilter = null;
+        this.currentItemTypeFilter = null;
+        this.showFavorites = null;
         this.clipboardChangedSignalId = null;
         this.ext = ext;
         this.clipboardManager = clipboardManager;
@@ -2518,14 +2592,14 @@ let PanoScrollView = class PanoScrollView extends St.ScrollView {
         this.setScrollbarPolicy();
         this.list = new St.BoxLayout({
             vertical: isVertical(this.settings.get_uint('window-position')),
-            x_expand: true,
-            y_expand: true,
+            xExpand: true,
+            yExpand: true,
         });
         this.settings.connect('changed::window-position', () => {
             this.setScrollbarPolicy();
             this.list.set_vertical(isVertical(this.settings.get_uint('window-position')));
         });
-        this.add_actor(this.list);
+        scrollViewAddChild(this, this.list);
         const shouldFocusOut = (symbol) => {
             const isPanoVertical = isVertical(this.settings.get_uint('window-position'));
             const currentItemIndex = this.getVisibleItems().findIndex((item) => item.dbItem.id === this.currentFocus?.dbItem.id);
@@ -2591,7 +2665,7 @@ let PanoScrollView = class PanoScrollView extends St.ScrollView {
         });
         this.clipboardChangedSignalId = this.clipboardManager.connect('changed', async (_, content) => {
             const panoItem = await createPanoItem(ext, this.clipboardManager, content);
-            if (panoItem) {
+            if (panoItem && this) {
                 this.prependItem(panoItem);
                 this.filter(this.currentFilter, this.currentItemTypeFilter, this.showFavorites);
             }
@@ -2659,7 +2733,7 @@ let PanoScrollView = class PanoScrollView extends St.ScrollView {
         return this.list.get_children();
     }
     getVisibleItems() {
-        return this.list.get_children().filter((item) => item.is_visible());
+        return this.getItems().filter((item) => item.is_visible());
     }
     removeExcessiveItems() {
         const historyLength = this.settings.get_int('history-length');
@@ -2678,9 +2752,10 @@ let PanoScrollView = class PanoScrollView extends St.ScrollView {
         if (!lastFocus) {
             return this.focusOnClosest();
         }
-        const index = this.getVisibleItems().findIndex((item) => item.dbItem.id === lastFocus.dbItem.id);
-        if (index + 1 < this.getVisibleItems().length) {
-            this.currentFocus = this.getVisibleItems()[index + 1];
+        const items = this.getVisibleItems();
+        const index = items.findIndex((item) => item.dbItem.id === lastFocus.dbItem.id);
+        if (index + 1 < items.length) {
+            this.currentFocus = items[index + 1];
             this.currentFocus.grab_key_focus();
             return true;
         }
@@ -2691,9 +2766,10 @@ let PanoScrollView = class PanoScrollView extends St.ScrollView {
         if (!lastFocus) {
             return this.focusOnClosest();
         }
-        const index = this.getVisibleItems().findIndex((item) => item.dbItem.id === lastFocus.dbItem.id);
+        const items = this.getVisibleItems();
+        const index = items.findIndex((item) => item.dbItem.id === lastFocus.dbItem.id);
         if (index - 1 >= 0) {
-            this.currentFocus = this.getVisibleItems()[index - 1];
+            this.currentFocus = items[index - 1];
             this.currentFocus.grab_key_focus();
             return true;
         }
@@ -2722,17 +2798,16 @@ let PanoScrollView = class PanoScrollView extends St.ScrollView {
     }
     focusOnClosest() {
         const lastFocus = this.currentFocus;
+        const items = this.getVisibleItems();
         if (lastFocus !== null) {
             if (lastFocus.get_parent() === this.list && lastFocus.is_visible()) {
                 lastFocus.grab_key_focus();
                 return true;
             }
             else {
-                let nextFocus = this.getVisibleItems().find((item) => item.dbItem.copyDate <= lastFocus.dbItem.copyDate);
+                let nextFocus = items.find((item) => item.dbItem.copyDate <= lastFocus.dbItem.copyDate);
                 if (!nextFocus) {
-                    nextFocus = this.getVisibleItems()
-                        .reverse()
-                        .find((item) => item.dbItem.copyDate >= lastFocus.dbItem.copyDate);
+                    nextFocus = items.reverse().find((item) => item.dbItem.copyDate >= lastFocus.dbItem.copyDate);
                 }
                 if (nextFocus) {
                     this.currentFocus = nextFocus;
@@ -2741,28 +2816,29 @@ let PanoScrollView = class PanoScrollView extends St.ScrollView {
                 }
             }
         }
-        else if (this.currentFilter && this.getVisibleItems().length > 0) {
-            this.currentFocus = this.getVisibleItems()[0];
+        else if (this.currentFilter && items.length > 0) {
+            this.currentFocus = items[0];
             this.currentFocus.grab_key_focus();
             return true;
         }
-        else if (!this.currentFilter && this.getVisibleItems().length > 1) {
-            this.currentFocus = this.getVisibleItems()[1];
+        else if (!this.currentFilter && items.length > 1) {
+            this.currentFocus = items[1];
             this.currentFocus.grab_key_focus();
             return true;
         }
-        else if (this.getVisibleItems().length > 0) {
-            this.currentFocus = this.getVisibleItems()[0];
+        else if (items.length > 0) {
+            this.currentFocus = items[0];
             this.currentFocus.grab_key_focus();
             return true;
         }
         return false;
     }
     scrollToFirstItem() {
-        if (this.getVisibleItems().length === 0) {
+        const items = this.getVisibleItems();
+        if (items.length === 0) {
             return;
         }
-        this.scrollToItem(this.getVisibleItems()[0]);
+        this.scrollToItem(items[0]);
     }
     scrollToFocussedItem() {
         if (!this.currentFocus || !this.currentFocus.is_visible()) {
@@ -2771,12 +2847,13 @@ let PanoScrollView = class PanoScrollView extends St.ScrollView {
         this.scrollToItem(this.currentFocus);
     }
     focusAndScrollToFirst() {
-        if (this.getVisibleItems().length === 0) {
+        const items = this.getVisibleItems();
+        if (items.length === 0) {
             this.emit('scroll-focus-out');
             this.currentFocus = null;
             return;
         }
-        this.currentFocus = this.getVisibleItems()[0];
+        this.currentFocus = items[0];
         this.currentFocus.grab_key_focus();
         if (isVertical(this.settings.get_uint('window-position'))) {
             this.vscroll.adjustment.set_value(this.get_allocation_box().y1);
@@ -2795,17 +2872,16 @@ let PanoScrollView = class PanoScrollView extends St.ScrollView {
         let adjustment;
         let value;
         if (isVertical(this.settings.get_uint('window-position'))) {
-            adjustment = this.vscroll.adjustment;
-            value = box.y1 + adjustment.step_increment / 2.0 - adjustment.page_size / 2.0;
+            adjustment = getScrollViewAdjustment(this, 'v');
+            value = box.y1 + adjustment.stepIncrement / 2.0 - adjustment.pageSize / 2.0;
         }
         else {
-            adjustment = this.hscroll.adjustment;
-            value = box.x1 + adjustment.step_increment / 2.0 - adjustment.page_size / 2.0;
+            adjustment = getScrollViewAdjustment(this, 'h');
+            value = box.x1 + adjustment.stepIncrement / 2.0 - adjustment.pageSize / 2.0;
         }
         if (!Number.isFinite(value)) {
             return;
         }
-        //TODO: use St version >= 13 to get this types!!!, and than you can also use this.scrollView.vscroll.adjustment.ease
         adjustment.ease(value, {
             duration: 150,
             mode: Clutter.AnimationMode.EASE_OUT_QUAD,
@@ -2825,8 +2901,7 @@ let PanoScrollView = class PanoScrollView extends St.ScrollView {
             item.emit('activated');
         }
     }
-    vfunc_key_press_event(_event) {
-        const event = getV13KeyEvent(_event);
+    vfunc_key_press_event(event) {
         const isPanoVertical = isVertical(this.settings.get_uint('window-position'));
         if (isPanoVertical && event.get_key_symbol() === Clutter.KEY_Up) {
             this.focusPrev();
@@ -2846,8 +2921,7 @@ let PanoScrollView = class PanoScrollView extends St.ScrollView {
         }
         return Clutter.EVENT_PROPAGATE;
     }
-    vfunc_scroll_event(_event) {
-        const event = getV13ScrollEvent(_event);
+    vfunc_scroll_event(event) {
         let adjustment;
         if (isVertical(this.settings.get_uint('window-position'))) {
             adjustment = this.vscroll.adjustment;
@@ -2861,11 +2935,11 @@ let PanoScrollView = class PanoScrollView extends St.ScrollView {
         }
         if (event.get_scroll_direction() === Clutter.ScrollDirection.UP ||
             event.get_scroll_direction() === Clutter.ScrollDirection.LEFT) {
-            value -= adjustment.step_increment * 2;
+            value -= adjustment.stepIncrement * 2;
         }
         else if (event.get_scroll_direction() === Clutter.ScrollDirection.DOWN ||
             event.get_scroll_direction() === Clutter.ScrollDirection.RIGHT) {
-            value += adjustment.step_increment * 2;
+            value += adjustment.stepIncrement * 2;
         }
         adjustment.remove_transition('value');
         adjustment.ease(value, {
@@ -2909,10 +2983,10 @@ PanoScrollView = __decorate([
 let SearchBox = class SearchBox extends St.BoxLayout {
     constructor(ext) {
         super({
-            x_align: Clutter.ActorAlign.CENTER,
-            style_class: 'search-entry-container',
+            xAlign: Clutter.ActorAlign.CENTER,
+            styleClass: 'search-entry-container',
             vertical: false,
-            track_hover: true,
+            trackHover: true,
             reactive: true,
         });
         this.currentIndex = null;
@@ -2922,17 +2996,17 @@ let SearchBox = class SearchBox extends St.BoxLayout {
         this.settings = getCurrentExtensionSettings(ext);
         const themeContext = St.ThemeContext.get_for_stage(Shell.Global.get().get_stage());
         this.search = new St.Entry({
-            can_focus: true,
-            hint_text: _('Type to search, Tab to cycle'),
-            natural_width: 300 * themeContext.scale_factor,
-            height: 40 * themeContext.scale_factor,
-            track_hover: true,
-            primary_icon: this.createSearchEntryIcon('edit-find-symbolic', 'search-entry-icon'),
-            secondary_icon: this.createSearchEntryIcon('starred-symbolic', 'search-entry-fav-icon'),
+            canFocus: true,
+            hintText: _('Type to search, Tab to cycle'),
+            naturalWidth: 300 * themeContext.scaleFactor,
+            height: 40 * themeContext.scaleFactor,
+            trackHover: true,
+            primaryIcon: this.createSearchEntryIcon('edit-find-symbolic', 'search-entry-icon'),
+            secondaryIcon: this.createSearchEntryIcon('starred-symbolic', 'search-entry-fav-icon'),
         });
         themeContext.connect('notify::scale-factor', () => {
-            this.search.natural_width = 300 * themeContext.scale_factor;
-            this.search.set_height(40 * themeContext.scale_factor);
+            this.search.naturalWidth = 300 * themeContext.scaleFactor;
+            this.search.set_height(40 * themeContext.scaleFactor);
         });
         this.search.connect('primary-icon-clicked', () => {
             this.focus();
@@ -2942,20 +3016,20 @@ let SearchBox = class SearchBox extends St.BoxLayout {
             this.focus();
             this.toggleFavorites();
         });
-        this.search.clutter_text.connect('text-changed', () => {
+        this.search.clutterText.connect('text-changed', () => {
             this.emitSearchTextChange();
         });
-        this.search.clutter_text.connect('key-press-event', (_, event) => {
+        this.search.clutterText.connect('key-press-event', (_, event) => {
             if (event.get_key_symbol() === Clutter.KEY_Down ||
                 (event.get_key_symbol() === Clutter.KEY_Right &&
-                    (this.search.clutter_text.cursor_position === -1 || this.search.text?.length === 0))) {
+                    (this.search.clutterText.cursorPosition === -1 || this.search.text?.length === 0))) {
                 this.emit('search-focus-out');
                 return Clutter.EVENT_STOP;
             }
             else if (event.get_key_symbol() === Clutter.KEY_Right &&
-                this.search.clutter_text.get_selection() !== null &&
-                this.search.clutter_text.get_selection() === this.search.text) {
-                this.search.clutter_text.set_cursor_position(this.search.text?.length ?? 0);
+                this.search.clutterText.get_selection() !== null &&
+                this.search.clutterText.get_selection() === this.search.text) {
+                this.search.clutterText.set_cursor_position(this.search.text?.length ?? 0);
                 return Clutter.EVENT_STOP;
             }
             if (event.get_key_symbol() === Clutter.KEY_Return ||
@@ -3010,7 +3084,7 @@ let SearchBox = class SearchBox extends St.BoxLayout {
         if (this.currentIndex < 0 || this.currentIndex >= Object.keys(panoItemTypes).length) {
             this.currentIndex = null;
         }
-        if (null == this.currentIndex) {
+        if (this.currentIndex === null) {
             this.search.set_primary_icon(this.createSearchEntryIcon('edit-find-symbolic', 'search-entry-icon'));
         }
         else {
@@ -3028,9 +3102,9 @@ let SearchBox = class SearchBox extends St.BoxLayout {
     }
     createSearchEntryIcon(iconNameOrProto, styleClass) {
         const icon = new St.Icon({
-            style_class: styleClass,
-            icon_size: 13,
-            track_hover: true,
+            styleClass: styleClass,
+            iconSize: 13,
+            trackHover: true,
         });
         if (typeof iconNameOrProto === 'string') {
             icon.set_icon_name(iconNameOrProto);
@@ -3064,7 +3138,7 @@ let SearchBox = class SearchBox extends St.BoxLayout {
         const panoItemTypes = getPanoItemTypes(this.ext);
         let itemType = null;
         if (this.currentIndex !== null) {
-            itemType = Object.keys(panoItemTypes)[this.currentIndex];
+            itemType = Object.keys(panoItemTypes)[this.currentIndex] ?? null;
         }
         this.emit('search-text-changed', this.search.text, itemType || '', this.showFavorites);
     }
@@ -3078,13 +3152,13 @@ let SearchBox = class SearchBox extends St.BoxLayout {
         this.search.text += text;
     }
     selectAll() {
-        this.search.clutter_text.set_selection(0, this.search.text?.length ?? 0);
+        this.search.clutterText.set_selection(0, this.search.text?.length ?? 0);
     }
     clear() {
         this.search.text = '';
     }
     getText() {
-        return this.search.text ?? '';
+        return this.search.text || '';
     }
 };
 SearchBox.metaInfo = {
@@ -3111,25 +3185,25 @@ let PanoWindow = class PanoWindow extends St.BoxLayout {
         super({
             name: 'pano-window',
             constraints: getMonitorConstraint(),
-            style_class: 'pano-window',
+            styleClass: 'pano-window',
             visible: false,
             vertical: true,
             reactive: true,
             opacity: 0,
-            can_focus: true,
+            canFocus: true,
         });
         this.settings = getCurrentExtensionSettings(ext);
         this.setAlignment();
         const themeContext = St.ThemeContext.get_for_stage(Shell.Global.get().get_stage());
-        this.setWindowDimensions(themeContext.scale_factor);
+        this.setWindowDimensions(themeContext.scaleFactor);
         themeContext.connect('notify::scale-factor', () => {
-            this.setWindowDimensions(themeContext.scale_factor);
+            this.setWindowDimensions(themeContext.scaleFactor);
         });
         this.settings.connect('changed::item-size', () => {
-            this.setWindowDimensions(themeContext.scale_factor);
+            this.setWindowDimensions(themeContext.scaleFactor);
         });
         this.settings.connect('changed::window-position', () => {
-            this.setWindowDimensions(themeContext.scale_factor);
+            this.setWindowDimensions(themeContext.scaleFactor);
             this.setAlignment();
         });
         this.settings.connect('changed::window-background-color', () => {
@@ -3154,8 +3228,8 @@ let PanoWindow = class PanoWindow extends St.BoxLayout {
         this.setupMonitorBox();
         this.setupScrollView();
         this.setupSearchBox();
-        this.add_actor(this.searchBox);
-        this.add_actor(this.scrollView);
+        this.add_child(this.searchBox);
+        this.add_child(this.scrollView);
         this.settings.connect('changed::is-in-incognito', () => {
             if (this.settings.get_boolean('is-in-incognito')) {
                 this.add_style_class_name('incognito');
@@ -3275,8 +3349,7 @@ let PanoWindow = class PanoWindow extends St.BoxLayout {
         });
         return Clutter.EVENT_PROPAGATE;
     }
-    vfunc_key_press_event(_event) {
-        const event = getV13KeyEvent(_event);
+    vfunc_key_press_event(event) {
         if (event.get_key_symbol() === Clutter.KEY_Escape) {
             this.hide();
         }
@@ -3305,10 +3378,25 @@ class KeyManager {
     }
 }
 
+const { Extension } = extension;
 const debug = logger('extension');
+const global = Shell.Global.get();
 class PanoExtension extends Extension {
     constructor(props) {
         super(props);
+        this.keyManager = null;
+        this.clipboardManager = null;
+        this.panoWindow = null;
+        this.indicator = null;
+        this.dbus = null;
+        this.settings = null;
+        this.windowTrackerId = null;
+        this.timeoutId = null;
+        this.shutdownSignalId = null;
+        this.logoutSignalId = null;
+        this.rebootSignalId = null;
+        this.systemdSignalId = null;
+        this.clipboardChangedSignalId = null;
         debug('extension is initialized');
     }
     enable() {
@@ -3320,6 +3408,7 @@ class PanoExtension extends Extension {
         this.start();
         this.indicator.enable();
         this.enableDbus();
+        Meta.disable_unredirect_for_display(global.display);
         debug('extension is enabled');
     }
     disable() {
@@ -3330,6 +3419,7 @@ class PanoExtension extends Extension {
         this.keyManager = null;
         this.clipboardManager = null;
         this.indicator = null;
+        Meta.enable_unredirect_for_display(global.display);
         debug('extension is disabled');
     }
     // for dbus
@@ -3399,7 +3489,7 @@ class PanoExtension extends Extension {
             await deleteAppDirs(this);
             debug('deleted session cache and db');
             this.clipboardManager?.setContent(new ClipboardContent({
-                type: 2 /* ContentType.TEXT */,
+                type: ContentType.TEXT,
                 value: '',
             }));
             debug('cleared last clipboard content');
@@ -3440,7 +3530,7 @@ class PanoExtension extends Extension {
     }
     trackWindow() {
         this.windowTrackerId = Shell.Global.get().display.connect('notify::focus-window', () => {
-            const focussedWindow = Shell.Global.get().display.focus_window;
+            const focussedWindow = Shell.Global.get().display.focusWindow;
             if (focussedWindow && this.panoWindow?.is_visible()) {
                 this.panoWindow.hide();
             }

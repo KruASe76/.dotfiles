@@ -93,3 +93,6 @@ python3-opencv
 python3-matplotlib
 python3-numpy
 maven
+mongodb-org
+mongodb-mongosh-shared-openssl3
+python2

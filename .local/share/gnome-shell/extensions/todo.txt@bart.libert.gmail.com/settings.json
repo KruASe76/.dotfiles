@@ -239,6 +239,53 @@
                 "help": "Whether a menu element is shown to open the extension's preferences"
             }
         },
+        "Done Task Style": {
+            "type": "subcategory",
+            "done-task-italic": {
+                "type": "boolean",
+                "default_value": "false",
+                "summary": "Whether done tasks are displayed in italics",
+                "human_name": "Italic",
+                "help": "Whether done tasks are styled in italics"
+            },
+            "done-task-bold": {
+                "type": "boolean",
+                "default_value": "false",
+                "summary": "Whether done tasks are displayed in bold",
+                "human_name": "Bold",
+                "help": "Whether done tasks are styled in bold"
+            },
+            "done-task-strikethrough": {
+                "type": "boolean",
+                "default_value": "true",
+                "summary": "Whether done tasks are displayed in strikethrough",
+                "human_name": "Strikethrough",
+                "help": "Whether done tasks are styled in strikethrough"
+            },
+            "color-done-tasks": {
+                "type": "boolean",
+                "default_value": "false",
+                "summary": "Whether done tasks have a custom color",
+                "human_name": "Color done tasks",
+                "help": "If enabled, done tasks will use a custom color"
+            },
+            "custom-done-tasks-color": {
+                "type": "string",
+                "default_value": "rgb(0,0,0)",
+                "summary": "Custom color to use for done tasks, if enabled",
+                "widget": "color",
+                "human_name": "Custom color for done tasks",
+                "help": "This color will be used for done tasks if 'Color done tasks' was enabled above",
+                "extra_params": {
+                    "sensitivity": {
+                        "color-done-tasks": {
+                            "true": true,
+                            "false": false
+                        }
+                    }
+                }
+            }
+        },
         "URL Color": {
             "type": "subcategory",
             "url-color": {
@@ -479,6 +526,13 @@
                 "summary": "Whether the 'due date' extension is enabled. If true, tasks containing 'due:<some date>' will show when they are due",
                 "help": "If the due date extension is enabled, tasks containing 'due:<some date>' will be shown differently",
                 "human_name": "Due date extension"
+            },
+            "enable-comments-extension": {
+                "type": "boolean",
+                "default_value": "false",
+                "summary": "Whether the 'comments' extension is enabled. If true, tasks starting with a hashtag (#) will be hidden",
+                "help": "If the comments extension is enabled, tasks starting with a # will be hidden",
+                "human_name": "Comments extension"
             }
         }
     }

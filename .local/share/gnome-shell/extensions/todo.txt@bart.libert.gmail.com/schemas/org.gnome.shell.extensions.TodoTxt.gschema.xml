@@ -93,6 +93,26 @@
       <default>true</default>
       <summary>Whether 'open preferences' is shown</summary>
     </key>
+    <key name="done-task-italic" type="b">
+      <default>false</default>
+      <summary>Whether done tasks are displayed in italics</summary>
+    </key>
+    <key name="done-task-bold" type="b">
+      <default>false</default>
+      <summary>Whether done tasks are displayed in bold</summary>
+    </key>
+    <key name="done-task-strikethrough" type="b">
+      <default>true</default>
+      <summary>Whether done tasks are displayed in strikethrough</summary>
+    </key>
+    <key name="color-done-tasks" type="b">
+      <default>false</default>
+      <summary>Whether done tasks have a custom color</summary>
+    </key>
+    <key name="custom-done-tasks-color" type="s">
+      <default>'rgb(0,0,0)'</default>
+      <summary>Custom color to use for done tasks, if enabled</summary>
+    </key>
     <key name="url-color" type="i">
       <default>1</default>
       <summary>Color to display URLs in tasks. Valid values: 0 (task color), 1 (theme color), 2 (custom color)</summary>
@@ -160,6 +180,10 @@
     <key name="enable-due-date-extension" type="b">
       <default>true</default>
       <summary>Whether the 'due date' extension is enabled. If true, tasks containing 'due:&lt;some date&gt;' will show when they are due</summary>
+    </key>
+    <key name="enable-comments-extension" type="b">
+      <default>false</default>
+      <summary>Whether the 'comments' extension is enabled. If true, tasks starting with a hashtag (#) will be hidden</summary>
     </key>
   </schema>
 </schemalist>

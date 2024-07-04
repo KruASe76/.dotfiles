@@ -36,19 +36,15 @@ export const TodoMenuItem = GObject.registerClass({
         this.ellipsizeMode = valueOrDefault(settings.get('long-tasks-ellipsize-mode'), Shared.TASK_ELLIPSIZE_MIDDLE);
         this.maxWidth = valueOrDefault(settings.get('long-tasks-max-width'), undefined);
         this.settings = valueOrDefault(settings, null);
-        if (!('addActor' in TodoMenuItem.prototype)) {
-            TodoMenuItem.prototype.addActor = function(element) {
-                this.actor.add(element);
-            };
-        }
         this._createTextLabel();
-        this.addActor(this.label);
+        this.actor.add_child(this.label);
         this._addProjectsLabel();
         this._addContextsLabel();
         this._addDueDateLabel();
         this._addButtons();
         this._setClickAction();
         this._applyPriorityStyling();
+        this._applyDoneTaskStyling();
 
         if (settings.get('truncate-long-tasks')) {
             this._truncate(settings.get('long-tasks-expansion-mode'));
@@ -68,14 +64,15 @@ export const TodoMenuItem = GObject.registerClass({
     }
 
     _RGBAColorToHex(rgbaColor) {
-        return (0 + (Math.round(rgbaColor * 255)).toString(16)).slice(-2); // eslint-disable-line no-magic-numbers
+        return rgbaColor.toString(16).padStart(2, "0");
     }
 
     _RGBAStringtoHexString(rgbaColorString) {
-        const rgbaColor = Clutter.Color.from_string(rgbaColorString);
-        return `#${this._RGBAColorToHex(rgbaColor.red)}${
-            this._RGBAColorToHex(rgbaColor.green)}${
-            this._RGBAColorToHex(rgbaColor.blue)}`;
+        const [success, rgbaColor] = Clutter.Color.from_string(rgbaColorString);
+        if (success) {
+            return `#${this._RGBAColorToHex(rgbaColor.red)}${this._RGBAColorToHex(rgbaColor.green)}${this._RGBAColorToHex(rgbaColor.blue)}`;
+        }
+        return null;
     }
 
     expandLabel() {
@@ -161,7 +158,7 @@ export const TodoMenuItem = GObject.registerClass({
         });
         if (Utils.isValid(this.task[labelSource])) {
             label.set_text(this._getLabelText(this.task[labelSource]));
-            this.addActor(label);
+            this.actor.add_child(label);
             this.labels.push(label);
         }
     }
@@ -196,9 +193,11 @@ export const TodoMenuItem = GObject.registerClass({
         }
         if (urlColor === Shared.URL_COLOR_CUSTOM) {
             const hexColor = this._RGBAStringtoHexString(this.settings.get('custom-url-color'));
-            markupFunction = (url, _color) => {
-                return `<span foreground="${hexColor}"><u>${url}</u></span>`;
-            };
+            if (hexColor !== null) {
+                markupFunction = (url, _color) => {
+                    return `<span foreground="${hexColor}"><u>${url}</u></span>`;
+                };
+            }
         }
         this.highlighter = new TaskURLHighlighter(this.task.text, false, true, markupFunction);
         this.label = this.highlighter;
@@ -232,7 +231,7 @@ export const TodoMenuItem = GObject.registerClass({
         const editButton = this._createButton('input-keyboard-symbolic',
             _('Edit %(task)'.replace('%(task)', this.task.text)));
         editButton.connect('clicked', () => this.enterEditMode());
-        this.addActor(editButton);
+        this.actor.add_child(editButton);
     }
 
     _addPriorityButton(up) {
@@ -244,7 +243,7 @@ export const TodoMenuItem = GObject.registerClass({
         prioButton.connect('clicked', () => {
             this.taskActions.priorityAction(this.task, _up);
         });
-        this.addActor(prioButton);
+        this.actor.add_child(prioButton);
     }
 
     _addPriorityButtons() {
@@ -259,14 +258,14 @@ export const TodoMenuItem = GObject.registerClass({
             this.taskActions.archiveAction(this.task);
         });
         this.actor.add_style_class_name('doneTaskItem');
-        this.addActor(archiveButton);
+        this.actor.add_child(archiveButton);
     }
 
     _addDeleteButton() {
         const deleteButton = this._createButton('edit-delete-symbolic',
             _('Delete %(task)'.replace('%(task)', this.task.text)));
         deleteButton.connect('clicked', () => this.enterDeleteMode());
-        this.addActor(deleteButton);
+        this.actor.add_child(deleteButton);
     }
 
 
@@ -291,7 +290,7 @@ export const TodoMenuItem = GObject.registerClass({
                 this.expandLabel();
             }
         });
-        this.addActor(expandButton);
+        this.actor.add_child(expandButton);
     }
 
     _addDoneButton() {
@@ -300,7 +299,7 @@ export const TodoMenuItem = GObject.registerClass({
         doneButton.connect('clicked', () => {
             this.taskActions.doneAction(this.task);
         });
-        this.addActor(doneButton);
+        this.actor.add_child(doneButton);
     }
 
     _createButton(iconNames, accessible_name, dont_store) {
@@ -325,6 +324,32 @@ export const TodoMenuItem = GObject.registerClass({
             this.buttons.push(button);
         }
         return button;
+    }
+
+    _applyDoneTaskStyling() {
+        if (!this.task.complete) {
+            return
+        }
+
+        let style = '';
+        if (this.settings.get('done-task-italic')) {
+            style += 'font-style: italic; '
+        }
+
+        if (this.settings.get('done-task-bold')) {
+            style += 'font-weight: bold; '
+        }
+
+        if (this.settings.get('done-task-strikethrough')) {
+            style += 'text-decoration: line-through; '
+        }
+
+        let [result, color] = Clutter.Color.from_string(this.settings.get('custom-done-tasks-color') || '')
+        if (this.settings.get('color-done-tasks') && result) {
+            style += `color: rgb(${color.red}, ${color.green}, ${color.blue}); `
+        }
+
+        this.label.set_style(style);
     }
 
     _applyPriorityStyling() {
@@ -530,9 +555,9 @@ export const TodoMenuItem = GObject.registerClass({
                 this.setSensitive(true);
 
             });
-            this.addActor(this.deleteLabel);
-            this.addActor(this.yesButton);
-            this.addActor(this.noButton);
+            this.actor.add_child(this.deleteLabel);
+            this.actor.add_child(this.yesButton);
+            this.actor.add_child(this.noButton);
             return;
         }
         this.taskActions.deleteAction(this.task);

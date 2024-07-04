@@ -3,7 +3,7 @@
  * AboutPage
  *
  * @author     GdH <G-dH@github.com>
- * @copyright  2021-2022
+ * @copyright  2021-2024
  * @license    GPL-3.0
  */
 
@@ -43,15 +43,19 @@ function getOptionList(mscOptions) {
         Me.metadata.name
     ));
 
+    const versionName = Me.metadata['version-name'] ?? '';
+    let version = Me.metadata['version'] ?? '';
+    version = versionName && version ? `/${version}` : version;
+    const versionStr = `${versionName}${version}`;
     optionList.push(itemFactory.getRowWidget(
         _('Version'),
         null,
-        itemFactory.newLabel(Me.metadata['version-name'])
+        itemFactory.newLabel(versionStr)
     ));
 
     optionList.push(itemFactory.getRowWidget(
         _('Reset all options'),
-        _('Disable all triggers and set all options to default values.'),
+        _('Disable all triggers and reset all options to their default values'),
         itemFactory.newOptionsResetButton()
     ));
 
@@ -74,7 +78,7 @@ function getOptionList(mscOptions) {
 
     optionList.push(itemFactory.getRowWidget(
         _('GNOME Extensions'),
-        _('Rate and comment the extension on GNOME Extensions site.'),
+        _('Rate and comment the extension on GNOME Extensions site'),
         itemFactory.newLinkButton('https://extensions.gnome.org/extension/4467')
     ));
 
@@ -86,7 +90,7 @@ function getOptionList(mscOptions) {
 
     optionList.push(itemFactory.getRowWidget(
         _('Buy Me a Coffee'),
-        _('If you like this extension, you can help me with my coffee expenses.'),
+        _('Enjoying this extension? Consider supporting it by buying me a coffee!'),
         itemFactory.newLinkButton('https://buymeacoffee.com/georgdh')
     ));
 

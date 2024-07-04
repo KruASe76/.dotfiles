@@ -339,6 +339,71 @@
       </object>
     </child>
     <child>
+      <object class="AdwPreferencesGroup" id="done-task-style-group">
+        <property name="title" translatable="yes">Done Task Style</property>
+        <child>
+          <object class="AdwActionRow" id="done-task-italic-row">
+            <property name="title" translatable="yes">Italic</property>
+            <property name="tooltip-text" translatable="yes">Whether done tasks are styled in italics</property>
+            <property name="activatable-widget">done-task-italic-switch</property>
+            <child>
+              <object class="GtkSwitch" id="done-task-italic-switch">
+                <property name="valign">center</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="AdwActionRow" id="done-task-bold-row">
+            <property name="title" translatable="yes">Bold</property>
+            <property name="tooltip-text" translatable="yes">Whether done tasks are styled in bold</property>
+            <property name="activatable-widget">done-task-bold-switch</property>
+            <child>
+              <object class="GtkSwitch" id="done-task-bold-switch">
+                <property name="valign">center</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="AdwActionRow" id="done-task-strikethrough-row">
+            <property name="title" translatable="yes">Strikethrough</property>
+            <property name="tooltip-text" translatable="yes">Whether done tasks are styled in strikethrough</property>
+            <property name="activatable-widget">done-task-strikethrough-switch</property>
+            <child>
+              <object class="GtkSwitch" id="done-task-strikethrough-switch">
+                <property name="valign">center</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="AdwActionRow" id="color-done-tasks-row">
+            <property name="title" translatable="yes">Color done tasks</property>
+            <property name="tooltip-text" translatable="yes">If enabled, done tasks will use a custom color</property>
+            <property name="activatable-widget">color-done-tasks-switch</property>
+            <child>
+              <object class="GtkSwitch" id="color-done-tasks-switch">
+                <property name="valign">center</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="AdwActionRow" id="custom-done-tasks-color-color">
+            <property name="title" translatable="yes">Custom color for done tasks</property>
+            <property name="tooltip-text" translatable="yes">This color will be used for done tasks if 'Color done tasks' was enabled above</property>
+            <property name="activatable-widget">custom-done-tasks-color-color-button</property>
+            <child>
+              <object class="GtkColorButton" id="custom-done-tasks-color-color-button">
+                <property name="valign">center</property>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+    <child>
       <object class="AdwPreferencesGroup" id="url-color-group">
         <property name="title" translatable="yes">URL Color</property>
         <child>
@@ -645,6 +710,18 @@
             <property name="activatable-widget">enable-due-date-extension-switch</property>
             <child>
               <object class="GtkSwitch" id="enable-due-date-extension-switch">
+                <property name="valign">center</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="AdwActionRow" id="enable-comments-extension-row">
+            <property name="title" translatable="yes">Comments extension</property>
+            <property name="tooltip-text" translatable="yes">If the comments extension is enabled, tasks starting with a # will be hidden</property>
+            <property name="activatable-widget">enable-comments-extension-switch</property>
+            <child>
+              <object class="GtkSwitch" id="enable-comments-extension-switch">
                 <property name="valign">center</property>
               </object>
             </child>

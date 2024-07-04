@@ -3,7 +3,7 @@
  * Settings
  *
  * @author     GdH <G-dH@github.com>
- * @copyright  2021-2022
+ * @copyright  2021-2024
  * @license    GPL-3.0
  */
 
@@ -87,7 +87,6 @@ export const MscOptions = class {
             winSwitchWrap:          { type: 'boolean', key: 'win-switch-wrap' },
             winSkipMinimized:       { type: 'boolean', key: 'win-switch-skip-minimized' },
             winStableSequence:      { type: 'boolean', key: 'win-switch-stable-sequence' },
-            winThumbnailScale:      { type: 'int',     key: 'win-thumbnail-scale' },
             actionEventDelay:       { type: 'int',     key: 'action-event-delay' },
             rippleAnimation:        { type: 'boolean', key: 'ripple-animation' },
             barrierFallback:        { type: 'boolean', key: 'barrier-fallback' },
@@ -172,7 +171,7 @@ export function resetAllCorners() {
     }
 }
 
-function resetCorner(monitorIndex, corner) {
+export function resetCorner(monitorIndex, corner) {
     const schema = `${_schema}.corner`;
     for (const trigger of [0, 1, 2, 3, 4, 5, 6]) {
         const path = `${_path}/monitor-${monitorIndex}-${corner}-${trigger}/`;

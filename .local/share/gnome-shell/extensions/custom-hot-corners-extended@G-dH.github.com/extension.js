@@ -2,7 +2,7 @@
  * Custom Hot Corners - Extended
  *
  * @author     GdH <G-dH@github.com>
- * @copyright  2021-2023
+ * @copyright  2021-2024
  * @license    GPL-3.0
  */
 
@@ -92,6 +92,8 @@ export default class CustomHotCornersExtended extends Extension {
                 return GLib.SOURCE_REMOVE;
             }
         );
+
+        console.log(`${this.metadata.name}: enabled`);
     }
 
     disable() {
@@ -111,7 +113,7 @@ export default class CustomHotCornersExtended extends Extension {
         }
 
         if (this.actionTrigger)
-            this.actionTrigger.clean(true);
+        this.actionTrigger.clean(true);
         this.actionTrigger = null;
 
         this._extensionEnabled = false;
@@ -136,6 +138,8 @@ export default class CustomHotCornersExtended extends Extension {
         ActionList.cleanGlobals();
 
         chce = null;
+
+        console.log(`${this.metadata.name}: disabled`);
     }
 
     _replace_updateHotCornersFunc() {

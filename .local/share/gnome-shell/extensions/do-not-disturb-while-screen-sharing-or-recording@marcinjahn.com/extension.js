@@ -52,49 +52,6 @@ var ScreenRecordingStatus;
     ScreenRecordingStatus[ScreenRecordingStatus["notRecording"] = 1] = "notRecording";
 })(ScreenRecordingStatus || (ScreenRecordingStatus = {}));
 
-const SettingsPath = "org.gnome.shell.extensions.do-not-disturb-while-screen-sharing-or-recording";
-const DoNotDisturbOnScreenSharingSetting = "dnd-on-screen-sharing";
-const DoNotDisturbOnScreenRecordingSetting = "dnd-on-screen-recording";
-const IsWaylandSetting = "is-wayland";
-
-class SettingsManager {
-    constructor(settings) {
-        this.settings = settings;
-    }
-
-    getShouldDndOnScreenSharing() {
-        return this.settings.get_boolean(DoNotDisturbOnScreenSharingSetting);
-    }
-
-    setShouldDndOnScreenSharing(value) {
-        this.settings.set_boolean(DoNotDisturbOnScreenSharingSetting, value);
-    }
-
-    getShouldDndOnScreenRecording() {
-        return this.settings.get_boolean(DoNotDisturbOnScreenRecordingSetting);
-    }
-
-    setShouldDndOnScreenRecording(value) {
-        this.settings.set_boolean(DoNotDisturbOnScreenRecordingSetting, value);
-    }
-
-    getIsWayland() {
-        return this.settings.get_boolean(IsWaylandSetting);
-    }
-
-    setIsWayland(value) {
-        this.settings.set_boolean(IsWaylandSetting, value);
-    }
-
-    connectToChanges(settingName, func) {
-        return this.settings.connect(`changed::${settingName}`, func);
-    }
-
-    disconnect(subscriptionId) {
-        this.settings.disconnect(subscriptionId);
-    }
-}
-
 class ScreenSharingNotifier {
     constructor() {
         this._handles = new Map();
@@ -141,6 +98,49 @@ var ScreenSharingStatus;
     ScreenSharingStatus[ScreenSharingStatus["sharing"] = 0] = "sharing";
     ScreenSharingStatus[ScreenSharingStatus["notSharing"] = 1] = "notSharing";
 })(ScreenSharingStatus || (ScreenSharingStatus = {}));
+
+const SettingsPath = "org.gnome.shell.extensions.do-not-disturb-while-screen-sharing-or-recording";
+const DoNotDisturbOnScreenSharingSetting = "dnd-on-screen-sharing";
+const DoNotDisturbOnScreenRecordingSetting = "dnd-on-screen-recording";
+const IsWaylandSetting = "is-wayland";
+
+class SettingsManager {
+    constructor(settings) {
+        this.settings = settings;
+    }
+
+    getShouldDndOnScreenSharing() {
+        return this.settings.get_boolean(DoNotDisturbOnScreenSharingSetting);
+    }
+
+    setShouldDndOnScreenSharing(value) {
+        this.settings.set_boolean(DoNotDisturbOnScreenSharingSetting, value);
+    }
+
+    getShouldDndOnScreenRecording() {
+        return this.settings.get_boolean(DoNotDisturbOnScreenRecordingSetting);
+    }
+
+    setShouldDndOnScreenRecording(value) {
+        this.settings.set_boolean(DoNotDisturbOnScreenRecordingSetting, value);
+    }
+
+    getIsWayland() {
+        return this.settings.get_boolean(IsWaylandSetting);
+    }
+
+    setIsWayland(value) {
+        this.settings.set_boolean(IsWaylandSetting, value);
+    }
+
+    connectToChanges(settingName, func) {
+        return this.settings.connect(`changed::${settingName}`, func);
+    }
+
+    disconnect(subscriptionId) {
+        this.settings.disconnect(subscriptionId);
+    }
+}
 
 class DoNotDisturbWhileScreenSharingOrRecordingExtension extends Extension {
     constructor() {

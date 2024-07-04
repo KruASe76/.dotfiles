@@ -18,6 +18,7 @@
     st = status -s
     sta = status
     a = add -A
+    una = reset HEAD
     cm = commit -m
     cam = commit -am
     amend = commit -a --amend

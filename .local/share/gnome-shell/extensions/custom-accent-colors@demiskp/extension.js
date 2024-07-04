@@ -120,6 +120,7 @@ export default class CustomAccentColors extends Extension {
 
     applyAccentColor(apply) {
         this.accentColor = this.settings.get_string('accent-color');
+
         this.updateGtkTheming('gtk-4.0', apply);
         if (this.settings.get_boolean('theme-flatpak')) {
             this.updateFlatpakTheming(apply);
@@ -134,10 +135,10 @@ export default class CustomAccentColors extends Extension {
 
     updateGtkTheming(gtkVer, apply) {
         const meDir = this.path;
-        const homeDir = GLib.get_home_dir();
-        const gtkFile = Gio.File.new_for_path(homeDir + '/.config/' + gtkVer + '/gtk.css');
+        const configDir = GLib.get_user_config_dir();
+        const gtkFile = Gio.File.new_for_path(configDir + '/' + gtkVer + '/gtk.css');
         if (apply && this.accentColor != 'default') {
-            const gtkDir = Gio.File.new_for_path(homeDir + '/.config/' + gtkVer);
+            const gtkDir = Gio.File.new_for_path(configDir + '/' + gtkVer);
             if (!gtkDir.query_exists(null)) {
                 this.createDir(gtkDir.get_path());
             }
@@ -149,7 +150,7 @@ export default class CustomAccentColors extends Extension {
     }
 
     updateFlatpakTheming(apply) {
-        if (apply) {
+        if (apply && this.accentColor != 'default') {
             try {
                 GLib.spawn_command_line_async(
                     'flatpak override --user --filesystem=xdg-config/gtk-4.0:ro --filesystem=xdg-config/gtk-3.0:ro'
@@ -170,9 +171,9 @@ export default class CustomAccentColors extends Extension {
 
     updateShellTheming(apply) {
         const meDir = this.path;
-        const homeDir = GLib.get_home_dir();
+        const dataDir = GLib.get_user_data_dir();
         let shellThemeDir = Gio.File.new_for_path(
-            homeDir + '/.local/share/themes/Custom-Accent-Colors'
+            dataDir + '/themes/Custom-Accent-Colors'
         );
         if (apply && this.accentColor != 'default') {
             if (!shellThemeDir.query_exists(null)) {

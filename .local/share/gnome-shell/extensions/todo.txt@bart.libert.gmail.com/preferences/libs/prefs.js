@@ -119,7 +119,7 @@ export class Prefs {
         let counter = 0;
         for (const option in indexedOptions) {
             if (Object.prototype.hasOwnProperty.call(indexedOptions, option)) {
-                if (option === value) {
+                if (parseInt(option) === value) {
                     return counter;
                 }
                 counter++;

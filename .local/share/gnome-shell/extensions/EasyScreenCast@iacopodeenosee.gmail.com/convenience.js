@@ -42,9 +42,8 @@ function setDebugEnabled(d) {
  * @class
  */
 function TalkativeLog(msg) {
-    if (debugEnabled) {
+    if (debugEnabled)
         log(`[ESC]${msg}`);
-    }
 }
 
 /**
@@ -55,7 +54,7 @@ function TalkativeLog(msg) {
  * @returns {string} the version
  */
 function getFullVersion() {
-    return '1.8.0'; // FULL_VERSION
+    return '1.9.0'; // FULL_VERSION
 }
 
 /**

@@ -1,6 +1,6 @@
 import Gdk from 'gi://Gdk';
-import Gtk from 'gi://Gtk';
 import { ExtensionPreferences } from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
+import Gtk from 'gi://Gtk';
 import Adw from 'gi://Adw';
 import Gio from 'gi://Gio';
 import Pango from 'gi://Pango';
@@ -27,20 +27,27 @@ const createColorRow = (title, subtitle, settings, schemaKey) => {
         title,
         valign: Gtk.Align.CENTER,
         halign: Gtk.Align.CENTER,
-        use_alpha: true,
+        useAlpha: true,
     });
     const rgba = new Gdk.RGBA();
-    rgba.parse(settings.get_string(schemaKey));
+    const colorResult = settings.get_string(schemaKey);
+    if (!colorResult) {
+        throw new Error(`no string setting stored for key: ${schemaKey}`);
+    }
+    rgba.parse(colorResult);
     colorButton.set_rgba(rgba);
     colorButton.connect('color-set', () => {
         const color = colorButton.get_rgba();
         const colorString = color.to_string();
+        if (!colorString) {
+            throw new Error(`couldn't convert color to string: ${color}`);
+        }
         settings.set_string(schemaKey, colorString);
     });
     colorRow.add_suffix(colorButton);
     colorRow.set_activatable_widget(colorButton);
     const clearButton = new Gtk.Button({
-        icon_name: 'edit-clear-symbolic',
+        iconName: 'edit-clear-symbolic',
         valign: Gtk.Align.CENTER,
         halign: Gtk.Align.CENTER,
     });
@@ -51,6 +58,9 @@ const createColorRow = (title, subtitle, settings, schemaKey) => {
     }
     settings.connect(`changed::${schemaKey}`, () => {
         const value = settings.get_string(schemaKey);
+        if (!value) {
+            throw new Error(`no string setting stored for key: ${schemaKey}`);
+        }
         if (defaultValue === value) {
             clearButton.sensitive = false;
         }
@@ -74,7 +84,7 @@ const createSpinRow = (title, subtitle, settings, schemaKey, increment, lower, u
     });
     const value = settings.get_int(schemaKey);
     const spinButton = new Gtk.SpinButton({
-        adjustment: new Gtk.Adjustment({ step_increment: increment, lower, upper }),
+        adjustment: new Gtk.Adjustment({ stepIncrement: increment, lower, upper }),
         value,
         valign: Gtk.Align.CENTER,
         halign: Gtk.Align.CENTER,
@@ -83,7 +93,7 @@ const createSpinRow = (title, subtitle, settings, schemaKey, increment, lower, u
     row.add_suffix(spinButton);
     row.set_activatable_widget(spinButton);
     const clearButton = new Gtk.Button({
-        icon_name: 'edit-clear-symbolic',
+        iconName: 'edit-clear-symbolic',
         valign: Gtk.Align.CENTER,
         halign: Gtk.Align.CENTER,
     });
@@ -119,7 +129,7 @@ const createFontRow = (title, subtitle, settings, schemaKey) => {
         title,
         valign: Gtk.Align.CENTER,
         halign: Gtk.Align.CENTER,
-        use_font: true,
+        useFont: true,
         font: getFont(),
     });
     fontButton.connect('font-set', () => {
@@ -131,7 +141,7 @@ const createFontRow = (title, subtitle, settings, schemaKey) => {
     fontRow.add_suffix(fontButton);
     fontRow.set_activatable_widget(fontButton);
     const clearButton = new Gtk.Button({
-        icon_name: 'edit-clear-symbolic',
+        iconName: 'edit-clear-symbolic',
         valign: Gtk.Align.CENTER,
         halign: Gtk.Align.CENTER,
     });
@@ -177,7 +187,7 @@ const createDropdownRow = (title, subtitle, settings, schemaKey, options) => {
     row.add_suffix(dropDown);
     row.set_activatable_widget(dropDown);
     const clearButton = new Gtk.Button({
-        icon_name: 'edit-clear-symbolic',
+        iconName: 'edit-clear-symbolic',
         valign: Gtk.Align.CENTER,
         halign: Gtk.Align.CENTER,
     });
@@ -561,7 +571,7 @@ let ItemStyleGroup = class ItemStyleGroup extends Adw.PreferencesGroup {
         const _ = gettext(ext);
         super({
             title: _('Item Style'),
-            margin_top: 10,
+            marginTop: 10,
         });
         this.add(new LinkItemStyleRow(ext));
         this.add(new TextItemStyleRow(ext));
@@ -581,7 +591,7 @@ let CustomizationPage = class CustomizationPage extends Adw.PreferencesPage {
         const _ = gettext(ext);
         super({
             title: _('Customization'),
-            icon_name: 'emblem-photos-symbolic',
+            iconName: 'emblem-photos-symbolic',
         });
         this.add(new CommonStyleGroup(ext));
         this.add(new ItemStyleGroup(ext));
@@ -600,7 +610,7 @@ let ClearHistoryRow = class ClearHistoryRow extends Adw.ActionRow {
             subtitle: _('Clears the clipboard database and cache'),
         });
         const clearHistoryButton = new Gtk.Button({
-            css_classes: ['destructive-action'],
+            cssClasses: ['destructive-action'],
             label: _('Clear'),
             valign: Gtk.Align.CENTER,
             halign: Gtk.Align.CENTER,
@@ -608,8 +618,8 @@ let ClearHistoryRow = class ClearHistoryRow extends Adw.ActionRow {
         clearHistoryButton.connect('clicked', () => {
             const md = new Gtk.MessageDialog({
                 text: _('Are you sure you want to clear history?'),
-                transient_for: this.get_root(),
-                destroy_with_parent: true,
+                transientFor: this.get_root(),
+                destroyWithParent: true,
                 modal: true,
                 visible: true,
                 buttons: Gtk.ButtonsType.OK_CANCEL,
@@ -667,7 +677,7 @@ let DangerZonePage = class DangerZonePage extends Adw.PreferencesPage {
         const _ = gettext(ext);
         super({
             title: _('Danger Zone'),
-            icon_name: 'user-trash-symbolic',
+            iconName: 'user-trash-symbolic',
         });
         const dangerZoneGroup = new Adw.PreferencesGroup();
         dangerZoneGroup.add(new SessionOnlyModeRow(ext));
@@ -684,7 +694,7 @@ let ExclusionGroup = class ExclusionGroup extends Adw.PreferencesGroup {
         const _ = gettext(ext);
         super({
             title: _('Manage Exclusions'),
-            margin_top: 20,
+            marginTop: 20,
         });
         this.settings = getCurrentExtensionSettings(ext);
         this.exclusionRow = new Adw.ExpanderRow({
@@ -692,8 +702,8 @@ let ExclusionGroup = class ExclusionGroup extends Adw.PreferencesGroup {
             subtitle: _('Pano will stop tracking if any window from the list is focussed'),
         });
         this.exclusionButton = new Gtk.Button({
-            icon_name: 'list-add-symbolic',
-            css_classes: ['flat'],
+            iconName: 'list-add-symbolic',
+            cssClasses: ['flat'],
             valign: Gtk.Align.CENTER,
             halign: Gtk.Align.CENTER,
         });
@@ -714,7 +724,7 @@ let ExclusionGroup = class ExclusionGroup extends Adw.PreferencesGroup {
         const entryRow = new Adw.ActionRow();
         const _ = gettext(ext);
         const entry = new Gtk.Entry({
-            placeholder_text: _('Window class name'),
+            placeholderText: _('Window class name'),
             halign: Gtk.Align.FILL,
             valign: Gtk.Align.CENTER,
             hexpand: true,
@@ -723,8 +733,8 @@ let ExclusionGroup = class ExclusionGroup extends Adw.PreferencesGroup {
             entry.grab_focus();
         });
         const okButton = new Gtk.Button({
-            css_classes: ['flat'],
-            icon_name: 'emblem-ok-symbolic',
+            cssClasses: ['flat'],
+            iconName: 'emblem-ok-symbolic',
             valign: Gtk.Align.CENTER,
             halign: Gtk.Align.CENTER,
         });
@@ -741,8 +751,8 @@ let ExclusionGroup = class ExclusionGroup extends Adw.PreferencesGroup {
             okButton.emit('clicked');
         });
         const cancelButton = new Gtk.Button({
-            css_classes: ['flat'],
-            icon_name: 'window-close-symbolic',
+            cssClasses: ['flat'],
+            iconName: 'window-close-symbolic',
             valign: Gtk.Align.CENTER,
             halign: Gtk.Align.CENTER,
         });
@@ -760,8 +770,8 @@ let ExclusionGroup = class ExclusionGroup extends Adw.PreferencesGroup {
             title: appClassName,
         });
         const removeButton = new Gtk.Button({
-            css_classes: ['destructive-action'],
-            icon_name: 'edit-delete-symbolic',
+            cssClasses: ['destructive-action'],
+            iconName: 'edit-delete-symbolic',
             valign: Gtk.Align.CENTER,
             halign: Gtk.Align.CENTER,
         });
@@ -790,7 +800,7 @@ let DBLocationRow = class DBLocationRow extends Adw.ActionRow {
             modal: true,
             title: _('Choose pano database location'),
             action: Gtk.FileChooserAction.SELECT_FOLDER,
-            accept_label: 'Select',
+            acceptLabel: 'Select',
         });
         this.connect('map', () => {
             this.fileChooser.set_transient_for(this.get_root());
@@ -823,8 +833,8 @@ let DBLocationRow = class DBLocationRow extends Adw.ActionRow {
             else {
                 const md = new Gtk.MessageDialog({
                     text: _('Failed to select directory'),
-                    transient_for: this.get_root(),
-                    destroy_with_parent: true,
+                    transientFor: this.get_root(),
+                    destroyWithParent: true,
                     modal: true,
                     visible: true,
                     buttons: Gtk.ButtonsType.OK,
@@ -836,7 +846,7 @@ let DBLocationRow = class DBLocationRow extends Adw.ActionRow {
             this.fileChooser.hide();
         });
         const dbLocationButton = new Gtk.Button({
-            icon_name: 'document-open-symbolic',
+            iconName: 'document-open-symbolic',
             valign: Gtk.Align.CENTER,
             halign: Gtk.Align.CENTER,
         });
@@ -864,7 +874,7 @@ let HistoryLengthRow = class HistoryLengthRow extends Adw.ActionRow {
         });
         this.settings = getCurrentExtensionSettings(ext);
         const historyEntry = new Gtk.SpinButton({
-            adjustment: new Gtk.Adjustment({ step_increment: 10, lower: 10, upper: 500 }),
+            adjustment: new Gtk.Adjustment({ stepIncrement: 10, lower: 10, upper: 500 }),
             value: this.settings.get_int('history-length'),
             valign: Gtk.Align.CENTER,
             halign: Gtk.Align.CENTER,
@@ -897,7 +907,7 @@ let IncognitoShortcutRow = class IncognitoShortcutRow extends Adw.ActionRow {
         });
         this.settings = getCurrentExtensionSettings(ext);
         const shortcutLabel = new Gtk.ShortcutLabel({
-            disabled_text: _('Select a shortcut'),
+            disabledText: _('Select a shortcut'),
             accelerator: this.settings.get_strv('incognito-shortcut')[0],
             valign: Gtk.Align.CENTER,
             halign: Gtk.Align.CENTER,
@@ -909,14 +919,14 @@ let IncognitoShortcutRow = class IncognitoShortcutRow extends Adw.ActionRow {
             const ctl = new Gtk.EventControllerKey();
             const content = new Adw.StatusPage({
                 title: _('New shortcut'),
-                icon_name: 'preferences-desktop-keyboard-shortcuts-symbolic',
+                iconName: 'preferences-desktop-keyboard-shortcuts-symbolic',
             });
             const editor = new Adw.Window({
                 modal: true,
-                transient_for: this.get_root(),
-                hide_on_close: true,
-                width_request: 320,
-                height_request: 240,
+                transientFor: this.get_root(),
+                hideOnClose: true,
+                widthRequest: 320,
+                heightRequest: 240,
                 resizable: false,
                 content,
             });
@@ -1127,7 +1137,7 @@ let ShortcutRow = class ShortcutRow extends Adw.ActionRow {
         });
         this.settings = getCurrentExtensionSettings(ext);
         const shortcutLabel = new Gtk.ShortcutLabel({
-            disabled_text: _('Select a shortcut'),
+            disabledText: _('Select a shortcut'),
             accelerator: this.settings.get_strv('global-shortcut')[0],
             valign: Gtk.Align.CENTER,
             halign: Gtk.Align.CENTER,
@@ -1139,14 +1149,14 @@ let ShortcutRow = class ShortcutRow extends Adw.ActionRow {
             const ctl = new Gtk.EventControllerKey();
             const content = new Adw.StatusPage({
                 title: _('New shortcut'),
-                icon_name: 'preferences-desktop-keyboard-shortcuts-symbolic',
+                iconName: 'preferences-desktop-keyboard-shortcuts-symbolic',
             });
             const editor = new Adw.Window({
                 modal: true,
-                transient_for: this.get_root(),
-                hide_on_close: true,
-                width_request: 320,
-                height_request: 240,
+                transientFor: this.get_root(),
+                hideOnClose: true,
+                widthRequest: 320,
+                heightRequest: 240,
                 resizable: false,
                 content,
             });
@@ -1335,7 +1345,7 @@ let GeneralPage = class GeneralPage extends Adw.PreferencesPage {
         const _ = gettext(ext);
         super({
             title: _('General'),
-            icon_name: 'preferences-system-symbolic',
+            iconName: 'preferences-system-symbolic',
         });
         this.add(new GeneralGroup(ext));
         this.add(new ExclusionGroup(ext));
@@ -1350,7 +1360,7 @@ class PanoExtensionPreferences extends ExtensionPreferences {
         window.add(new GeneralPage(this));
         window.add(new CustomizationPage(this));
         window.add(new DangerZonePage(this));
-        window.search_enabled = true;
+        window.searchEnabled = true;
         const display = Gdk.Display.get_default();
         if (display) {
             Gtk.IconTheme.get_for_display(display).add_search_path(`${this.path}/icons/`);

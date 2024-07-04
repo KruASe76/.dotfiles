@@ -23,13 +23,13 @@ export class ScrollablePopupMenu extends PopupMenu {
 
         this._boxPointer.bin.style_class = 'popup-menu-content';
 
-        this.scroller.add_actor(this.box);
-        this.boxlayout.add(this.scroller);
+        this.scroller.add_child(this.box);
+        this.boxlayout.add_child(this.scroller);
         this.box.style_class = '';
 
         this.style_class = 'popup-menu-boxpointer';
 
-        this._boxPointer.bin.set_child(this.boxlayout);
+        this._boxPointer.bin.add_child(this.boxlayout);
         this._boxPointer.bin.style_class = 'popup-menu-content';
         this.box.set_style('padding-bottom: 0');
         // global.focus_manager.add_group(this);
@@ -120,7 +120,7 @@ export class ScrollablePopupMenu extends PopupMenu {
             this._logger.error(`Tried to add delimiter to invalid section ${name}`);
             return;
         }
-        this[this._getSectionName(name)].add((new PopupSeparatorMenuItem()));
+        this[this._getSectionName(name)].add_child((new PopupSeparatorMenuItem()));
     }
 
     addToSection(section, actor) {
@@ -139,7 +139,7 @@ export class ScrollablePopupMenu extends PopupMenu {
             this._addSectionDelimiter(section);
         }
         if (section === 'bottom') {
-            this._bottomSection.add(actor);
+            this._bottomSection.add_child(actor);
             return;
         }
         if (section === 'top') {

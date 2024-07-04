@@ -43,7 +43,7 @@ export const NewTaskEntry = GObject.registerClass({
                 manager.addTask(newTask);
             }
         });
-        this.add(this.stEntry);
+        this.add_child(this.stEntry);
     }
 
     grab_key_focus() {

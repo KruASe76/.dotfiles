@@ -92,7 +92,7 @@ const TodoTxtButton = GObject.registerClass({
             busy: true
         });
 
-        this.add_actor(this.topbar);
+        this.add_child(this.topbar);
 
         this._installShortcuts();
 
@@ -197,6 +197,7 @@ const TodoTxtButton = GObject.registerClass({
         this.showDoneTasks = this.settings.get('show-done');
         this.showOpenPreferences = this.settings.get('show-open-preferences');
         this.dueDateExtension = this.settings.get('enable-due-date-extension');
+        this.commentsExtension = this.settings.get('enable-comments-extension');
     }
 
     _connectSettingsSignals() {
@@ -220,6 +221,11 @@ const TodoTxtButton = GObject.registerClass({
         this.settings.registerForChange('click-action', this.onParamChanged.bind(this));
         this.settings.registerForChange('open-key', this.onShortcutChanged.bind(this));
         this.settings.registerForChange('confirm-delete', this.onParamChanged.bind(this));
+        this.settings.registerForChange('done-task-italic', this.onParamChanged.bind(this));
+        this.settings.registerForChange('done-task-bold', this.onParamChanged.bind(this));
+        this.settings.registerForChange('done-task-strikethrough', this.onParamChanged.bind(this));
+        this.settings.registerForChange('color-done-tasks', this.onParamChanged.bind(this));
+        this.settings.registerForChange('custom-done-tasks-color', this.onParamChanged.bind(this));
         this.settings.registerForChange('url-color', this.onParamChanged.bind(this));
         this.settings.registerForChange('custom-url-color', this.onParamChanged.bind(this));
         this.settings.registerForChange('long-tasks-expansion-mode', this.onParamChanged.bind(this));
@@ -236,6 +242,7 @@ const TodoTxtButton = GObject.registerClass({
         this.settings.registerForChange('show-done', this.onParamChanged.bind(this));
         this.settings.registerForChange('show-open-preferences', this.onParamChanged.bind(this));
         this.settings.registerForChange('enable-due-date-extension', this.onParamChanged.bind(this));
+        this.settings.registerForChange('enable-comments-extension', this.onParamChanged.bind(this));
     }
 
     _loadExtensions() {
@@ -399,6 +406,10 @@ const TodoTxtButton = GObject.registerClass({
         for (let i = 0; i < lines.length; i++) {
             if (lines[i] !== '' && lines[i] !== '\n') {
                 try {
+                    if (this.commentsExtension && /^#/.test(lines[i])) {
+                        continue
+                    }
+
                     const task = new TodoTxtItem(lines[i], this.enabledExtensions);
                     this.decorator.addLoggingToNamespace(task);
                     this.tasks.push(task);

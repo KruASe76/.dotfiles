@@ -3,7 +3,7 @@
  * Actions
  *
  * @author     GdH <G-dH@github.com>
- * @copyright  2021-2022
+ * @copyright  2021-2024
  * @license    GPL-3.0
  */
 
@@ -34,7 +34,6 @@ import * as SystemActions from 'resource:///org/gnome/shell/misc/systemActions.j
 
 import * as Settings from '../common/settings.js';
 import * as Shaders from './shaders.js';
-import * as WinTmb from './winTmb.js';
 
 // gettext
 let _;
@@ -78,7 +77,6 @@ export const Actions = class {
         this.WIN_SKIP_MINIMIZED     = false;
         this.WIN_STABLE_SEQUENCE    = false;
 
-        this.windowThumbnails       = [];
         this._tmbConnected          = false;
 
         this._mainPanelVisible      = Main.panel.is_visible();
@@ -90,7 +88,6 @@ export const Actions = class {
     }
 
     clean(full = true) {
-        // don't reset effects and destroy thumbnails if extension is enabled (GS calls ext. disable() before locking the screen f.e.)
         if (full) {
             if (this._mainPanelVisible)
                 Main.panel.show();
@@ -111,7 +108,6 @@ export const Actions = class {
             global.display.disconnect(this._osdMonitorsConnection);
             this._osdMonitorsConnection = 0;
         }
-        this._removeThumbnails(full);
         this._destroyDimmerActors();
         this._removeCustomMenus();
         this._destroyWindowPreview();
@@ -121,38 +117,6 @@ export const Actions = class {
             if (t)
                 GLib.source_remove(t);
         });
-    }
-
-    resume() {
-        this._resumeThumbnailsIfExist();
-    }
-
-    _resumeThumbnailsIfExist() {
-        this.windowThumbnails.forEach(
-            t => {
-                if (t)
-                    t.show();
-            }
-        );
-    }
-
-    _removeThumbnails(full = true) {
-        if (full) {
-            this.windowThumbnails.forEach(
-                t => {
-                    if (t)
-                        t.destroy();
-                }
-            );
-            this.windowThumbnails = [];
-        } else {
-            this.windowThumbnails.forEach(
-                t => {
-                    if (t)
-                        t.hide();
-                }
-            );
-        }
     }
 
     _removeOsdMonitorIndexes(keepConnection = false) {
@@ -1162,22 +1126,43 @@ export const Actions = class {
     }
 
     openPreferences() {
-        // if prefs window already exist, move it to the current WS and activate it
-        const { metaWin, isCHCE } = this._getOpenPrefsWindow();
-        if (metaWin) {
-            if (!isCHCE) {
-                metaWin.delete(global.get_current_time());
-            } else {
-                this._moveWindowToWs(metaWin);
-                metaWin.activate(global.get_current_time());
-                return;
+        const metadata = Me.metadata;
+        const windows = global.display.get_tab_list(Meta.TabList.NORMAL_ALL, null);
+        let tracker = Shell.WindowTracker.get_default();
+        let metaWin, isMe = null;
+
+        for (let win of windows) {
+            const app = tracker.get_window_app(win);
+            if (win.get_title()?.includes(metadata.name) && app.get_name() === 'Extensions') {
+            // this is our existing window
+                metaWin = win;
+                isMe = true;
+                break;
+            } else if (win.wm_class?.includes('org.gnome.Shell.Extensions')) {
+            // this is prefs window of another extension
+                metaWin = win;
+                isMe = false;
             }
         }
 
-        try {
-            Main.extensionManager.openExtensionPrefs(Me.metadata.uuid, '', {});
-        } catch (e) {
-            log(e);
+        if (metaWin && !isMe) {
+        // other prefs window blocks opening another prefs window, so close it
+            metaWin.delete(global.get_current_time());
+        } else if (metaWin && isMe) {
+        // if prefs window already exist, move it to the current WS and activate it
+            metaWin.change_workspace(global.workspace_manager.get_active_workspace());
+            metaWin.activate(global.get_current_time());
+        }
+
+        if (!metaWin || (metaWin && !isMe)) {
+        // delay to avoid errors if previous prefs window has been colsed
+            GLib.idle_add(GLib.PRIORITY_LOW, () => {
+                try {
+                    Main.extensionManager.openExtensionPrefs(metadata.uuid, '', {});
+                } catch (e) {
+                    console.error(e);
+                }
+            });
         }
     }
 
@@ -1393,7 +1378,7 @@ export const Actions = class {
 
         if (!this._winPreview) {
             this._winPreview = new CyclerHighlight();
-            global.window_group.add_actor(this._winPreview);
+            global.window_group.add_child(this._winPreview);
             [this._winPreview._xPointer, this._winPreview._yPointer] = global.get_pointer();
         }
 
@@ -1711,7 +1696,7 @@ export const Actions = class {
                     });
                     actor.connect('button-press-event', () => this.toggleDimMonitors(null, null, monitorIndex));
                     // Main.layoutManager.addChrome(actor);
-                    global.stage.add_actor(actor);
+                    global.stage.add_child(actor);
                     this._dimmerActors.push(actor);
                 }
             }
@@ -1795,38 +1780,10 @@ export const Actions = class {
     }
 
     makeThumbnailWindow(metaWindow = null, minimize = false) {
-        let metaWin;
-        if (metaWindow) {
-            metaWin = metaWindow;
-        } else {
-            let actor = this._getFocusedActor();
-            metaWin = actor ? actor.get_meta_window() : null;
-        }
-
-        if (!metaWin)
-            return;
-
-        if (!this._tmbConnected) {
-            let conS = Main.overview.connect('showing', () => {
-                this.windowThumbnails.forEach(t => t.hide());
-            });
-            let conH = Main.overview.connect('hiding',  () => {
-                this.windowThumbnails.forEach(t => t.show());
-            });
-            this._signalsCollector.push([Main.overview, conS]);
-            this._signalsCollector.push([Main.overview, conH]);
-            this._tmbConnected = true;
-        }
-
-        let monitorHeight = getCurrentMonitorGeometry().height;
-        let scale = this._mscOptions.get('winThumbnailScale');
-        this.windowThumbnails.push(new WinTmb.WindowThumbnail(metaWin, this, {
-            actionTimeout: this._mscOptions.get('actionEventDelay'),
-            height: Math.floor(scale / 100 * monitorHeight),
-            thumbnailsOnScreen: this.windowThumbnails.length,
-            minimize,
-        })
-        );
+        if (global.windowThumbnails)
+            global.windowThumbnails.createThumbnail(metaWindow, minimize);
+        else
+            Main.notify(Me.metadata.name, _('This action requires the "WTMB (Window Thumbnails)" extension installed on your system'));
     }
 
     showAppSwitcherPopup() {
@@ -1899,9 +1856,9 @@ export const Actions = class {
         if (!this.customMenu[menuIndex]) {
             this.customMenu[menuIndex] = new CustomMenuPopup(Main.layoutManager);
             this.customMenu[menuIndex].act.connect('destroy', () => {
-                Main.layoutManager.uiGroup.remove_actor(this.customMenu[menuIndex].actor);
+                Main.layoutManager.uiGroup.remove_child(this.customMenu[menuIndex].actor);
             });
-            Main.layoutManager.uiGroup.add_actor(this.customMenu[menuIndex].actor);
+            Main.layoutManager.uiGroup.add_child(this.customMenu[menuIndex].actor);
         }
         this.customMenu[menuIndex].menuItems      = this._mscOptions.get(`customMenu${menuIndex}`);
         this.customMenu[menuIndex].actionList     = Settings.actionList;
@@ -2076,10 +2033,10 @@ class CyclerHighlight extends St.Widget {
         this._window = null;
 
         this._clone = new Clutter.Clone();
-        this.add_actor(this._clone);
+        this.add_child(this._clone);
 
         this._highlight = new St.Widget({ style_class: 'cycler-highlight' });
-        this.add_actor(this._highlight);
+        this.add_child(this._highlight);
 
         let coordinate = Clutter.BindCoordinate.ALL;
         let constraint = new Clutter.BindConstraint({ coordinate });

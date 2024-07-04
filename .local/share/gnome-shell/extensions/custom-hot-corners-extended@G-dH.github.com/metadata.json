@@ -8,10 +8,10 @@
   "name": "Custom Hot Corners - Extended",
   "settings-schema": "org.gnome.shell.extensions.custom-hot-corners-extended",
   "shell-version": [
-    "45"
+    "46"
   ],
   "url": "https://github.com/G-dH/custom-hot-corners",
   "uuid": "custom-hot-corners-extended@G-dH.github.com",
-  "version": 38,
-  "version-name": "45.2"
+  "version": 40,
+  "version-name": "46.0"
 }

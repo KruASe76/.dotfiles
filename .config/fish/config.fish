@@ -66,18 +66,13 @@ if status is-interactive
 
     abbr -a appimage-build --set-cursor 'VERSION=% ~/appimages/appimagetool-730-x86_64.AppImage'
 
-    abbr -a mongo-backup --set-cursor 'mongodump --gzip --archive=%'
-    abbr -a mongo-restore --set-cursor 'mongorestore --gzip --drop --archive=%'
+    abbr -a mongo-backup --set-cursor 'mongodump --gzip --archive=/mnt/ext4_hdd/mongo_backup/%'
+    abbr -a mongo-restore --set-cursor 'mongorestore --gzip --drop --archive=/mnt/ext4_hdd/mongo_backup/%'
 
     abbr -a wb '~/Документы/1535/workbook/ && git status'
     abbr -a obsidian-personal '~/Документы/personal_vault/ && git status'
 
-    abbr -a vpn-ru 'sudo openvpn --config ~/openvpn/russia_2_freeopenvpn_tcp.ovpn'
-    abbr -a vpn-ru-pass --set-cursor 'echo -e "freeopenvpn\n%" > ~/openvpn/russia_2_login.txt'
-    abbr -a vpn-ru-3 'sudo openvpn --config ~/openvpn/russia_3_freeopenvpn_tcp.ovpn'
-    abbr -a vpn-ru-3-pass --set-cursor 'echo -e "freeopenvpn\n%" > ~/openvpn/russia_3_login.txt'
-    abbr -a vpn-nl 'sudo openvpn --config ~/openvpn/netherlands_freeopenvpn_tcp.ovpn'
-    abbr -a vpn-nl-pass --set-cursor 'echo -e "freeopenvpn\n%" > ~/openvpn/netherlands_login.txt'
+    abbr -a vpn 'sudo openvpn --config ~/openvpn/openproxylist.com-sg-367894.ovpn'
     abbr -a vpn-sirius 'sudo openvpn --config ~/openvpn/sirius.ovpn'
 
     abbr -a vencord 'sh -c "$(curl -sS https://raw.githubusercontent.com/Vendicated/VencordInstaller/main/install.sh)"'
@@ -95,6 +90,8 @@ if status is-interactive
     abbr -a serveo-http 'ssh -o ServerAliveInterval=60 -R kruase:80:localhost:1535 serveo.net'
     abbr -a serveo-fastapi 'ssh -o ServerAliveInterval=60 -R kruase:80:localhost:8000 serveo.net'
     abbr -a serveo-mc 'ssh -R kruase-mc:1535:localhost:25565 serveo.net'
+
+    abbr -a ngrok-fastapi 'ngrok http --domain=reptile-allowed-coyote.ngrok-free.app 8000'
 
     abbr -a playit 'playit -c ~/.config/playit.toml'
 

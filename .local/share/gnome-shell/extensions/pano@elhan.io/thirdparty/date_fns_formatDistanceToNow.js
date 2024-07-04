@@ -427,7 +427,6 @@ var formatDistance$1 = function formatDistance(token, count, options) {
   }
   return result;
 };
-const formatDistance$2 = formatDistance$1;
 
 function buildFormatLongFn(args) {
   return function () {
@@ -817,7 +816,7 @@ const match$1 = match;
  */
 var locale = {
   code: 'en-US',
-  formatDistance: formatDistance$2,
+  formatDistance: formatDistance$1,
   formatLong: formatLong$1,
   formatRelative: formatRelative$1,
   localize: localize$1,
@@ -827,7 +826,6 @@ var locale = {
     firstWeekContainsDate: 1
   }
 };
-const defaultLocale = locale;
 
 function assign(target, object) {
   if (target == null) {
@@ -952,8 +950,8 @@ function formatDistance(dirtyDate, dirtyBaseDate, options) {
   var _ref, _options$locale;
   requiredArgs(2, arguments);
   var defaultOptions = getDefaultOptions();
-  var locale = (_ref = (_options$locale = options === null || options === void 0 ? void 0 : options.locale) !== null && _options$locale !== void 0 ? _options$locale : defaultOptions.locale) !== null && _ref !== void 0 ? _ref : defaultLocale;
-  if (!locale.formatDistance) {
+  var locale$1 = (_ref = (_options$locale = options === null || options === void 0 ? void 0 : options.locale) !== null && _options$locale !== void 0 ? _options$locale : defaultOptions.locale) !== null && _ref !== void 0 ? _ref : locale;
+  if (!locale$1.formatDistance) {
     throw new RangeError('locale must contain formatDistance property');
   }
   var comparison = compareAsc(dirtyDate, dirtyBaseDate);
@@ -982,59 +980,59 @@ function formatDistance(dirtyDate, dirtyBaseDate, options) {
   if (minutes < 2) {
     if (options !== null && options !== void 0 && options.includeSeconds) {
       if (seconds < 5) {
-        return locale.formatDistance('lessThanXSeconds', 5, localizeOptions);
+        return locale$1.formatDistance('lessThanXSeconds', 5, localizeOptions);
       } else if (seconds < 10) {
-        return locale.formatDistance('lessThanXSeconds', 10, localizeOptions);
+        return locale$1.formatDistance('lessThanXSeconds', 10, localizeOptions);
       } else if (seconds < 20) {
-        return locale.formatDistance('lessThanXSeconds', 20, localizeOptions);
+        return locale$1.formatDistance('lessThanXSeconds', 20, localizeOptions);
       } else if (seconds < 40) {
-        return locale.formatDistance('halfAMinute', 0, localizeOptions);
+        return locale$1.formatDistance('halfAMinute', 0, localizeOptions);
       } else if (seconds < 60) {
-        return locale.formatDistance('lessThanXMinutes', 1, localizeOptions);
+        return locale$1.formatDistance('lessThanXMinutes', 1, localizeOptions);
       } else {
-        return locale.formatDistance('xMinutes', 1, localizeOptions);
+        return locale$1.formatDistance('xMinutes', 1, localizeOptions);
       }
     } else {
       if (minutes === 0) {
-        return locale.formatDistance('lessThanXMinutes', 1, localizeOptions);
+        return locale$1.formatDistance('lessThanXMinutes', 1, localizeOptions);
       } else {
-        return locale.formatDistance('xMinutes', minutes, localizeOptions);
+        return locale$1.formatDistance('xMinutes', minutes, localizeOptions);
       }
     }
 
     // 2 mins up to 0.75 hrs
   } else if (minutes < 45) {
-    return locale.formatDistance('xMinutes', minutes, localizeOptions);
+    return locale$1.formatDistance('xMinutes', minutes, localizeOptions);
 
     // 0.75 hrs up to 1.5 hrs
   } else if (minutes < 90) {
-    return locale.formatDistance('aboutXHours', 1, localizeOptions);
+    return locale$1.formatDistance('aboutXHours', 1, localizeOptions);
 
     // 1.5 hrs up to 24 hrs
   } else if (minutes < MINUTES_IN_DAY) {
     var hours = Math.round(minutes / 60);
-    return locale.formatDistance('aboutXHours', hours, localizeOptions);
+    return locale$1.formatDistance('aboutXHours', hours, localizeOptions);
 
     // 1 day up to 1.75 days
   } else if (minutes < MINUTES_IN_ALMOST_TWO_DAYS) {
-    return locale.formatDistance('xDays', 1, localizeOptions);
+    return locale$1.formatDistance('xDays', 1, localizeOptions);
 
     // 1.75 days up to 30 days
   } else if (minutes < MINUTES_IN_MONTH) {
     var days = Math.round(minutes / MINUTES_IN_DAY);
-    return locale.formatDistance('xDays', days, localizeOptions);
+    return locale$1.formatDistance('xDays', days, localizeOptions);
 
     // 1 month up to 2 months
   } else if (minutes < MINUTES_IN_TWO_MONTHS) {
     months = Math.round(minutes / MINUTES_IN_MONTH);
-    return locale.formatDistance('aboutXMonths', months, localizeOptions);
+    return locale$1.formatDistance('aboutXMonths', months, localizeOptions);
   }
   months = differenceInMonths(dateRight, dateLeft);
 
   // 2 months up to 12 months
   if (months < 12) {
     var nearestMonth = Math.round(minutes / MINUTES_IN_MONTH);
-    return locale.formatDistance('xMonths', nearestMonth, localizeOptions);
+    return locale$1.formatDistance('xMonths', nearestMonth, localizeOptions);
 
     // 1 year up to max Date
   } else {
@@ -1043,15 +1041,15 @@ function formatDistance(dirtyDate, dirtyBaseDate, options) {
 
     // N years up to 1 years 3 months
     if (monthsSinceStartOfYear < 3) {
-      return locale.formatDistance('aboutXYears', years, localizeOptions);
+      return locale$1.formatDistance('aboutXYears', years, localizeOptions);
 
       // N years 3 months up to N years 9 months
     } else if (monthsSinceStartOfYear < 9) {
-      return locale.formatDistance('overXYears', years, localizeOptions);
+      return locale$1.formatDistance('overXYears', years, localizeOptions);
 
       // N years 9 months up to N year 12 months
     } else {
-      return locale.formatDistance('almostXYears', years + 1, localizeOptions);
+      return locale$1.formatDistance('almostXYears', years + 1, localizeOptions);
     }
   }
 }

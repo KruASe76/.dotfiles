@@ -22,7 +22,7 @@ def prepare_link(link_name: Path) -> None:
 
     if not link_name.exists():
         return
-    
+
     if link_name.is_symlink() or link_name.is_file():
         os.remove(link_name)
     else:

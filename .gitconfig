@@ -30,3 +30,4 @@
     bra = branch -a
     rb = rebase
     rbc = rebase --continue
+    rmc = rm --cached

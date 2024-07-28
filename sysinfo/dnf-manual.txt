@@ -1,5 +1,6 @@
 dnf5
 fish
+stow
 python3-pip
 snapd
 akmod-nvidia

@@ -20,6 +20,7 @@
     a = add
     aa = add --all
     una = reset HEAD
+    rsh = reset HEAD
     rs = reset
     cm = commit -m
     cam = commit -am

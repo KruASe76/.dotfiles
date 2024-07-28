@@ -59,7 +59,7 @@ if status is-interactive
     abbr -a git-cache-on 'git config credential.helper store'
     abbr -a git-cache-off 'git config --unset credential.helper'
 
-    abbr -a venv 'source ./venv/bin/activate.fish'
+    abbr -a venv 'source ./.venv/bin/activate.fish'
     abbr -a ppr 'pipenv run python3'
     abbr -a ppi 'pipenv install'
     abbr -a ppu 'pipenv uninstall'
@@ -112,6 +112,7 @@ if status is-interactive
     bind -e \cd
 
 
+    # GOPATH
     set -Ux GOPATH /tmp/go
 
     # flyctl setup

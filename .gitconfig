@@ -30,6 +30,7 @@
     pfo = push --force-with-lease origin
     pfom = push --force-with-lease origin main
     pullr = pull --rebase
+    pulla = pull --all
     sw = switch
     co = checkout
     cod = checkout .

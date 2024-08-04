@@ -16,6 +16,8 @@ openssl-devel
 make
 gcc
 gcc-c++
+glibc-static
+libtool
 mozilla-openh264
 docker-ce
 links

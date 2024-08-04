@@ -48,7 +48,7 @@ if status is-interactive
     abbr -a bc 'bc -l'
 
     abbr -a --position anywhere wget 'wget -c'
-    abbr -a proton-run 'env ~/PortWINE/PortProton/data/scripts/start.sh'
+    abbr -a proton-run 'env ~/PortProton/data/scripts/start.sh'
     abbr -a nv nvidia-smi
 
     abbr -a drive-health-test 'sudo smartctl -t short'
@@ -69,7 +69,9 @@ if status is-interactive
     abbr -a mongo-backup --set-cursor 'mongodump --gzip --archive=/mnt/ext4_hdd/mongo_backup/%'
     abbr -a mongo-restore --set-cursor 'mongorestore --gzip --drop --archive=/mnt/ext4_hdd/mongo_backup/%'
 
-    abbr -a wb '~/Документы/1535/workbook/ && git status'
+    abbr -a wb '~/Документы/mipt/workbook_mipt/ && git status'
+    abbr -a wb1535 '~/Документы/1535/workbook_1535/ && git status'
+    abbr -a wbmipt '~/Документы/mipt/workbook_mipt/ && git status'
     abbr -a obsidian-personal '~/Документы/personal_vault/ && git status'
 
     abbr -a vpn 'sudo openvpn --config ~/openvpn/openproxylist.com-sg-367894.ovpn'
@@ -101,6 +103,7 @@ if status is-interactive
     abbr -a toilet 'toilet -f mono12'
     abbr -a cmatrix 'cmatrix -b'
     abbr -a hollywood 'docker run -it --rm bcbcarl/hollywood'
+    abbr -a ytub 'sudo youtubeUnblock 537'
 
     # Aliases
     alias drop-table="echo no way"

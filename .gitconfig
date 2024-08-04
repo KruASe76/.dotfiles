@@ -25,6 +25,7 @@
     cm = commit -m
     cam = commit -am
     amend = commit --amend
+    ane = commit --amend --no-edit
     po = push origin
     pom = push origin main
     pfo = push --force-with-lease origin

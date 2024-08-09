@@ -99,3 +99,4 @@ maven
 mongodb-org
 mongodb-mongosh-shared-openssl3
 python2
+python3-huggingface-hub

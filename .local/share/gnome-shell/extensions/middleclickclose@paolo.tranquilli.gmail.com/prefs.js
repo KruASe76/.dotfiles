@@ -18,7 +18,8 @@ import Gtk from 'gi://Gtk';
 import GLib from 'gi://GLib';
 import GObject from 'gi://GObject';
 
-import { ExtensionPreferences, gettext as _ } from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
+import { ExtensionPreferences, gettext as _ }
+    from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
 
 export default class MiddleClickClosePreferences extends ExtensionPreferences {
     getPreferencesWidget() {
@@ -42,6 +43,8 @@ export default class MiddleClickClosePreferences extends ExtensionPreferences {
         group.add(this.buildPreference("rearrange-delay", {
             step: 50,
         }));
+
+        group.add(this.buildPreference("keyboard-close"))
 
         page.add(group);
         return page;
@@ -70,7 +73,7 @@ export default class MiddleClickClosePreferences extends ExtensionPreferences {
             });
 
             row.connect('notify::selected', () => {
-                setting.activate(GLib.Variant.new_string(range[row.selected]));
+                setting.change_state(GLib.Variant.new_string(range[row.selected]));
             });
 
             return row;
@@ -79,7 +82,20 @@ export default class MiddleClickClosePreferences extends ExtensionPreferences {
             opts.upper ??= range[1]
         }
 
-        if (["i"].includes(ty)) {
+        if (ty == "b") {
+            let row = new Adw.SwitchRow({
+                title: opts.title,
+                subtitle: opts.subtitle,
+                active: setting.state.unpack()
+            });
+
+            row.connect('notify::active', () => {
+                setting.change_state(GLib.Variant.new_boolean(row.active));
+            });
+
+            return row;
+
+        } else if (ty == "i") {
             let adjustment = new Gtk.Adjustment({
                 lower: opts.lower,
                 upper: opts.upper,
@@ -95,7 +111,7 @@ export default class MiddleClickClosePreferences extends ExtensionPreferences {
             });
 
             adjustment.connect("value-changed", adj => {
-                setting.activate(GLib.Variant.new_int32(adj.value));
+                setting.change_state(GLib.Variant.new_int32(adj.value));
             });
 
             return row;

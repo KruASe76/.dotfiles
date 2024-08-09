@@ -30,6 +30,7 @@
     pom = push origin main
     pfo = push --force-with-lease origin
     pfom = push --force-with-lease origin main
+    fetcha = fetch --all --prune
     pullr = pull --rebase
     pulla = pull --all
     sw = switch
@@ -52,3 +53,5 @@
     wta = worktree add
     wtr = worktree remove
     wtl = worktree list
+[credential]
+	helper = store

@@ -19,9 +19,13 @@
 
 import GLib from 'gi://GLib';
 import GObject from 'gi://GObject';
+import Meta from 'gi://Meta';
 
-import { Extension, InjectionManager } from 'resource:///org/gnome/shell/extensions/extension.js';
+import { Extension, InjectionManager }
+	from 'resource:///org/gnome/shell/extensions/extension.js';
 import { Workspace } from 'resource:///org/gnome/shell/ui/workspace.js';
+import { WindowPreview } from 'resource:///org/gnome/shell/ui/windowPreview.js';
+import { ControlsState } from 'resource:///org/gnome/shell/ui/overviewControls.js';
 
 import { SettingsWatch } from './settingsWatch.js';
 
@@ -29,20 +33,28 @@ export default class MiddleClickClose extends Extension {
 	#settings;
 	#injectionManager;
 
+	#refocusOnClose;
+
 	enable() {
 		this.#settings = new SettingsWatch(this.getSettings(), {
 			close_button: { get: v => v.value, },
 			rearrange_delay: {},
+			keyboard_close: {},
 		});
+
+		this.#refocusOnClose = new WeakSet();
 
 		this.#injectionManager = new InjectionManager();
 		this.#patchClickHandler();
 		this.#patchWindowRepositioningDelay();
+		this.#patchKeyClose();
 	}
 
 	disable() {
 		this.#injectionManager.clear();
 		this.#injectionManager = null;
+
+		this.#refocusOnClose = null;
 
 		this.#settings.clear();
 		this.#settings = null;
@@ -81,23 +93,90 @@ export default class MiddleClickClose extends Extension {
 		// apparently that is impossible with the switch to ESM. Instead, we'll monkey-patch
 		// _doRemoveWindow() and change the timeout after the fact.
 		const settings = this.#settings;
+		const refocusOnClose = this.#refocusOnClose;
 		const lastLayoutFrozenIds = new WeakMap();
+
 		this.#injectionManager.overrideMethod(Workspace.prototype, '_doRemoveWindow',
-			original => function () {
+			original => function (metaWin) {
+
+				// Grab the old window's focus chain index.
+				let focus_idx = this.get_focus_chain()
+					.findIndex(clone => clone.metaWindow == metaWin);
+
+				// Call the original method.
 				const ret = original.apply(this, arguments);
+
+				if (refocusOnClose.has(metaWin)) {
+					// Find a "nearby" window to refocus to, based on the old index
+					const chain = this.get_focus_chain();
+					if (focus_idx >= chain.length) {
+						focus_idx = chain.length - 1;
+					}
+
+					// Focus on the selected window.
+					if (focus_idx >= 0) {
+						global.stage.key_focus = chain[focus_idx];
+					}
+				}
 
 				// Adjust the freeze delay.
 				if (this._layoutFrozenId > 0
 					&& this._layoutFrozenId != lastLayoutFrozenIds.get(this)
 				) {
-					const source = GLib.MainContext.default().find_source_by_id(this._layoutFrozenId);
-					source.set_ready_time(source.get_time() + settings.rearrange_delay * 1000);
+					const src = GLib.MainContext.default().find_source_by_id(this._layoutFrozenId);
+					src.set_ready_time(src.get_time() + settings.rearrange_delay * 1000);
 				}
 
-				// Need to keep the last id to avoid adjusting the layout freeze delay more than once.
+				// Need to keep the last id to avoid adjusting the layout freeze delay more than
+				// once.
 				lastLayoutFrozenIds.set(this, this._layoutFrozenId);
-
 				return ret;
 			})
+	}
+
+	#patchKeyClose() {
+		// If Meta.KeyBindingAction.CLOSE is fired in while a WindowPreview is focused, close it.
+		const settings = this.#settings;
+		const refocusOnClose = this.#refocusOnClose;
+
+		function handleKeyPress(event) {
+
+			// Keyboard close disabled in settings.
+			if (!settings.keyboard_close) {
+				return false;
+			}
+
+			// We only care about window picker mode.
+			if (this._workspace._overviewAdjustment.value !== ControlsState.WINDOW_PICKER) {
+				return false;
+			}
+
+			const action = global.display.get_keybinding_action(
+				event.get_key_code(), event.get_state());
+			if (action == Meta.KeyBindingAction.CLOSE) {
+
+				if (this._workspace.metaWorkspace?.active) {
+					// Imediately refocus on another window when closing via keyboard.
+					refocusOnClose.add(this.metaWindow);
+
+					// Close the window.
+					this._deleteAll();
+				} else {
+					// Switch to the workspace the focused window is in.
+					this._workspace.metaWorkspace?.activate(global.get_current_time())
+				}
+
+				return true;
+			}
+
+			return false;
+		}
+
+		this.#injectionManager.overrideMethod(WindowPreview.prototype, 'vfunc_key_press_event',
+			original => function () {
+				return handleKeyPress.apply(this, arguments)
+					|| original.apply(this, arguments);
+			}
+		)
 	}
 };

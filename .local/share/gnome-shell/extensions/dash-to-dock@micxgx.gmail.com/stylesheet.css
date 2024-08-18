@@ -56,6 +56,10 @@
       #dashtodockContainer.bottom #dash .dash-item-container .overview-tile:ltr:last-child,
       #dashtodockContainer.bottom #dash .dash-item-container .overview-tile:rtl:first-child {
         padding-right: 0; }
+      #dashtodockContainer.bottom #dash .dash-item-container .app-well-app.updating,
+      #dashtodockContainer.bottom #dash .dash-item-container .show-apps.updating,
+      #dashtodockContainer.bottom #dash .dash-item-container .overview-tile.updating {
+        opacity: 0.5; }
     #dashtodockContainer.bottom #dash .dash-item-container .app-well-app.running .overview-icon {
       background-image: none; }
     #dashtodockContainer.bottom #dash .dash-item-container .app-well-app.focused .overview-icon {
@@ -124,6 +128,10 @@
       #dashtodockContainer.bottom.shrink #dash .dash-item-container .overview-tile:ltr:last-child,
       #dashtodockContainer.bottom.shrink #dash .dash-item-container .overview-tile:rtl:first-child {
         padding-right: 0; }
+      #dashtodockContainer.bottom.shrink #dash .dash-item-container .app-well-app.updating,
+      #dashtodockContainer.bottom.shrink #dash .dash-item-container .show-apps.updating,
+      #dashtodockContainer.bottom.shrink #dash .dash-item-container .overview-tile.updating {
+        opacity: 0.5; }
     #dashtodockContainer.bottom.shrink #dash .dash-item-container .app-well-app.running .overview-icon {
       background-image: none; }
     #dashtodockContainer.bottom.shrink #dash .dash-item-container .app-well-app.focused .overview-icon {
@@ -200,6 +208,10 @@
       #dashtodockContainer.bottom.extended #dash .dash-item-container .overview-tile:ltr:last-child,
       #dashtodockContainer.bottom.extended #dash .dash-item-container .overview-tile:rtl:first-child {
         padding-right: 0; }
+      #dashtodockContainer.bottom.extended #dash .dash-item-container .app-well-app.updating,
+      #dashtodockContainer.bottom.extended #dash .dash-item-container .show-apps.updating,
+      #dashtodockContainer.bottom.extended #dash .dash-item-container .overview-tile.updating {
+        opacity: 0.5; }
     #dashtodockContainer.bottom.extended #dash .dash-item-container .app-well-app.running .overview-icon {
       background-image: none; }
     #dashtodockContainer.bottom.extended #dash .dash-item-container .app-well-app.focused .overview-icon {
@@ -276,6 +288,10 @@
       #dashtodockContainer.bottom.extended.shrink #dash .dash-item-container .overview-tile:ltr:last-child,
       #dashtodockContainer.bottom.extended.shrink #dash .dash-item-container .overview-tile:rtl:first-child {
         padding-right: 0; }
+      #dashtodockContainer.bottom.extended.shrink #dash .dash-item-container .app-well-app.updating,
+      #dashtodockContainer.bottom.extended.shrink #dash .dash-item-container .show-apps.updating,
+      #dashtodockContainer.bottom.extended.shrink #dash .dash-item-container .overview-tile.updating {
+        opacity: 0.5; }
     #dashtodockContainer.bottom.extended.shrink #dash .dash-item-container .app-well-app.running .overview-icon {
       background-image: none; }
     #dashtodockContainer.bottom.extended.shrink #dash .dash-item-container .app-well-app.focused .overview-icon {
@@ -351,6 +367,10 @@
       #dashtodockContainer.top #dash .dash-item-container .overview-tile:ltr:last-child,
       #dashtodockContainer.top #dash .dash-item-container .overview-tile:rtl:first-child {
         padding-right: 0; }
+      #dashtodockContainer.top #dash .dash-item-container .app-well-app.updating,
+      #dashtodockContainer.top #dash .dash-item-container .show-apps.updating,
+      #dashtodockContainer.top #dash .dash-item-container .overview-tile.updating {
+        opacity: 0.5; }
     #dashtodockContainer.top #dash .dash-item-container .app-well-app.running .overview-icon {
       background-image: none; }
     #dashtodockContainer.top #dash .dash-item-container .app-well-app.focused .overview-icon {
@@ -419,6 +439,10 @@
       #dashtodockContainer.top.shrink #dash .dash-item-container .overview-tile:ltr:last-child,
       #dashtodockContainer.top.shrink #dash .dash-item-container .overview-tile:rtl:first-child {
         padding-right: 0; }
+      #dashtodockContainer.top.shrink #dash .dash-item-container .app-well-app.updating,
+      #dashtodockContainer.top.shrink #dash .dash-item-container .show-apps.updating,
+      #dashtodockContainer.top.shrink #dash .dash-item-container .overview-tile.updating {
+        opacity: 0.5; }
     #dashtodockContainer.top.shrink #dash .dash-item-container .app-well-app.running .overview-icon {
       background-image: none; }
     #dashtodockContainer.top.shrink #dash .dash-item-container .app-well-app.focused .overview-icon {
@@ -495,6 +519,10 @@
       #dashtodockContainer.top.extended #dash .dash-item-container .overview-tile:ltr:last-child,
       #dashtodockContainer.top.extended #dash .dash-item-container .overview-tile:rtl:first-child {
         padding-right: 0; }
+      #dashtodockContainer.top.extended #dash .dash-item-container .app-well-app.updating,
+      #dashtodockContainer.top.extended #dash .dash-item-container .show-apps.updating,
+      #dashtodockContainer.top.extended #dash .dash-item-container .overview-tile.updating {
+        opacity: 0.5; }
     #dashtodockContainer.top.extended #dash .dash-item-container .app-well-app.running .overview-icon {
       background-image: none; }
     #dashtodockContainer.top.extended #dash .dash-item-container .app-well-app.focused .overview-icon {
@@ -571,6 +599,10 @@
       #dashtodockContainer.top.extended.shrink #dash .dash-item-container .overview-tile:ltr:last-child,
       #dashtodockContainer.top.extended.shrink #dash .dash-item-container .overview-tile:rtl:first-child {
         padding-right: 0; }
+      #dashtodockContainer.top.extended.shrink #dash .dash-item-container .app-well-app.updating,
+      #dashtodockContainer.top.extended.shrink #dash .dash-item-container .show-apps.updating,
+      #dashtodockContainer.top.extended.shrink #dash .dash-item-container .overview-tile.updating {
+        opacity: 0.5; }
     #dashtodockContainer.top.extended.shrink #dash .dash-item-container .app-well-app.running .overview-icon {
       background-image: none; }
     #dashtodockContainer.top.extended.shrink #dash .dash-item-container .app-well-app.focused .overview-icon {
@@ -642,6 +674,10 @@
       #dashtodockContainer.left #dash .dash-item-container .show-apps:last-child,
       #dashtodockContainer.left #dash .dash-item-container .overview-tile:last-child {
         padding-bottom: 0; }
+      #dashtodockContainer.left #dash .dash-item-container .app-well-app.updating,
+      #dashtodockContainer.left #dash .dash-item-container .show-apps.updating,
+      #dashtodockContainer.left #dash .dash-item-container .overview-tile.updating {
+        opacity: 0.5; }
     #dashtodockContainer.left #dash .dash-item-container .app-well-app.running .overview-icon {
       background-image: none; }
     #dashtodockContainer.left #dash .dash-item-container .app-well-app.focused .overview-icon {
@@ -706,6 +742,10 @@
       #dashtodockContainer.left.shrink #dash .dash-item-container .show-apps:last-child,
       #dashtodockContainer.left.shrink #dash .dash-item-container .overview-tile:last-child {
         padding-bottom: 0; }
+      #dashtodockContainer.left.shrink #dash .dash-item-container .app-well-app.updating,
+      #dashtodockContainer.left.shrink #dash .dash-item-container .show-apps.updating,
+      #dashtodockContainer.left.shrink #dash .dash-item-container .overview-tile.updating {
+        opacity: 0.5; }
     #dashtodockContainer.left.shrink #dash .dash-item-container .app-well-app.running .overview-icon {
       background-image: none; }
     #dashtodockContainer.left.shrink #dash .dash-item-container .app-well-app.focused .overview-icon {
@@ -778,6 +818,10 @@
       #dashtodockContainer.left.extended #dash .dash-item-container .show-apps:last-child,
       #dashtodockContainer.left.extended #dash .dash-item-container .overview-tile:last-child {
         padding-bottom: 0; }
+      #dashtodockContainer.left.extended #dash .dash-item-container .app-well-app.updating,
+      #dashtodockContainer.left.extended #dash .dash-item-container .show-apps.updating,
+      #dashtodockContainer.left.extended #dash .dash-item-container .overview-tile.updating {
+        opacity: 0.5; }
     #dashtodockContainer.left.extended #dash .dash-item-container .app-well-app.running .overview-icon {
       background-image: none; }
     #dashtodockContainer.left.extended #dash .dash-item-container .app-well-app.focused .overview-icon {
@@ -850,6 +894,10 @@
       #dashtodockContainer.left.extended.shrink #dash .dash-item-container .show-apps:last-child,
       #dashtodockContainer.left.extended.shrink #dash .dash-item-container .overview-tile:last-child {
         padding-bottom: 0; }
+      #dashtodockContainer.left.extended.shrink #dash .dash-item-container .app-well-app.updating,
+      #dashtodockContainer.left.extended.shrink #dash .dash-item-container .show-apps.updating,
+      #dashtodockContainer.left.extended.shrink #dash .dash-item-container .overview-tile.updating {
+        opacity: 0.5; }
     #dashtodockContainer.left.extended.shrink #dash .dash-item-container .app-well-app.running .overview-icon {
       background-image: none; }
     #dashtodockContainer.left.extended.shrink #dash .dash-item-container .app-well-app.focused .overview-icon {
@@ -921,6 +969,10 @@
       #dashtodockContainer.right #dash .dash-item-container .show-apps:last-child,
       #dashtodockContainer.right #dash .dash-item-container .overview-tile:last-child {
         padding-bottom: 0; }
+      #dashtodockContainer.right #dash .dash-item-container .app-well-app.updating,
+      #dashtodockContainer.right #dash .dash-item-container .show-apps.updating,
+      #dashtodockContainer.right #dash .dash-item-container .overview-tile.updating {
+        opacity: 0.5; }
     #dashtodockContainer.right #dash .dash-item-container .app-well-app.running .overview-icon {
       background-image: none; }
     #dashtodockContainer.right #dash .dash-item-container .app-well-app.focused .overview-icon {
@@ -985,6 +1037,10 @@
       #dashtodockContainer.right.shrink #dash .dash-item-container .show-apps:last-child,
       #dashtodockContainer.right.shrink #dash .dash-item-container .overview-tile:last-child {
         padding-bottom: 0; }
+      #dashtodockContainer.right.shrink #dash .dash-item-container .app-well-app.updating,
+      #dashtodockContainer.right.shrink #dash .dash-item-container .show-apps.updating,
+      #dashtodockContainer.right.shrink #dash .dash-item-container .overview-tile.updating {
+        opacity: 0.5; }
     #dashtodockContainer.right.shrink #dash .dash-item-container .app-well-app.running .overview-icon {
       background-image: none; }
     #dashtodockContainer.right.shrink #dash .dash-item-container .app-well-app.focused .overview-icon {
@@ -1057,6 +1113,10 @@
       #dashtodockContainer.right.extended #dash .dash-item-container .show-apps:last-child,
       #dashtodockContainer.right.extended #dash .dash-item-container .overview-tile:last-child {
         padding-bottom: 0; }
+      #dashtodockContainer.right.extended #dash .dash-item-container .app-well-app.updating,
+      #dashtodockContainer.right.extended #dash .dash-item-container .show-apps.updating,
+      #dashtodockContainer.right.extended #dash .dash-item-container .overview-tile.updating {
+        opacity: 0.5; }
     #dashtodockContainer.right.extended #dash .dash-item-container .app-well-app.running .overview-icon {
       background-image: none; }
     #dashtodockContainer.right.extended #dash .dash-item-container .app-well-app.focused .overview-icon {
@@ -1129,6 +1189,10 @@
       #dashtodockContainer.right.extended.shrink #dash .dash-item-container .show-apps:last-child,
       #dashtodockContainer.right.extended.shrink #dash .dash-item-container .overview-tile:last-child {
         padding-bottom: 0; }
+      #dashtodockContainer.right.extended.shrink #dash .dash-item-container .app-well-app.updating,
+      #dashtodockContainer.right.extended.shrink #dash .dash-item-container .show-apps.updating,
+      #dashtodockContainer.right.extended.shrink #dash .dash-item-container .overview-tile.updating {
+        opacity: 0.5; }
     #dashtodockContainer.right.extended.shrink #dash .dash-item-container .app-well-app.running .overview-icon {
       background-image: none; }
     #dashtodockContainer.right.extended.shrink #dash .dash-item-container .app-well-app.focused .overview-icon {

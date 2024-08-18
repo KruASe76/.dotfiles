@@ -49,6 +49,7 @@ unrar
 vim
 xclip
 ydotool
+xinput
 adw-gtk3-theme
 xorg-x11-drv-nvidia-cuda
 bridge-utils

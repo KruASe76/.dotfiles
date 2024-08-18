@@ -10,6 +10,7 @@ if status is-interactive
     set -Ux vm ubuntu@130.61.124.83
     set -Ux mclocal_version 20
     set -Ux ALSOFT_DRIVERS pulse
+    set -Ux YDOTOOL_SOCKET "$HOME/.ydotool_socket"
 
     # Abbreviations
     abbr -a fc 'nano ~/.config/fish/config.fish && source ~/.config/fish/config.fish'
@@ -63,6 +64,7 @@ if status is-interactive
     abbr -a ppr 'pipenv run python3'
     abbr -a ppi 'pipenv install'
     abbr -a ppu 'pipenv uninstall'
+    abbr -a pprm 'pipenv --rm'
 
     abbr -a appimage-build --set-cursor 'VERSION=% ~/appimages/appimagetool-730-x86_64.AppImage'
 
@@ -104,6 +106,9 @@ if status is-interactive
     abbr -a cmatrix 'cmatrix -b'
     abbr -a hollywood 'docker run -it --rm bcbcarl/hollywood'
     abbr -a ytub 'sudo youtubeUnblock 537'
+    abbr -a byedpi 'ciadpi -i 127.0.0.1 --disorder 1 --auto=torst --tlsrec 1+s'
+    abbr -a ydo 'sudo -b ydotoold --socket-path=$YDOTOOL_SOCKET --socket-own="$(id -u):$(id -g)"'
+    abbr -a ydod 'sudo pkill ydotoold'
 
     # Aliases
     alias drop-table="echo no way"

@@ -8,6 +8,7 @@ SETUVAR --export MOZ_ENABLE_WAYLAND:1
 SETUVAR --export PYENV_ROOT:/home/kruase/\x2epyenv
 SETUVAR RANGER_LOAD_DEFAULT_RC:\x1d
 SETUVAR XCURSOR_THEME:Adwaita
+SETUVAR --export YDOTOOL_SOCKET:/home/kruase/\x2eydotool_socket
 SETUVAR __fish_initialized:3400
 SETUVAR _fish_abbr_appimage_2D_build:\x2d\x2dset\x2dcursor\x20VERSION\x3d\x25\x20\x7e/tools/appimagetool\x2d730\x2dx86_64\x2eAppImage
 SETUVAR _fish_abbr_bc:bc\x20\x2dl

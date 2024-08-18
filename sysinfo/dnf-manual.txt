@@ -4,6 +4,7 @@ stow
 python3-pip
 snapd
 akmod-nvidia
+xorg-x11-drv-nvidia-cuda
 dnf-utils
 util-linux-user
 gnome-tweaks
@@ -51,7 +52,6 @@ xclip
 ydotool
 xinput
 adw-gtk3-theme
-xorg-x11-drv-nvidia-cuda
 bridge-utils
 libvirt
 virt-install
@@ -80,7 +80,7 @@ seahorse-nautilus
 hatch
 python3-distutils-extra
 nodejs
-yarn
+yarnpkg
 java-1.8.0-openjdk-devel
 java-11-openjdk-devel
 java-17-openjdk-devel
@@ -91,7 +91,6 @@ btop
 bat
 eza
 opencv
-opencv-contrib
 opencv-doc
 python3-opencv
 python3-matplotlib

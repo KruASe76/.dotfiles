@@ -48,7 +48,7 @@ with open(f"{prefix}snap_raw.txt", "r") as raw, open(f"{prefix}snap.txt", "w") a
 os.system(f"rm {prefix}*_raw.txt")
 
 
-os.system(f"dconf dump / > {prefix}gnome-dconf.ini")
+os.system(f"dconf dump ~/ > {prefix}gnome-dconf.ini")
 
 os.system(f"cp /etc/dnf/dnf.conf {prefix}")
 os.system(f"cp -r /etc/yum.repos.d {prefix}")

@@ -42,6 +42,6 @@ then
 fi
 
 echo "LOADING DCONF..."
-sudo dconf load / < $base_dir/gnome-dconf.ini
+sudo dconf load ~/ < $base_dir/gnome-dconf.ini
 
 unset base_dir

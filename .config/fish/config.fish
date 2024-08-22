@@ -23,7 +23,7 @@ if status is-interactive
     abbr -a ln 'ln -si'
     abbr -a ls 'eza'
     abbr -a ll 'eza -lh'
-    abbr -a la 'eza -lha'
+    abbr -a la 'eza -lhA'
     abbr -a mkdir 'mkdir -p'
     abbr -a duc 'dust -r'
     abbr -a cat 'bat'

@@ -110,6 +110,7 @@ class AbstractPlatform {
             offset: 0,
             hide_panel: true,
             enforce_primary_monitor: true,
+            switcher_style: "Coverflow",
             switcher_class: Switcher,
             easing_function: 'ease-out-cubic',
             current_workspace_only: '1',
@@ -133,6 +134,11 @@ class AbstractPlatform {
             invert_swipes: false,
             overlay_icon_size: 128,
             highlihght_color:(1., 1., 1.),
+            coverflow_switch_windows: [""],
+            coverflow_switch_applications: [""],
+            prefs_default_width: 700,
+            prefs_default_height: 600,
+            verbose_logging: false,
         };
     }
 
@@ -157,7 +163,7 @@ class AbstractPlatform {
 }
 
 export class PlatformGnomeShell extends AbstractPlatform {
-    constructor(settings, ...args) {
+    constructor(settings, logger,  ...args) {
         super(...args);
 
         this._settings = null;
@@ -167,6 +173,7 @@ export class PlatformGnomeShell extends AbstractPlatform {
         this._backgroundColor = null;
         this._settings_changed_callbacks = null;
         this._themeContext = null;
+        this._logger = logger;
     }
 
     _getSwitcherBackgroundColor() {
@@ -232,6 +239,11 @@ export class PlatformGnomeShell extends AbstractPlatform {
             "use-glitch-effect",
             "invert-swipes",
             "highlight-color",
+            "coverflow-switch-applications",
+            "coverflow-switch-windows",
+            "prefs-default-width",
+            "prefs-default-height",
+            "verbose-logging",
         ];
 
         let dkeys = [
@@ -251,7 +263,9 @@ export class PlatformGnomeShell extends AbstractPlatform {
         }
 
         this._settings = this._loadSettings();
+ 
     }
+
 
     disable() {
         this.showPanels(0);
@@ -268,9 +282,10 @@ export class PlatformGnomeShell extends AbstractPlatform {
         }
         this._themeContext.disconnect(this._themeContextChangedID);
         this._themeContext = null;
-
+        this._logger = null;
         this._settings = null;
     }
+
 
     getWidgetClass() {
         return St.Widget;
@@ -331,6 +346,7 @@ export class PlatformGnomeShell extends AbstractPlatform {
                 hide_panel: settings.get_boolean("hide-panel"),
                 enforce_primary_monitor: settings.get_boolean("enforce-primary-monitor"),
                 easing_function: settings.get_string("easing-function"),
+                switcher_style: settings.get_string("switcher-style"),
                 switcher_class: settings.get_string("switcher-style") === 'Timeline'
                     ? TimelineSwitcher : CoverflowSwitcher,
                 current_workspace_only: settings.get_string("current-workspace-only"),
@@ -353,11 +369,15 @@ export class PlatformGnomeShell extends AbstractPlatform {
                 use_tint: settings.get_boolean("use-tint"),
                 invert_swipes: settings.get_boolean("invert-swipes"),
                 highlight_color: settings.get_value("highlight-color").deep_unpack(),
+                coverflow_switch_windows: settings.get_strv("coverflow-switch-windows")[0],
+                coverflow_switch_applications: settings.get_strv("coverflow-switch-applications")[0],
+                prefs_default_width: settings.get_double("prefs-default-width"),
+                prefs_default_height: settings.get_double("prefs-default-height"),
+                verbose_logging: settings.get_boolean("verbose-logging"),
             };
         } catch (e) {
-            console.log(e);
+            this._logger.log(e);
         }
-
         return this.getDefaultSettings();
     }
 
@@ -482,6 +502,7 @@ export class PlatformGnomeShell extends AbstractPlatform {
 
     initBackground() {
     	this._backgroundGroup = new Meta.BackgroundGroup();
+        this._backgroundGroup.set_name("coverflow-alt-tab-background-group");
         Main.layoutManager.uiGroup.add_child(this._backgroundGroup);
     	if (this._backgroundGroup.lower_bottom) {
 	        this._backgroundGroup.lower_bottom();
@@ -602,9 +623,13 @@ export class PlatformGnomeShell extends AbstractPlatform {
     }
 
     getPanels() {
-        let panels = [Main.panel];
-        if (Main.panel2)
-            panels.push(Main.panel2);
+        let panels = [];
+        for (let child of Main.layoutManager.uiGroup.get_children()) {
+            if (child.get_name() === "panelBox") {
+                panels.push(child);
+            }
+        }
+
         // gnome-shell dash
         if (Main.overview._dash)
             panels.push(Main.overview._dash);

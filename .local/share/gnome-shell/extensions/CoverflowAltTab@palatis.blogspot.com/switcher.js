@@ -50,7 +50,7 @@ export class Switcher {
     _previewNext() { __ABSTRACT_METHOD__(this, this._previewNext) }
     _previewPrevious() { __ABSTRACT_METHOD__(this, this._previewPrevious) }
 
-    constructor(windows, mask, currentIndex, manager, activeMonitor=null, isAppSwitcher=false, parent=null, x_in, y_in, width_in, height_in) {
+    constructor(windows, mask, currentIndex, manager, activeMonitor=null, isAppSwitcher=false, parent=null, dBus=false, x_in, y_in, width_in, height_in) {
         this._manager = manager;
         this._settings = manager.platform.getSettings();
         this._windows = [...windows];
@@ -77,6 +77,13 @@ export class Switcher {
         this._fromSubSwitcher = null;
         this._grab = null;
         this._animatingClosed = false;
+        this._dBus = dBus;
+        this._fromIndex = this._toIndex = currentIndex;
+        this._destroyed = false;
+        this._logger = this._manager.logger;
+
+        this._logger.log(`Creating Switcher`);
+        this._logger.increaseIndent();
 
         if (activeMonitor !== null)
             this._activeMonitor = activeMonitor;
@@ -102,7 +109,7 @@ export class Switcher {
             Clutter.Orientation.HORIZONTAL,
             0,
             { allowDrag: true, allowScroll: true },
-            this._settings.invert_swipes);
+            this._manager.platform.getSettings());
         swipeTracker.allowLongSwipes = true;
         swipeTracker.connect('begin', this._gestureBegin.bind(this));
         swipeTracker.connect('update', this._gestureUpdate.bind(this));
@@ -140,6 +147,8 @@ export class Switcher {
             if (Array.from(this._appWindowsMap.keys()).length === 1) {
                 this._isAppSwitcher = false;
             } else {
+                this._logger.log("Creating Sub-switchers")
+                this._logger.increaseIndent();
                 // For each app, display the first window only
                 this._windows = [];
                 for (let app of this._appWindowsMap.keys()) {
@@ -148,13 +157,15 @@ export class Switcher {
                     if (this._appWindowsMap.get(app).length > 1) {
                         let switcher_class = this._manager.platform.getSettings().switcher_class;
                         this._subSwitchers.set(window, new switcher_class(this._appWindowsMap.get(app), this._modifierMask, 0, this._manager, this._activeMonitor, false, this,
-                            this.actor.x, this.actor.y, this.actor.width, this.actor.height));
+                            this._dBus, this.actor.x, this.actor.y, this.actor.width, this.actor.height));
                     }
                 }
+                this._logger.decreaseIndent();
+                this._logger.log("Creating Sub-switchers DONE")
             }
         }
 
-        let [x, y, mods] = global.get_pointer();
+       /*  let [x, y, mods] = global.get_pointer();
         if (!(mods & this._modifierMask)) {
             // There's a race condition; if the user released Alt before
             // we got the grab, then we won't be notified. (See
@@ -163,9 +174,11 @@ export class Switcher {
             // selection.)
             this._activateSelected();
             return;
-        }
+        } */
 
         if (this._parent == null) this._initialDelayTimeoutId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, INITIAL_DELAY_TIMEOUT, this.show.bind(this));
+        this._logger.decreaseIndent();
+        this._logger.log("Creating Switcher DONE");
     }
 
     show() {
@@ -235,11 +248,24 @@ export class Switcher {
     }
 
     _gestureUpdate(tracker, progress) {
-        if (this._currentIndex <= Math.round(this._currentIndex) && Math.round(this._currentIndex) < progress) {
-            this._showSubswitcher(Direction.TO_RIGHT);
-        } else if (this._currentIndex >= Math.round(this._currentIndex) && Math.round(this._currentIndex) > progress) {
-            this._showSubswitcher(Direction.TO_LEFT);
-        }
+        const nearestCurrentIndextInteger = Math.round(this._currentIndex);
+        const nearestProgressIndexInteger = Math.round(progress);
+        if (Math.abs(nearestCurrentIndextInteger - nearestProgressIndexInteger) === (this._windows.length)) {
+            this._setCurrentIndex(progress);
+            if (nearestProgressIndexInteger < nearestCurrentIndextInteger) {
+                this._showSubswitcher(Direction.TO_RIGHT);
+            } else {
+                this._showSubswitcher(Direction.TO_LEFT);
+            }
+        } else {
+            if (this._currentIndex <= nearestCurrentIndextInteger && nearestCurrentIndextInteger < progress) {
+                this._setCurrentIndex(progress);
+                this._showSubswitcher(Direction.TO_RIGHT);
+            } else if (this._currentIndex >= nearestCurrentIndextInteger && nearestCurrentIndextInteger > progress) {
+                this._setCurrentIndex(progress);
+                this._showSubswitcher(Direction.TO_LEFT);
+            }
+        } 
         this._setCurrentIndex(progress);
 
         this._updateSubSwitcher();
@@ -301,14 +327,12 @@ export class Switcher {
             }
             
             preview.addEffect(Clutter.DesaturateEffect, { factor:  0.0 }, 'desaturate', 'factor', 0.0, this._settings.desaturate_factor, this._settings.animation_time);
-            preview.addEffect(Shell.BlurEffect, { radius: 0.0 }, 'blur', 'radius', 0.0,  this._settings.blur_radius, this._settings.animation_time);
         }
     }
 
     _removeBackgroundEffects() {
         if (this._previews !== null) {
             for (let preview of this._previews) {
-                preview.removeEffect('blur', 'radius', 0.0, this._settings.animation_time);
                 preview.removeEffect('desaturate', 'factor', 0.0, this._settings.animation_time);
                 preview.removeEffect('tint', 'blend', 0.0, this._settings.animation_time);
                 if (preview._effectCounts['glitch'] > 0) {
@@ -356,19 +380,24 @@ export class Switcher {
     _showSubswitcher(direction) {
         if (this._isAppSwitcher) {
             this._direction = direction;
-            
+            const length = this._windows.length;
             let from_index = Math.round(this._currentIndex);
-            let to_index = Math.round(this._currentIndex + this._windows.length + (direction == Direction.TO_RIGHT ? 1 : -1)) % this._windows.length;
+            let to_index = (from_index + length + (direction == Direction.TO_RIGHT ? 1 : -1)) % length;
+            if (from_index === (this._windows.length - 1) && direction === Direction.TO_RIGHT) {
+                to_index = this._windows.length;
+            } 
+            if (Math.abs(from_index - to_index) === (this._windows.length)) {
+                if (from_index === 0 && direction === Direction.TO_LEFT) from_index = this._windows.length;
+                else if (to_index === 0 && direction === Direction.TO_RIGHT) to_index = this._windows.length;
+            }
             if (!this.gestureInProgress) {
                 to_index = this._currentIndex;
-                from_index = (this._currentIndex + this._windows.length + (direction == Direction.TO_RIGHT ? - 1 : 1)) % this._windows.length; 
+                from_index = (this._currentIndex + length + (direction == Direction.TO_RIGHT ? - 1 : 1)) % length; 
             }
-            
             this._fromIndex = from_index;
             this._toIndex = to_index;
-
-            this._fromSubSwitcher = this._numberOfWindows(from_index) > 1 ? this._subSwitchers.get(this._windows[from_index]) : null;
-            this._toSubSwitcher = this._numberOfWindows(to_index) > 1 ? this._subSwitchers.get(this._windows[to_index]) : null;
+            this._fromSubSwitcher = this._numberOfWindows(from_index) > 1 ? this._subSwitchers.get(this._windows[from_index % length]) : null;
+            this._toSubSwitcher = this._numberOfWindows(to_index) > 1 ? this._subSwitchers.get(this._windows[to_index % length]) : null;
             
             if (this._toSubSwitcher != null) {
                 this._toSubSwitcher.actor.show();
@@ -393,11 +422,11 @@ export class Switcher {
     }
 
     _getWindowsAtIndex(index) {
-        return this._appWindowsMap.get(this._tracker.get_window_app(this._windows[index]));
+        return this._appWindowsMap.get(this._tracker.get_window_app(this._windows[index % this._windows.length]));
     }
 
     _numberOfWindows(index) {
-        return this._getWindowsAtIndex(index).length;
+        return this._getWindowsAtIndex(index % this._windows.length).length;
     }
 
     _updateSubSwitcher() {
@@ -624,7 +653,7 @@ export class Switcher {
 
     _updateWindowTitle() {
         let idx_low = Math.floor(this._currentIndex);
-        let idx_high = Math.ceil(this._currentIndex);
+        let idx_high = Math.ceil(this._currentIndex) % this._windowTitles.length;
 
         if (idx_low == idx_high) {
             for (let window_title of this._windowTitles) {
@@ -690,27 +719,13 @@ export class Switcher {
     }
 
     _keyPressEvent(actor, event) {
+        if (this.gestureInProgress) return false;
         switch(event.get_key_symbol()) {
 
             case Clutter.KEY_Escape:
             case Clutter.Escape:
                 // Esc -> close CoverFlow
                 this._activateSelected();
-                return true;
-
-            case Clutter.KEY_q:
-            case Clutter.KEY_Q:
-            case Clutter.KEY_F4:
-            case Clutter.q:
-            case Clutter.Q:
-            case Clutter.F4:
-                // Q -> Close window
-                this._manager.removeSelectedWindow(this._windows[this._currentIndex]);
-                return true;
-
-            case Clutter.KEY_Down:
-            case Clutter.Down:
-                this._showSubswitcher(Direction.TO_RIGHT);
                 return true;
 
             case Clutter.KEY_Right:
@@ -740,6 +755,8 @@ export class Switcher {
             case Meta.KeyBindingAction.SWITCH_APPLICATIONS:
             case Meta.KeyBindingAction.SWITCH_GROUP:
             case Meta.KeyBindingAction.SWITCH_WINDOWS:
+            case this._manager.keybinder.getAction("coverflow-switch-windows"):
+            case this._manager.keybinder.getAction("coverflow-switch-applications"):
                 
                 // shift -> backwards
                 if (event_state & Clutter.ModifierType.SHIFT_MASK) {
@@ -752,6 +769,9 @@ export class Switcher {
             case Meta.KeyBindingAction.SWITCH_APPLICATIONS_BACKWARD:
             case Meta.KeyBindingAction.SWITCH_GROUP_BACKWARD:
             case Meta.KeyBindingAction.SWITCH_WINDOWS_BACKWARD:
+            case this._manager.keybinder.getAction("coverflow-switch-windows-backward"):
+            case this._manager.keybinder.getAction("coverflow-switch-applications-backward"):
+
                 this._previous();
                 return true;
         }
@@ -760,14 +780,15 @@ export class Switcher {
     }
 
     _keyReleaseEvent(actor, event) {
-        let [x, y, mods] = global.get_pointer();
-        let state = mods & this._modifierMask;
-        if (state == 0 && !this._animatingClosed) {
-            if (this._initialDelayTimeoutId !== 0)
-                this._setCurrentIndex((this._currentIndex + 1) % this._windows.length);
-            this._activateSelected();
+        if (!this._dBus) {
+            let [x, y, mods] = global.get_pointer();
+            let state = mods & this._modifierMask;
+            if (state == 0 && !this._animatingClosed) {
+                if (this._initialDelayTimeoutId !== 0)
+                    this._setCurrentIndex((this._currentIndex + 1) % this._windows.length);
+                this._activateSelected();
+            }
         }
-
         return true;
     }
     _windowDestroyed(wm, actor) {
@@ -845,26 +866,41 @@ export class Switcher {
         this.actor.hide();
     }
 
-
     _onPreviewAnimationComplete() {
         this._numPreviewsComplete += 1;
         if (this._previews !== null && this._numPreviewsComplete >= this._previews.length) {
-            this.destroy();
+            if (this._parent === null)
+                this.destroy();
         }
     }
 
+    isDestroyed() {
+        return this._destroyed;
+    }
+
     destroy() {
+        if (this.isDestroyed()) {
+            this._logger.log(`Switcher Already Destroyed`);
+            return;
+        }
+
+        this._logger.log(`Destroying Switcher`);
+        this._logger.increaseIndent();
         if (this._haveModal) {
             Main.popModal(this._grab);
             this._haveModal = false;
         }
 
         if (this._isAppSwitcher) {
+            this._logger.log("Destroying Sub-switchers");
+            this._logger.increaseIndent();
             if (this._subSwitchers != null) { 
                 for (let switcher of this._subSwitchers.values()) {
                     switcher.destroy();
                 }
             }
+            this._logger.decreaseIndent();
+            this._logger.log("Destroying Sub-switchers DONE");
         }
 
         if (this._initialDelayTimeoutId !== 0) {
@@ -874,6 +910,7 @@ export class Switcher {
         if (this._swipeTracker) {
             this._swipeTracker.destroy();
         }
+
         this._swipeTracker = null;
         this._windows = null;
         this._appWindowsMap = null;
@@ -882,7 +919,7 @@ export class Switcher {
         this._windowIconBoxes = null;
         this._previews = null;
         this._allPreviews = null;
-        this._initialDelayTimeoutId = null;
+        this._initialDelayTimeoutId = 0;
         this._windowManager.disconnect(this._dcid);
         this._windowManager.disconnect(this._mcid);
 
@@ -891,6 +928,9 @@ export class Switcher {
 
         this._disablePerspectiveCorrection();
         Main.uiGroup.remove_child(this.actor);
+        this._destroyed = true;
+        this._logger.decreaseIndent();
+        this._logger.log("Destroying Switcher DONE");
     }
 
     animateClosed(reason=CloseReason.ACTIVATE_SELECTED) {

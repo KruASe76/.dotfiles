@@ -1,7 +1,7 @@
 
 #
 # /etc/fstab
-# Created by anaconda on Sun Jun  4 16:59:53 2023
+# Created by anaconda on Mon Aug 19 04:49:52 2024
 #
 # Accessible filesystems, by reference, are maintained under '/dev/disk/'.
 # See man pages fstab(5), findfs(8), mount(8) and/or blkid(8) for more info.
@@ -9,9 +9,8 @@
 # After editing this file, run 'systemctl daemon-reload' to update systemd
 # units generated from this file.
 #
-UUID=ea275c32-34af-489c-bd17-2b93ee300807 /                       btrfs   subvol=root,compress=zstd:1,defaults,noatime,discard=async 0 0
-UUID=fe4231e1-dfa6-423d-8430-88cd0ab0c830 /boot                   ext4    defaults        1 2
-UUID=D171-F49D          /boot/efi               vfat    umask=0077,shortname=winnt 0 2
-UUID=ea275c32-34af-489c-bd17-2b93ee300807 /home                   btrfs   subvol=home,compress=zstd:1,defaults,noatime,discard=async 0 0
-UUID=C664566964565BED /mnt/New_Main auto nosuid,nodev,nofail,x-gvfs-show,x-gvfs-name=NTFS%20HDD 0 0
-UUID=5bb88c48-061d-4d59-a517-69958db232af /mnt/ext4_hdd ext4 nosuid,nodev,nofail,x-gvfs-show,x-gvfs-name=ext4%20HDD,exec 0 0
+UUID=dbba3f11-66b5-47d4-a314-ce9224784882 /                       btrfs   subvol=@,compress=zstd:1,defaults,noatime,discard=async 0 0
+UUID=34c7ca8c-1515-4dff-8d36-d711214ae125 /boot                   ext4    defaults        1 2
+UUID=679E-DD47          /boot/efi               vfat    umask=0077,shortname=winnt 0 2
+UUID=dbba3f11-66b5-47d4-a314-ce9224784882 /home                   btrfs   subvol=@home,compress=zstd:1,defaults,noatime,discard=async 0 0
+UUID=413705e2-2073-4e88-861a-ae835181f5d5 none                    swap    defaults        0 0

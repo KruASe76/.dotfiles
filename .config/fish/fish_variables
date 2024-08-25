@@ -7,6 +7,8 @@ SETUVAR --export LANG:en_US\x2eutf8
 SETUVAR --export MOZ_ENABLE_WAYLAND:1
 SETUVAR --export PYENV_ROOT:/home/kruase/\x2epyenv
 SETUVAR RANGER_LOAD_DEFAULT_RC:\x1d
+SETUVAR --export SSH_HOME_DOMAIN:5\x2etcp\x2eeu\x2engrok\x2eio
+SETUVAR --export SSH_HOME_PORT:14433
 SETUVAR XCURSOR_THEME:Adwaita
 SETUVAR --export YDOTOOL_SOCKET:/home/kruase/\x2eydotool_socket
 SETUVAR __fish_initialized:3400

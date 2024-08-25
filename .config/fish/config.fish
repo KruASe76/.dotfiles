@@ -99,6 +99,11 @@ if status is-interactive
 
     abbr -a playit 'playit -c ~/.config/playit.toml'
 
+    # abbr -a ssh-home 'ssh -o ServerAliveInterval=60 forum-lib.at.ply.gg -p 49403'
+    # abbr -a scp-home --set-cursor 'scp -P 49403 % forum-lib.at.ply.gg:'
+    abbr -a ssh-home 'ssh -o ServerAliveInterval=60 kruase@$SSH_HOME_DOMAIN -p $SSH_HOME_PORT'
+    abbr -a scp-home --set-cursor 'scp -P $SSH_HOME_PORT % kruase@$SSH_HOME_DOMAIN:'
+
     abbr -a nf 'fastfetch'
     abbr -a gitfetch 'onefetch'
     abbr -a figlet 'toilet -f mono12'

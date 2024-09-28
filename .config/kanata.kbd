@@ -1,0 +1,31 @@
+(defcfg
+  linux-dev (
+    "/dev/input/by-path/platform-i8042-serio-0-event-kbd"
+    "/dev/input/by-path/platform-asus-nb-wmi-event"
+  )
+  danger-enable-cmd yes
+)
+
+(deflocalkeys-linux
+;; Asus TUF A16 4th key in the topmost row (opens Armoury Crate on Windows)
+  asus 202
+)
+
+(defsrc asus pause prtsc home end f12)
+
+(defalias
+;; bash: export XDG_RUNTIME_DIR=/run/user/1000
+;; fish: set -Ux XDG_RUNTIME_DIR /run/user/1000
+    alert-sound (cmd bash -c "play -q /usr/share/sounds/gnome/default/alerts/click.ogg 2> /dev/null")
+
+    fallback-on (multi (layer-switch default) @alert-sound)
+    fallback-off (multi (layer-switch fix-nav) @alert-sound)
+)
+
+(deflayer fix-nav
+    @fallback-on prtsc home end pause del
+)
+
+(deflayer default
+    @fallback-off pause prtsc home end f12
+)

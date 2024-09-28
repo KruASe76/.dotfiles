@@ -15,6 +15,7 @@
     clean = git-lfs clean -- %f
 [alias]
     conf = config --global --edit
+    confl = config --edit
     st = status -s
     sta = status
     a = add
@@ -38,8 +39,8 @@
     cod = checkout .
     discard = cod
     dc = discard
-    br = branch
-    bra = branch -a
+    br = branch -vv
+    bra = branch -va
     brd = branch -d
     brdd = branch -D
     rb = rebase
@@ -47,11 +48,12 @@
     rbc = rebase --continue
     rba = rebase --abort
     rmc = rm --cached
-    graph = log --oneline --graph --decorate --all
-    gr = graph
+    graph = log --graph --oneline --decorate --all
+    gr = log --graph --oneline --decorate
+    gra = graph
     stashm = stash push -m
     wta = worktree add
     wtr = worktree remove
     wtl = worktree list
 [credential]
-	helper = store
+    helper = store

@@ -5,9 +5,10 @@
   "settings-schema": "org.gnome.shell.extensions.gnome-ui-tune",
   "shell-version": [
     "45",
-    "46"
+    "46",
+    "47"
   ],
   "url": "https://github.com/axxapy/gnome-ui-tune",
   "uuid": "gnome-ui-tune@itstime.tech",
-  "version": 21
+  "version": 23
 }

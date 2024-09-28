@@ -3,14 +3,18 @@
 SETUVAR --export ALSOFT_DRIVERS:pulse
 SETUVAR --export FLYCTL_INSTALL:/home/kruase/\x2efly
 SETUVAR --export --path GOPATH:/tmp/go
+SETUVAR --export HIP_VISIBLE_DEVICES:0\x2c1
+SETUVAR --export HSA_OVERRIDE_GFX_VERSION:11\x2e0\x2e2
 SETUVAR --export LANG:en_US\x2eutf8
 SETUVAR --export MOZ_ENABLE_WAYLAND:1
+SETUVAR --export OLLAMA_HOST:127\x2e0\x2e0\x2e1\x3a12345
+SETUVAR --export OLLAMA_KEEP_ALIVE:10m
 SETUVAR --export PYENV_ROOT:/home/kruase/\x2epyenv
 SETUVAR RANGER_LOAD_DEFAULT_RC:\x1d
-SETUVAR --export SSH_HOME_DOMAIN:5\x2etcp\x2eeu\x2engrok\x2eio
-SETUVAR --export SSH_HOME_PORT:14433
+SETUVAR --export SSH_HOME_DOMAIN:0\x2etcp\x2eeu\x2engrok\x2eio
+SETUVAR --export SSH_HOME_PORT:19178
 SETUVAR XCURSOR_THEME:Adwaita
-SETUVAR --export YDOTOOL_SOCKET:/home/kruase/\x2eydotool_socket
+SETUVAR --export YDOTOOL_SOCKET:\x24HOME/\x2eydotool_socket
 SETUVAR __fish_initialized:3400
 SETUVAR _fish_abbr_appimage_2D_build:\x2d\x2dset\x2dcursor\x20VERSION\x3d\x25\x20\x7e/tools/appimagetool\x2d730\x2dx86_64\x2eAppImage
 SETUVAR _fish_abbr_bc:bc\x20\x2dl
@@ -35,6 +39,10 @@ SETUVAR _fish_abbr_upy:sudo\x20dnf\x20\x2dy\x20update\x20\x2d\x2drefresh
 SETUVAR _fish_abbr_venv:source\x20\x2e/venv/bin/activate\x2efish
 SETUVAR _fish_abbr_wb:/mnt/New_Main/User/Documents/1535/workbook/\x20\x26\x26\x20git\x20status
 SETUVAR _fish_abbr_wget:wget\x20\x2dc
+SETUVAR _fisher_jorgebucaran_2F_fisher_files:\x7e/\x2econfig/fish/functions/fisher\x2efish\x1e\x7e/\x2econfig/fish/completions/fisher\x2efish
+SETUVAR _fisher_plugins:jorgebucaran/fisher\x1ereitzig/sdkman\x2dfor\x2dfish
+SETUVAR _fisher_reitzig_2F_sdkman_2D_for_2D_fish_files:\x7e/\x2econfig/fish/functions/sdk\x2efish\x1e\x7e/\x2econfig/fish/conf\x2ed/sdk\x2efish\x1e\x7e/\x2econfig/fish/completions/sdk\x2efish
+SETUVAR _fisher_upgraded_to_4_4:\x1d
 SETUVAR fish_color_autosuggestion:555\x1ebrblack
 SETUVAR fish_color_cancel:\x2dr
 SETUVAR fish_color_command:F92672
@@ -64,6 +72,6 @@ SETUVAR fish_pager_color_description:49483E
 SETUVAR fish_pager_color_prefix:F8F8F2
 SETUVAR fish_pager_color_progress:F8F8F2
 SETUVAR fish_pager_color_selected_background:\x2dr
-SETUVAR fish_user_paths:/home/kruase/\x2ecargo/bin\x1e/home/kruase/\x2epyenv/shims\x1e/opt/gradle/gradle\x2d8\x2e1/bin\x1e/home/kruase/\x2epyenv/bin\x1e/home/kruase/\x2efly/bin\x1e/home/kruase/\x2elocal/share/JetBrains/Toolbox/scripts\x1e/home/kruase/\x2elocal/bin\x1e/usr/lib64/ccache
+SETUVAR fish_user_paths:/home/linuxbrew/\x2elinuxbrew/bin\x1e/home/kruase/\x2ecargo/bin\x1e/home/kruase/\x2epyenv/shims\x1e/opt/gradle/gradle\x2d8\x2e1/bin\x1e/home/kruase/\x2epyenv/bin\x1e/home/kruase/\x2efly/bin\x1e/home/kruase/\x2elocal/share/JetBrains/Toolbox/scripts\x1e/home/kruase/\x2elocal/bin\x1e/usr/lib64/ccache
 SETUVAR --export mclocal_version:20
 SETUVAR --export vm:ubuntu\x40130\x2e61\x2e124\x2e83

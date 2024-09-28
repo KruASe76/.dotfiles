@@ -1,0 +1,38 @@
+{
+  "mode": "disable",
+  "sync": false,
+  "autoBackup": false,
+  "passthrough": "",
+  "theme": "",
+  "container": {
+    "incognito": "",
+    "container-1": "",
+    "container-2": "",
+    "container-3": "",
+    "container-4": ""
+  },
+  "commands": {
+    "setProxy": "",
+    "setTabProxy": "",
+    "quickAdd": ""
+  },
+  "data": [
+    {
+      "active": true,
+      "title": "byedpi",
+      "type": "socks5",
+      "hostname": "localhost",
+      "port": "1080",
+      "username": "",
+      "password": "",
+      "cc": "",
+      "city": "",
+      "color": "#9141ac",
+      "pac": "",
+      "pacString": "",
+      "proxyDNS": true,
+      "include": [],
+      "exclude": []
+    }
+  ]
+}

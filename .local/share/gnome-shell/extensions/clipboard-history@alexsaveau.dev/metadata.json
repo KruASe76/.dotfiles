@@ -5,9 +5,10 @@
   "name": "Clipboard History",
   "settings-schema": "org.gnome.shell.extensions.clipboard-history",
   "shell-version": [
-    "46"
+    "46",
+    "47"
   ],
   "url": "https://github.com/SUPERCILEX/gnome-clipboard-history",
   "uuid": "clipboard-history@alexsaveau.dev",
-  "version": 44
+  "version": 45
 }

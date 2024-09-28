@@ -3,6 +3,6 @@ function ssh_home_upd
 
     set domain_and_port (string split : (curl -s $gist_url))
 
-    set -Ux SSH_HOME_DOMAIN $domain_and_port[1]
-    set -Ux SSH_HOME_PORT $domain_and_port[2]
+    set -x SSH_HOME_DOMAIN $domain_and_port[1]
+    set -x SSH_HOME_PORT $domain_and_port[2]
 end

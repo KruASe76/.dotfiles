@@ -40,6 +40,8 @@ Placement.LEFT = 7;
 Placement.TOP_LEFT = 8;
 Placement.CENTER = 9;
 
+const BASE_ICON_SIZE = 8192
+
 export const Preview = GObject.registerClass({
     GTypeName: "Preview",
     Properties: {
@@ -78,10 +80,10 @@ export const Preview = GObject.registerClass({
     make_top_layer(parent) {
         if (this.raise_top) {
             this.raise_top()
-            if (this._icon) this._icon.raise_top();
+            if (this._application_icon_box) this._application_icon_box.raise_top();
         } else if (parent.set_child_above_sibling) {
             parent.set_child_above_sibling(this, null);
-            if (this._icon) parent.set_child_above_sibling(this._icon, this);
+            if (this._application_icon_box) parent.set_child_above_sibling(this._application_icon_box, this);
         } else {
             // Don't throw anything here, it may cause unstabilities
             logError("No method found for making preview the top layer");
@@ -97,11 +99,11 @@ export const Preview = GObject.registerClass({
      */
     make_bottom_layer(parent) {
         if (this.lower_bottom) {
-            if (this._icon) this._icon.lower_bottom();
+            if (this._application_icon_box) this._application_icon_box.lower_bottom();
             this.lower_bottom()
         } else if (parent.set_child_below_sibling) {
             parent.set_child_below_sibling(this, null);
-            if (this._icon) parent.set_child_above_sibling(this._icon, this);
+            if (this._application_icon_box) parent.set_child_above_sibling(this._application_icon_box, this);
         } else {
             // Don't throw anything here, it may cause unstabilities
             logError("No method found for making preview the bottom layer");
@@ -222,7 +224,7 @@ export const Preview = GObject.registerClass({
         return style;
     }
 
-    vfunc_enter_event(crossingEvent) {
+    vfunc_enter_event(_crossingEvent) {
         if (this.switcher._animatingClosed || this._entered == true) {
             return Clutter.EVENT_PROPAGATE;
         } 
@@ -233,7 +235,7 @@ export const Preview = GObject.registerClass({
         }
         if (this.switcher._settings.highlight_mouse_over) {
             let window_actor = this.metaWin.get_compositor_private();
-            if (this._highlight == null) {
+            if (this._highlight === null) {
                     this._highlight = new St.Bin({
                     opacity: 0,
                     width: this.width,
@@ -275,46 +277,86 @@ export const Preview = GObject.registerClass({
     }
     
     addIcon() {
-        let app = this.switcher._tracker.get_window_app(this.metaWin);
-        let icon_size = this.switcher._settings.overlay_icon_size;
-        this._icon = app ? app.create_icon_texture(Math.min(icon_size, this.width, this.height) / this.scale) : null;
+        let icon_size = BASE_ICON_SIZE; 
+        let target_size = this.switcher._settings.overlay_icon_size;
+        let shortest_side_length = Math.min(this.width, this.height)
+        let scale =  target_size / Math.min(shortest_side_length, icon_size) / this.scale;
 
-        if (this._icon == null) {
-            this._icon = new St.Icon({
-                icon_name: 'applications-other',
+        if (this._icon === null) {
+            let app = this.switcher._tracker.get_window_app(this.metaWin);
+            this._icon = app ? app.create_icon_texture(icon_size) : null;
+
+            if (this._icon === null) {
+                this._icon = new St.Icon({
+                    icon_name: 'applications-other',
+                    icon_size: icon_size,
+                });
+            }
+
+            this._application_icon_box = new St.Bin({
+                style_class: 'window-iconbox',
+                width: icon_size,
+                height: icon_size,
+                opacity: this.switcher._iconFadeInOut ? 0 : 255,
+            });
+
+            let constraint = Clutter.BindConstraint.new(this, Clutter.BindCoordinate.ALL, 0);
+            this._application_icon_box.add_constraint(constraint); 
+            this._application_icon_box.set_child(this._icon);
+
+            this._icon.set_pivot_point(0.5, 0.5);
+            this._icon.set_scale(this.switcher._iconScaleUpDown ? 0 : scale, this.switcher._iconScaleUpDown ? 0 : scale);
+            this._icon.opacity = 255 * this.switcher._settings.overlay_icon_opacity;
+
+            this.bind_property('rotation_angle_y', this._application_icon_box, 'rotation_angle_y',
+                GObject.BindingFlags.SYNC_CREATE);
+            this.bind_property('pivot_point', this._application_icon_box, 'pivot_point',
+                GObject.BindingFlags.SYNC_CREATE);
+            this.bind_property('translation_x', this._application_icon_box, 'translation_x',
+                GObject.BindingFlags.SYNC_CREATE); 
+            this.bind_property('scale_x', this._application_icon_box, 'scale_x',
+                GObject.BindingFlags.SYNC_CREATE);
+            this.bind_property('scale_y', this._application_icon_box, 'scale_y',
+                GObject.BindingFlags.SYNC_CREATE);        
+            this.bind_property('scale_z', this._application_icon_box, 'scale_z',
+                GObject.BindingFlags.SYNC_CREATE);
+            this.switcher.previewActor.add_child(this._application_icon_box);
+
+            if (this.switcher._iconScaleUpDown) {
+                this.switcher._manager.platform.tween(this._icon, {
+                    transition: 'easeInOutQuint',
+                    scale_x: scale,
+                    scale_y: scale, 
+                    time: this.switcher._getRandomTime(),
+                });
+            }
+
+            this.switcher._manager.platform.tween(this._application_icon_box, {
+                transition: 'easeInOutQuint',
+                opacity: 255, 
+                time: this.switcher._getRandomTime(),
+                onComplete:  () => { 
+                    this.bind_property('opacity', this._application_icon_box, 'opacity',
+                        GObject.BindingFlags.DEFAULT);
+                }
+            });
+        } else {
+            this._icon.removing = false;
+            if (this.switcher._iconScaleUpDown) {
+                this.switcher._manager.platform.tween(this._icon, {
+                    transition: 'easeInOutQuint',
+                    scale_x: scale,
+                    scale_y: scale, 
+                    time: this.switcher._getRandomTime(),
+                });
+            }
+
+            this.switcher._manager.platform.tween(this._application_icon_box, {
+                transition: 'easeInOutQuint',
+                opacity: 255, 
+                time: this.switcher._getRandomTime(),
             });
         }
-       
-        let constraint = Clutter.BindConstraint.new(this, Clutter.BindCoordinate.ALL, 0);
-        this._icon.add_constraint(constraint);
-
-        this.bind_property_full('opacity',
-            this._icon, 'opacity',
-            GObject.BindingFlags.SYNC_CREATE,
-            (bind, source) => {
-                /* So that the icon fades out 1) when the preview fades
-                    out, such as in the timeline switcher, and 
-                    2) when the icon is being removed, 
-                    but also ensure the icon only goes as high as the setting
-                    opacity, we take the minimum of those three as our opacity.
-                    Seems there might be a better way, but I'm not sure. 
-                    */
-                return [true, Math.min(source, 255 * this.remove_icon_opacity,  255 * this.switcher._settings.overlay_icon_opacity)];
-            },
-            null);
-        this.bind_property('rotation_angle_y', this._icon, 'rotation_angle_y',
-            GObject.BindingFlags.SYNC_CREATE);
-        this.bind_property('pivot_point', this._icon, 'pivot_point',
-            GObject.BindingFlags.SYNC_CREATE);
-        this.bind_property('translation_x', this._icon, 'translation_x',
-            GObject.BindingFlags.SYNC_CREATE);
-        this.bind_property('scale_x', this._icon, 'scale_x',
-            GObject.BindingFlags.SYNC_CREATE);
-        this.bind_property('scale_y', this._icon, 'scale_y',
-            GObject.BindingFlags.SYNC_CREATE);        
-        this.bind_property('scale_z', this._icon, 'scale_z',
-            GObject.BindingFlags.SYNC_CREATE);
-        this.switcher.previewActor.add_child(this._icon);
 
         if (this.switcher._settings.icon_has_shadow) {
             this._icon.add_style_class_name("icon-dropshadow");
@@ -323,29 +365,49 @@ export const Preview = GObject.registerClass({
     }
 
     removeIcon(animation_time) {
-        if (this._icon != null) {
-            let transition = Clutter.PropertyTransition.new('remove_icon_opacity');
-            transition.duration = 1000.0 * animation_time;
-            this._icon.remove_icon_opacity_start = this._icon.opacity / 255.;
-            transition.set_from(this._icon.remove_icon_opacity_start);
-            transition.set_to(0);
-            transition.remove_on_complete = true;
-            transition.connect('new-frame', (timeline, msecs) => {
-                this._icon.opacity = 255 * this._icon.remove_icon_opacity_start * (1 - 
-                    timeline.get_progress());//(1 - msecs / transition.duration);
-                this._icon.queue_redraw();
-            })
-            transition.connect('completed', (timeline) => {
-                if (this._icon != null) {
-                    this._icon.destroy()
-                    this._icon = null;
-                }
-            });
-            this.add_transition('remove_icon_opacity_transition', transition);
+        let icon_size = BASE_ICON_SIZE; 
+        let target_size = this.switcher._settings.overlay_icon_size;
+        let shortest_side_length = Math.min(this.width, this.height)
+        let scale =  target_size / Math.min(shortest_side_length, icon_size) / this.scale;
+
+        if (this._icon !== null && !this._icon.removing) {
+            this._icon.removing = true;
+            if (this.switcher._iconFadeInOut) {
+                this.switcher._manager.platform.tween(this._application_icon_box, {
+                    transition: 'easeInOutQuint',
+                    opacity: 0, 
+                    time: animation_time,
+                    onComplete: () => {
+                        if (this._icon !== null) {
+                            this._icon.destroy()
+                            this._icon = null;
+                            this._application_icon_box.destroy();
+                            this._application_icon_box = null;
+                        }
+                    },
+                });
+            }
+        
+            if (this.switcher._iconScaleUpDown) {
+                this.switcher._manager.platform.tween(this._icon, {
+                    transition: 'easeInOutQuint',
+                    scale_x: 0,
+                    scale_y: 0,
+                    time: animation_time,
+                    onComplete: () => {
+                        if (this._icon !== null) {
+                            this._icon.destroy()
+                            this._icon = null;
+                            this._application_icon_box.destroy();
+                            this._application_icon_box = null;
+                        }
+                    },
+                });
+            }
         }
     }
 
-    vfunc_leave_event(crossingEvent) {
+    vfunc_leave_event(_crossingEvent) {
         this.remove_highlight();
         this._entered = false;
         if (this.switcher._settings.raise_mouse_over && !this.switcher._animatingClosed) this.switcher._updatePreviews(true, 0);

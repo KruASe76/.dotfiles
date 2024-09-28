@@ -5,9 +5,10 @@
   "name": "EasyScreenCast",
   "settings-schema": "org.gnome.shell.extensions.EasyScreenCast",
   "shell-version": [
-    "46"
+    "46",
+    "47"
   ],
   "url": "https://github.com/EasyScreenCast/EasyScreenCast",
   "uuid": "EasyScreenCast@iacopodeenosee.gmail.com",
-  "version": 50
+  "version": 51
 }

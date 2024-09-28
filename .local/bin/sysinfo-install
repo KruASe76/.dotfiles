@@ -44,4 +44,15 @@ fi
 echo "LOADING DCONF..."
 sudo dconf load ~/ < $base_dir/gnome-dconf.ini
 
+echo "INSTALLING BREW AND FORMULAS..."
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+brew install dust lazydocker
+
+echo "INSTALLING SDKMAN!"
+curl -s "https://get.sdkman.io" | bash
+
+echo "INSTALLING FISHER AND PLUGINS"
+curl -sL https://raw.githubusercontent.com/jorgebucaran/fisher/main/functions/fisher.fish | source && fisher install jorgebucaran/fisher
+fisher install reitzig/sdkman-for-fish
+
 unset base_dir

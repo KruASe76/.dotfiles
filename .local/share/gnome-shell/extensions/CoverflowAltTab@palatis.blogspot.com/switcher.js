@@ -81,7 +81,10 @@ export class Switcher {
         this._fromIndex = this._toIndex = currentIndex;
         this._destroyed = false;
         this._logger = this._manager.logger;
+        this._iconFadeInOut = this._settings.icon_add_remove_effects === "Fade Only" || this._settings.icon_add_remove_effects === "Fade and Scale";
+        this._iconScaleUpDown = this._settings.icon_add_remove_effects === "Scale Only" || this._settings.icon_add_remove_effects === "Fade and Scale";
 
+        log ( "fadeInOut", this._iconFadeInOut, "scaleUpDown", this._iconScaleUpDown);
         this._logger.log(`Creating Switcher`);
         this._logger.increaseIndent();
 
@@ -98,17 +101,24 @@ export class Switcher {
         // create a container for all our widgets
         let widgetClass = manager.platform.getWidgetClass();
         this.actor = new widgetClass({ visible: true, reactive: true, });
-        this.actor.hide();
+        if (this._parent) this.actor.hide();
         this.previewActor = new widgetClass({ visible: true, reactive: true});
         this.actor.add_child(this.previewActor);
         Main.uiGroup.add_child(this.actor);
         
         this.gestureInProgress = false;
 
+        let invert = false;
+        if (this._settings.switcher_style === "Timeline") {
+            invert = !this._settings.invert_swipes;
+        } else if (this._settings.switcher_style === "Coverflow") {
+            invert = this._settings.invert_swipes;
+        }
+
         const swipeTracker = new MySwipeTracker(this.actor,
             Clutter.Orientation.HORIZONTAL,
             0,
-            { allowDrag: true, allowScroll: true },
+            { allowDrag: true, allowScroll: true, inverted: invert },
             this._manager.platform.getSettings());
         swipeTracker.allowLongSwipes = true;
         swipeTracker.connect('begin', this._gestureBegin.bind(this));
@@ -119,7 +129,7 @@ export class Switcher {
         if (this._parent == null) {
             this._grabModal();
         }
-        
+
         if (this._parent === null) {
             this.actor.set_size(monitor.width, monitor.height);
             this.actor.set_position(monitor.x, monitor.y);
@@ -127,8 +137,6 @@ export class Switcher {
             this.actor.set_size(this._width, this._height);
             this.actor.set_position(this._x, this._y);
         }
-
-
 
         this._modifierMask = manager.platform.getPrimaryModifier(mask);
 
@@ -182,19 +190,24 @@ export class Switcher {
     }
 
     show() {
-        let monitor = this._updateActiveMonitor();
-
         // create previews
         this._createPreviews();
+
+        /*Need to have this.actor shown to get the correct centering of the icon labels. Cannot
+        tell you exactly way, because things are close but off if you don't do this.*/
+        if (this._parent) this.actor.show();
         for (let i = 0; i < this._windows.length; i++) {
             this._getWindowTitle(i);
         }
+        if (this._parent) this.actor.hide();
 
-        for (let preview of this._allPreviews) {
-            preview.set_reactive(false);
-            if (this._parent === null && this._settings.icon_style == "Attached" && this._previews.includes(preview)) {
+        if (this._settings.icon_style === "Attached") {
+            for (let [i, preview] of this._previews.entries()) {
                 preview.addIcon();
             }
+        }
+        for (let preview of this._allPreviews) {
+            preview.set_reactive(false)
             preview.connect('button-press-event', this._previewButtonPressEvent.bind(this, preview));
         }
 
@@ -224,7 +237,7 @@ export class Switcher {
                 }
             }
         }
-        if (this._parent == null) {
+        if (this._parent === null) {
             for (let switcher of this._subSwitchers.values()) {
                 switcher.show();
             }
@@ -242,12 +255,11 @@ export class Switcher {
             points.push(i);
         }
 
-        const cancelProgress = Math.round(progress);
-        tracker.confirmSwipe(baseDistance, points, progress, cancelProgress);
+        tracker.confirmSwipe(baseDistance, points, progress, progress);
         this.gestureInProgress = true;
     }
 
-    _gestureUpdate(tracker, progress) {
+    _gestureUpdate(_tracker, progress) {
         const nearestCurrentIndextInteger = Math.round(this._currentIndex);
         const nearestProgressIndexInteger = Math.round(progress);
         if (Math.abs(nearestCurrentIndextInteger - nearestProgressIndexInteger) === (this._windows.length)) {
@@ -273,7 +285,7 @@ export class Switcher {
         this._updatePreviews(false);
     }
 
-    _gestureEnd(tracker, duration, endProgress) {
+    _gestureEnd(_tracker, _duration, endProgress) {
         this.gestureInProgress = false;
         this._setCurrentIndex(endProgress);
         if (endProgress != this._toIndex) {
@@ -372,6 +384,10 @@ export class Switcher {
                     preview.scale_x = 0;
                     preview.scale_y = 0;
                     preview.scale_z = 0;
+                }
+            } else {
+                if (this._settings.icon_style === "Attached") {
+                   preview.addIcon();
                 }
             }
         }
@@ -577,19 +593,22 @@ export class Switcher {
 
     _raiseIcons() {
         for (let i = 0; i < this._windows.length; i++) {
-            this.previewActor.set_child_above_sibling(this._windowTitles[i], null);
             this.previewActor.set_child_above_sibling(this._windowIconBoxes[i], null);
+            this.previewActor.set_child_above_sibling(this._windowTitles[i], null);
         }
-        
     }
 
     _getWindowTitle(index) {
+       
         let overlay_icon_size = this._settings.overlay_icon_size;
         let window_title = new St.Label({
             style_class: 'switcher-list',
             text: this._windows[index].get_title(),
-            opacity: 0
+            opacity: this._iconFadeInOut ? 0 : 255,
+            scale_x: this._iconScaleUpDown ? 0 : 1,
+            scale_y: this._iconScaleUpDown ? 0 : 1,
         });
+
         this.previewActor.add_child(window_title);
         let app_icon_size;
         let label_offset;
@@ -597,19 +616,16 @@ export class Switcher {
             app_icon_size = this._settings.text_scaling_factor * ICON_SIZE ;
             label_offset = this._settings.text_scaling_factor * (ICON_SIZE + ICON_TITLE_SPACING);
         } else {
-            app_icon_size = this._settings.text_scaling_factor * overlay_icon_size;
+            app_icon_size = overlay_icon_size;
             label_offset = 0;
         } 
         // ellipsize if title is too long
-        let font_size = 14 * this._settings.text_scaling_factor;
-        window_title.set_style("max-width:" + (this.actor.width - 200) + "px;font-size: " + font_size + "px;font-weight: bold; padding: " + font_size + "px;");
+        window_title.set_style("max-width:" + (this.actor.width - 200) + "px;font-weight: bold;padding: 1em;");
         window_title.clutter_text.ellipsize = Pango.EllipsizeMode.END;
-
-        let cx = Math.round((this.actor.width + label_offset) / 2);
+        let cx = Math.round((this.actor.width) / 2);
         let cy = Math.round(this.actor.height * this._settings.title_position / 8 + this._settings.offset);
-
-        window_title.x = cx - Math.round(window_title.get_width()/2);
-        window_title.y = cy - Math.round(window_title.get_height()/2);
+        window_title.x = cx - (window_title.width - label_offset) / 2;
+        window_title.y = cy - Math.round(window_title.get_height() / 2);
         this._windowTitles[index] = window_title;
 
         let app = this._tracker.get_window_app(this._windows[index]);
@@ -621,17 +637,21 @@ export class Switcher {
                 icon_size: app_icon_size
             });
         }
-
+        icon.opacity = this._settings.icon_style === "Classic" ? 255 : 255 * this._settings.overlay_icon_opacity;
+        
         if (this._settings.icon_has_shadow) {
             icon.add_style_class_name("icon-dropshadow");
         }
+
         let application_icon_box;
         if (this._settings.icon_style == "Classic") {
             application_icon_box = new St.Bin({
                 style_class: 'window-iconbox',
-                opacity: 0,
+                opacity: this._iconFadeInOut ? 0 : 255,
                 width: app_icon_size,
                 height: app_icon_size,
+                scale_x: this._iconScaleUpDown ? 0 : 1,
+                scale_y: this._iconScaleUpDown ? 0 : 1,
                 x: Math.round(this._windowTitles[index].x - app_icon_size - ICON_TITLE_SPACING),
                 y: Math.round(cy - app_icon_size/2)
             });
@@ -640,7 +660,9 @@ export class Switcher {
                 style_class: 'window-iconbox',
                 width: app_icon_size * 1.25,
                 height: app_icon_size * 1.25,
-                opacity: 0,
+                opacity: this._iconFadeInOut ? 0 : 255,
+                scale_x: this._iconScaleUpDown ? 0 : 1,
+                scale_y: this._iconScaleUpDown ? 0 : 1,
                 x: (this.actor.width - app_icon_size * 1.25) / 2,
                 y: (this.actor.height - app_icon_size * 1.25) / 2 + this._settings.offset,
             });
@@ -654,67 +676,133 @@ export class Switcher {
     _updateWindowTitle() {
         let idx_low = Math.floor(this._currentIndex);
         let idx_high = Math.ceil(this._currentIndex) % this._windowTitles.length;
-
-        if (idx_low == idx_high) {
-            for (let window_title of this._windowTitles) {
+        /*Window titles:*/
+        for (let [i, window_title] of this._windowTitles.entries()) {
+            if (i === idx_low || i === idx_high) continue;
+            if (this._iconFadeInOut) {
+                let t = window_title.get_transition('opacity');
+                if (!t || t.get_interval().peek_final_value() !== 0) {
+                    this._manager.platform.tween(window_title, {
+                        opacity: 0,
+                        time: this._settings.animation_time,
+                        transition: 'easeInOutQuint',
+                    });
+                }
+            }
+            if (this._iconScaleUpDown) {
+                let tx = window_title.get_transition('scale-x');
+                if (!tx || tx.get_interval().peek_final_value() !== 0) {
+                    window_title.set_pivot_point(0.5, 0.5);
+                    this._manager.platform.tween(window_title, {
+                        scale_x: 0,
+                        scale_y: 0,
+                        time: this._settings.animation_time,
+                        transition: 'easeInOutQuint',
+                    });
+                }
+            }
+        }
+        /*Icons*/
+        for (let icon_box of this._windowIconBoxes) {
+            if (this._iconScaleUpDown) {
+                let tx = icon_box.get_transition('scale-x');
+                if (!tx || tx.get_interval().peek_final_value() !== 0) {
+                    icon_box.set_pivot_point(0.5, 0.5);
+                    this._manager.platform.tween(icon_box, {
+                        scale_x: 0,
+                        scale_y: 0,
+                        time: this._settings.animation_time,
+                        transition: 'easeInOutQuint',
+                    });
+                }
+            }
+            if (this._iconFadeInOut) {
+                let t = icon_box.get_transition('opacity');
+                if (!t || t.get_interval().peek_final_value() !== 0) {
+                    this._manager.platform.tween(icon_box, {
+                        opacity: 0,
+                        time: this._settings.animation_time,
+                        transition: 'easeInOutQuint',
+                    });
+                }
+            }
+        }
+       
+        if (idx_low === idx_high) {
+            let window_title = this._windowTitles[this._currentIndex];
+            window_title.set_pivot_point(0.5, 0.5);
+            let t = window_title.get_transition('opacity');
+            if (!t || t.get_interval().peek_final_value() !== 255) {
                 this._manager.platform.tween(window_title, {
-                    opacity: 0,
-                    time: this.gestureInProgress ? 0 : this._settings.animation_time,
+                    opacity: 255,
+                    scale_x: 1,
+                    scale_y: 1,
+                    time: this._settings.animation_time,
                     transition: 'easeInOutQuint',
                 });
             }
-            
-            let window_title = this._windowTitles[idx_low];
-            this._manager.platform.tween(window_title, {
-                opacity: 255,
-                time: this.gestureInProgress ? 0 : this._settings.animation_time,
-                transition: 'easeInOutQuint',
-            });
-            
-            for (let icon_box of this._windowIconBoxes) {
-                this._manager.platform.tween(icon_box, {
-                    opacity: 0,
-                    time: this.gestureInProgress ? 0 : this._settings.animation_time,
-                    transition: 'easeInOutQuint',
-                });
-            }
-            let alpha = 1;
-            if (this._settings.icon_style === "Attached") {
-                alpha = 0;
-            } else if (this._settings.icon_style === "Overlay") {
-                alpha = this._settings.overlay_icon_opacity;
-            }
+            if (this._settings.icon_style !== "Attached") {
+                let icon_box = this._windowIconBoxes[this._currentIndex];
 
-            if ((this._parent == null && !this._isAppSwitcher) || (!this._settings.attach_overlay_icons && this._parent == null)) {
-                let icon_box = this._windowIconBoxes[idx_low];
-                this._manager.platform.tween(icon_box, {
-                    opacity: alpha * 255,
-                    time: this.gestureInProgress ? 0 : this._settings.animation_time,
-                    transition: 'easeInOutQuint',
-                });
+                if (this._iconScaleUpDown) {
+                    icon_box.set_pivot_point(0.5, 0.5);
+                    let tx = icon_box.get_transition('scale-x');
+                    if (!tx || tx.get_interval().peek_final_value() !== 1) {
+                        this._manager.platform.tween(icon_box, {
+                            scale_x: 1,
+                            scale_y: 1,
+                            time: this._settings.animation_time,
+                            transition: 'easeInOutQuint',
+                        });
+                    }
+                }
+                if (this._iconFadeInOut) {
+                    let t = icon_box.get_transition('opacity');
+                    if (!t || t.get_interval().peek_final_value() !== 255) {
+                        this._manager.platform.tween(icon_box, {
+                            opacity: 255,
+                            time: this._settings.animation_time,
+                            transition: 'easeInOutQuint',
+                        });
+                    }
+                }
             }
         } else {
-
+           
+        
             let window_title_low = this._windowTitles[idx_low];
             let window_title_high = this._windowTitles[idx_high];
 
             let progress = this._currentIndex - idx_low;
-            window_title_low.opacity = 255 * (1 - progress);
-            window_title_high.opacity = 255 * progress;
+            if (this._iconScaleUpDown) {
+                window_title_low.set_scale((1 - progress), (1 - progress));
+                window_title_high.set_scale(progress, progress);
+            }
+
+            if (this._iconFadeInOut) {
+                window_title_low.opacity = 255 * (1 - progress);
+                window_title_high.opacity = 255 * progress;
+            }
 
             let icon_box_low = this._windowIconBoxes[idx_low];
             let icon_box_high = this._windowIconBoxes[idx_high];
 
+            let scale = 1;
             let alpha = 1;
             if (this._settings.icon_style === "Attached") {
+                scale = 0;
                 alpha = 0;
-            } else if (this._settings.icon_style === "Overlay") {
-                alpha = this._settings.overlay_icon_opacity;
             }
 
-            icon_box_low.opacity = alpha * 255 * (1 - progress);
-            icon_box_high.opacity = alpha * 255 * progress;
+            if (this._iconScaleUpDown) {
+                icon_box_low.set_scale(scale * (1 - progress), scale * (1 - progress));
+                icon_box_high.set_scale(scale * progress, scale * progress);
+            }
 
+            if (this._iconFadeInOut) {
+                icon_box_low.opacity = alpha * 255 * (1 - progress);
+                icon_box_high.opacity = alpha * 255 * progress;
+            }
         }
     }
 
@@ -722,6 +810,7 @@ export class Switcher {
         if (this.gestureInProgress) return false;
         switch(event.get_key_symbol()) {
 
+            case Clutter.KEY_Return: 
             case Clutter.KEY_Escape:
             case Clutter.Escape:
                 // Esc -> close CoverFlow
@@ -792,7 +881,7 @@ export class Switcher {
         return true;
     }
     _windowDestroyed(wm, actor) {
-		this._removeDestroyedWindow(actor.meta_window);
+        this._removeDestroyedWindow(actor.meta_window);
     }
 
     _checkDestroyed(window) {
@@ -841,8 +930,22 @@ export class Switcher {
         }
         if (this._parent) {
             this._parent.animateClosed(CloseReason.NO_ACTIVATION);
+            for (let switcher of this._parent._subSwitchers.values()) {
+                if (this !== switcher) {
+                    for (let p of switcher._previews) {
+                        p.removeIcon(this._getRandomTime());
+                    }
+                }    
+            }
         }
         this.animateClosed(CloseReason.ACTIVATE_SELECTED);
+        if (this._parent === null) {
+            for (let switcher of this._subSwitchers.values()) {
+                for (let p of switcher._allPreviews) {
+                    p.removeIcon(this._getRandomTime());
+                }   
+            }
+        }
     }
 
     _showDesktop() {
@@ -943,20 +1046,41 @@ export class Switcher {
         if (this._initialDelayTimeoutId === 0) {
             // window title and icon
             for (let window_title of this._windowTitles) {
-                this._manager.platform.tween(window_title, {
-                    time: this._settings.animation_time,
-                    opacity: 0,
-                    transition: 'easeInOutQuint',
-                });
+                if (this._iconFadeInOut) {
+                    this._manager.platform.tween(window_title, {
+                        opacity: 0,
+                        time: this._settings.animation_time,
+                        transition: 'easeInOutQuint',
+                    });
+                }
+                if (this._iconScaleUpDown) {
+                    window_title.set_pivot_point(0.5, 0.5);
+                    this._manager.platform.tween(window_title, {
+                        scale_x: 0,
+                        scale_y: 0,
+                        time: this._settings.animation_time,
+                        transition: 'easeInOutQuint',
+                    });
+                }
             }
             for (let icon_box of this._windowIconBoxes) {
-                this._manager.platform.tween(icon_box, {
-                    time: this._settings.animation_time,
-                    opacity: 0,
-                    transition: 'easeInOutQuint',
-                });
+                if (this._iconScaleUpDown) {
+                    icon_box.set_pivot_point(0.5, 0.5);
+                    this._manager.platform.tween(icon_box, {
+                        scale_x: 0,
+                        scale_y: 0,
+                        time: this._settings.animation_time,
+                        transition: 'easeInOutQuint',
+                    });
+                }
+                if (this._iconFadeInOut) {
+                    this._manager.platform.tween(icon_box, {
+                        opacity: 0,
+                        time: this._settings.animation_time,
+                        transition: 'easeInOutQuint',
+                    });
+                }
             }
-
             this._removeBackgroundEffects();
 
             if (this._parent === null) this._manager.platform.lightenBackground();
@@ -1061,6 +1185,15 @@ export class Switcher {
                 }
                 this._raiseIcons();
             } else {
+                for (let [i, preview] of this._allPreviews.entries()) {
+                    let metaWin = preview.metaWin;
+
+                    let animation_time = this._getRandomTime();
+                    if (i == this._currentIndex) {
+                        animation_time = this._settings.animation_time;
+                    }
+                    preview.removeIcon(animation_time);
+                }
                 let monitor = this._updateActiveMonitor();
                 this._manager.platform.tween(this.actor, {
                     x: monitor.x,

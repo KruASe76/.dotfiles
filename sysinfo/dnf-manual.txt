@@ -3,8 +3,7 @@ fish
 stow
 python3-pip
 snapd
-akmod-nvidia
-xorg-x11-drv-nvidia-cuda
+rocm*
 dnf-utils
 util-linux-user
 pv
@@ -36,7 +35,7 @@ cowsay
 cpufetch
 fastfetch
 fastfetch-bash-completion
-ffmpeg-free
+ffmpeg
 mpv
 fzf
 git-lfs
@@ -59,7 +58,6 @@ virt-install
 qemu-kvm
 pdftk
 autossh
-speedtest
 unrtf
 perl-open
 cpuinfo
@@ -82,10 +80,6 @@ hatch
 python3-distutils-extra
 nodejs
 yarnpkg
-java-1.8.0-openjdk-devel
-java-11-openjdk-devel
-java-17-openjdk-devel
-java-21-openjdk-devel
 prismlauncher-qt5
 obs-studio
 btop
@@ -96,8 +90,12 @@ opencv-doc
 python3-opencv
 python3-matplotlib
 python3-numpy
-maven
 mongodb-org
 mongodb-mongosh-shared-openssl3
 python2
 python3-huggingface-hub
+evtest
+sox
+systemd-devel
+postgresql-server
+postgresql-contrib

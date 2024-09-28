@@ -101,12 +101,15 @@ const easing_options = [
 
 function getBaseString(translatedString) {
     switch (translatedString) {
+        case _("Flip Stack"): return "Flip Stack";
+        case _("Carousel"): return "Carousel";
         case _("Coverflow"): return "Coverflow";
         case _("Timeline"): return "Timeline";
         case _("Bottom"): return "Bottom";
         case _("Top"): return "Top";
         case _("Classic"): return "Classic";
         case _("Overlay"): return "Overlay";
+        case _("Attached"): return "Attached";
         default: return translatedString;
     }
 }
@@ -133,27 +136,27 @@ export default class CoverflowAltTabPreferences extends ExtensionPreferences {
         return _('Version %d').format(this.metadata.version);
     }
     
-	fillPreferencesWindow(window) {
-		let settings = this.getSettings();
-		let switcher_page = new Adw.PreferencesPage({
-			title: _('General'),
-			icon_name: 'general-symbolic',
-		});
+    fillPreferencesWindow(window) {
+        let settings = this.getSettings();
+        let switcher_page = new Adw.PreferencesPage({
+            title: _('General'),
+            icon_name: 'general-symbolic',
+        });
 
-		let switcher_pref_group = new Adw.PreferencesGroup({
-			title: _('Switcher Properties'),
-		});
-		let switcher_looping_method_buttons = new Map([ [_("Flip Stack"), [[],[]]], [_("Carousel"), [[],[]]]]);
+        let switcher_pref_group = new Adw.PreferencesGroup({
+            title: _('Switcher Properties'),
+        });
+        let switcher_looping_method_buttons = new Map([ [_("Flip Stack"), [[],[]]], [_("Carousel"), [[],[]]]]);
 
-		let switcher_looping_method_row = buildRadioAdw(settings, "switcher-looping-method", switcher_looping_method_buttons, _("Looping Method"), _("How to cycle through windows."));
-		switcher_pref_group.add(buildRadioAdw(settings, "switcher-style", new Map([ [_("Coverflow"), [[switcher_looping_method_row], []]], [_("Timeline"), [[],[switcher_looping_method_row]] ]]), _("Style"), _("Pick the type of switcher.")))
-		switcher_pref_group.add(buildSpinAdw(settings, "offset", [-500, 500, 1, 10], _("Vertical Offset"), _("Positive value moves everything down, negative up.")));
-		switcher_pref_group.add(buildRadioAdw(settings, "position", new Map([ [_("Bottom"), [[], []]], [_("Top"), [[],[]]]]), _("Window Title Position"), _("Place window title above or below the switcher.")));
-		switcher_pref_group.add(buildSwitcherAdw(settings, "enforce-primary-monitor", [], [], _("Enforce Primary Monitor"), _("Always show on the primary monitor, otherwise, show on the active monitor.")));
+        let switcher_looping_method_row = buildRadioAdw(settings, "switcher-looping-method", switcher_looping_method_buttons, _("Looping Method"), _("How to cycle through windows."));
+        switcher_pref_group.add(buildRadioAdw(settings, "switcher-style", new Map([ [_("Coverflow"), [[switcher_looping_method_row], []]], [_("Timeline"), [[],[switcher_looping_method_row]] ]]), _("Style"), _("Pick the type of switcher.")))
+        switcher_pref_group.add(buildSpinAdw(settings, "offset", [-500, 500, 1, 10], _("Vertical Offset"), _("Positive value moves everything down, negative up.")));
+        switcher_pref_group.add(buildRadioAdw(settings, "position", new Map([ [_("Bottom"), [[], []]], [_("Top"), [[],[]]]]), _("Window Title Position"), _("Place window title above or below the switcher.")));
+        switcher_pref_group.add(buildSwitcherAdw(settings, "enforce-primary-monitor", [], [], _("Enforce Primary Monitor"), _("Always show on the primary monitor, otherwise, show on the active monitor.")));
 
-		switcher_pref_group.add(switcher_looping_method_row);
-		switcher_pref_group.add(buildSwitcherAdw(settings, "hide-panel", [], [], _("Hide Panel"), _("Hide panel when switching windows.")));
-		switcher_pref_group.add(buildSwitcherAdw(settings, "invert-swipes", [], [], _("Invert Swipes"), _("Swipe content instead of view.")));
+        switcher_pref_group.add(switcher_looping_method_row);
+        switcher_pref_group.add(buildSwitcherAdw(settings, "hide-panel", [], [], _("Hide Panel"), _("Hide panel when switching windows.")));
+        switcher_pref_group.add(buildSwitcherAdw(settings, "invert-swipes", [], [], _("Invert Swipes"), _("Invert system scroll direction setting.")));
         switcher_page.add(switcher_pref_group);
 
         let background_pref_group = new Adw.PreferencesGroup({
@@ -198,14 +201,18 @@ export default class CoverflowAltTabPreferences extends ExtensionPreferences {
         });
         icon_page.add(icon_pref_group);
         
-        let size_row = buildRangeAdw(settings, "overlay-icon-size", [16, 1024, 1, [32, 64, 128, 256, 512]], _("Overlay Icon Size"), _("Set the overlay icon size in pixels."), true);
+        let size_row = buildRangeAdw(settings, "overlay-icon-size", [16, 4096, 1, [32, 64, 128, 256, 512, 768, 1024, 1536, 2048, 3072]], _("Overlay Icon Size"), _("Set the overlay icon size in pixels."), true);
         let opacity_row = buildRangeAdw(settings, "overlay-icon-opacity", [0, 1, 0.001, [0.25, 0.5, 0.75]], _("Overlay Icon Opacity"), _("Set the overlay icon opacity."), true);
         let buttons = new Map([[_("Classic"), [[],[size_row, opacity_row]]], [_("Overlay"), [[size_row, opacity_row], []]], [_("Attached"), [[size_row, opacity_row], []]]]);
         let style_row = buildRadioAdw(settings, "icon-style", buttons, _("Application Icon Style"));
+        let add_remove_effects_buttons = new Map([ [_("Fade Only"), [[],[]]], [_("Scale Only"), [[],[]]], [_("Fade and Scale"), [[],[]]]]);
+
+        let add_remove_effects_row = buildRadioAdw(settings, "icon-add-remove-effects", add_remove_effects_buttons, _("Add / Remove Effects"), _("How Icons and Labels ease in and out."));
         icon_pref_group.add(style_row);
         icon_pref_group.add(size_row);
         icon_pref_group.add(opacity_row);
         icon_pref_group.add(buildSwitcherAdw(settings, "icon-has-shadow", [], [], _("Icon Shadow")));
+        icon_pref_group.add(add_remove_effects_row);
 
         let window_size_page = new Adw.PreferencesPage({
             title: _("Windows"),
@@ -612,7 +619,8 @@ function buildRangeAdw(settings, key, values, title, subtitle="", draw_value=fal
     let [min, max, step, defvs] = values;
 
     let pref = new Adw.ActionRow({
-        title: title,	});
+        title: title,
+    });
     if (subtitle !== null && subtitle !== "") {
         pref.set_subtitle(subtitle);
     }

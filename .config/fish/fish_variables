@@ -72,6 +72,6 @@ SETUVAR fish_pager_color_description:49483E
 SETUVAR fish_pager_color_prefix:F8F8F2
 SETUVAR fish_pager_color_progress:F8F8F2
 SETUVAR fish_pager_color_selected_background:\x2dr
-SETUVAR fish_user_paths:/home/linuxbrew/\x2elinuxbrew/bin\x1e/home/kruase/\x2ecargo/bin\x1e/home/kruase/\x2epyenv/shims\x1e/opt/gradle/gradle\x2d8\x2e1/bin\x1e/home/kruase/\x2epyenv/bin\x1e/home/kruase/\x2efly/bin\x1e/home/kruase/\x2elocal/share/JetBrains/Toolbox/scripts\x1e/home/kruase/\x2elocal/bin\x1e/usr/lib64/ccache
+SETUVAR fish_user_paths:/home/linuxbrew/\x2elinuxbrew/bin\x1e/home/kruase/\x2ecargo/bin\x1e/home/kruase/\x2epyenv/shims\x1e/opt/gradle/gradle\x2d8\x2e1/bin\x1e/home/kruase/\x2epyenv/bin\x1e/home/kruase/\x2efly/bin\x1e/home/kruase/\x2elocal/share/JetBrains/Toolbox/scripts\x1e/home/kruase/\x2elocal/bin\x1e/usr/lib64/ccache\x1e/home/kruase/\x2erye/shims
 SETUVAR --export mclocal_version:20
 SETUVAR --export vm:ubuntu\x40130\x2e61\x2e124\x2e83

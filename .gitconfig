@@ -51,7 +51,12 @@
     graph = log --graph --oneline --decorate --all
     gr = log --graph --oneline --decorate
     gra = graph
-    stashm = stash push -m
+    sh = stash
+    shm = stash push -m
+    sha = stash apply
+    shp = stash pop
+    shd = stash drop
+    shl = stash list
     wta = worktree add
     wtr = worktree remove
     wtl = worktree list

@@ -6,9 +6,10 @@
   "settings-schema": "org.gnome.shell.extensions.volume-scroller",
   "shell-version": [
     "45",
-    "46"
+    "46",
+    "47"
   ],
   "url": "https://github.com/francislavoie/gnome-shell-volume-scroller",
   "uuid": "volume_scroller@francislavoie.github.io",
-  "version": 9
+  "version": 10
 }

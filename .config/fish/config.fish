@@ -69,6 +69,7 @@ if status is-interactive
     abbr -a git-cache-on 'git config credential.helper store'
     abbr -a git-cache-off 'git config --unset credential.helper'
 
+    abbr -a venvc 'python3 -m venv .venv'
     abbr -a venv 'source ./.venv/bin/activate.fish'
     abbr -a ppr 'pipenv run python3'
     abbr -a ppi 'pipenv install'
@@ -145,9 +146,14 @@ if status is-interactive
     bind -e \cd
 
 
-    # Custom keybinds
+    # Fixing git alias completion
     complete -c git -n '__fish_seen_subcommand_from po' -a '(complete -C "git push origin ")'
     complete -c git -n '__fish_seen_subcommand_from pom' -a '(complete -C "git push origin main ")'
+    complete -c git -n '__fish_seen_subcommand_from sha' -a '(complete -C "git stash apply ")'
+    complete -c git -n '__fish_seen_subcommand_from shp' -a '(complete -C "git stash pop ")'
+    complete -c git -n '__fish_seen_subcommand_from shd' -a '(complete -C "git stash drop ")'
+    complete -c git -n '__fish_seen_subcommand_from wta' -a '(complete -C "git worktree add ")'
+    complete -c git -n '__fish_seen_subcommand_from wtr' -a '(complete -C "git worktree remove ")'
 
 
     # GOPATH

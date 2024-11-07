@@ -9,6 +9,9 @@ util-linux-user
 pv
 gnome-tweaks
 touchegg
+zen-browser
+ratbagd
+piper
 tk-devel
 bzip2-devel
 readline-devel
@@ -99,3 +102,6 @@ sox
 systemd-devel
 postgresql-server
 postgresql-contrib
+xev
+netcat
+VirtualBox

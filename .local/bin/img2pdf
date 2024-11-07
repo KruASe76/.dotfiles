@@ -63,7 +63,7 @@ def main() -> None:
     for image_path in tqdm(image_paths):
         pdf_path = Path(TEMP_DIR, image_path.with_suffix(".pdf").name)
 
-        Image.open(image_path).save(pdf_path, "pdf")
+        Image.open(image_path).save(pdf_path, "pdf", resolution=72)
         merger.append(pdf_path)
 
     merger.write(result_path)

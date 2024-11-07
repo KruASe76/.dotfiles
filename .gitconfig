@@ -8,6 +8,10 @@
     editor = nano
 [safe]
     directory = *
+[rerere]
+    enabled = true
+[credential]
+    helper = store
 [filter "lfs"]
     smudge = git-lfs smudge -- %f
     process = git-lfs filter-process
@@ -35,6 +39,7 @@
     pullr = pull --rebase
     pulla = pull --all
     sw = switch
+    swc = switch -c
     co = checkout
     cod = checkout .
     discard = cod
@@ -60,5 +65,3 @@
     wta = worktree add
     wtr = worktree remove
     wtl = worktree list
-[credential]
-    helper = store

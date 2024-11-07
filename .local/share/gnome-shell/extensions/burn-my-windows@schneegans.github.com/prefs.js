@@ -29,6 +29,7 @@ import Doom from './src/effects/Doom.js';
 import EnergizeA from './src/effects/EnergizeA.js';
 import EnergizeB from './src/effects/EnergizeB.js';
 import Fire from './src/effects/Fire.js';
+import Focus from './src/effects/Focus.js';
 import Glide from './src/effects/Glide.js';
 import Glitch from './src/effects/Glitch.js';
 import Hexagon from './src/effects/Hexagon.js';
@@ -44,6 +45,7 @@ import TRexAttack from './src/effects/TRexAttack.js';
 import TVEffect from './src/effects/TVEffect.js';
 import TVGlitch from './src/effects/TVGlitch.js';
 import Wisps from './src/effects/Wisps.js';
+
 
 import {ExtensionPreferences, gettext as _} from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
 
@@ -69,28 +71,12 @@ export default class BurnMyWindowsPreferences extends ExtensionPreferences {
 
     // New effects must be registered here and in extension.js.
     this._ALL_EFFECTS = [
-      Apparition,
-      BrokenGlass,
-      Doom,
-      EnergizeA,
-      EnergizeB,
-      Fire,
-      Glide,
-      Glitch,
-      Hexagon,
-      Incinerate,
-      Matrix,
-      PaintBrush,
-      Pixelate,
-      PixelWheel,
-      PixelWipe,
-      Portal,
-      SnapOfDisintegration,
-      TRexAttack,
-      TVEffect,
-      TVGlitch,
-      Wisps,
+      Apparition, BrokenGlass, Doom,       EnergizeA, EnergizeB,  Fire,
+      Focus,      Glide,       Glitch,     Hexagon,   Incinerate, Matrix,
+      PaintBrush, Pixelate,    PixelWheel, PixelWipe, Portal,     SnapOfDisintegration,
+      TRexAttack, TVEffect,    TVGlitch,   Wisps,
     ];
+
 
     // Load all of our resources.
     this._resources =
@@ -104,6 +90,7 @@ export default class BurnMyWindowsPreferences extends ExtensionPreferences {
     this._builder = new Gtk.Builder();
     this._builder.add_from_resource(`/ui/common/menus.ui`);
     this._builder.add_from_resource(`/ui/${getUIDir()}/prefs.ui`);
+
 
     // Store a reference to the general settings object.
     this._settings = this.getSettings();
@@ -133,6 +120,7 @@ export default class BurnMyWindowsPreferences extends ExtensionPreferences {
     } catch (e) {
       // Maybe the service is masked...
     }
+
 
     let powerProfileRow = this._builder.get_object('profile-power-profile');
     powerProfileRow.set_visible(hasPowerProfiles);
@@ -173,6 +161,7 @@ export default class BurnMyWindowsPreferences extends ExtensionPreferences {
         }
       });
 
+
     // This is our top-level widget which we will return later.
     this._widget = this._builder.get_object('general-prefs');
 
@@ -186,6 +175,29 @@ export default class BurnMyWindowsPreferences extends ExtensionPreferences {
     this._builder.get_object('choose-no-effects-button').connect('clicked', () => {
       this._ALL_EFFECTS.forEach(effect => {
         this.getProfileSettings().set_boolean(`${effect.getNick()}-enable-effect`, false);
+      });
+    });
+
+    // search for effect feature
+    this._searchEntry = this._builder.get_object('search_entry');
+    this._searchEntry.connect('search-changed', () => {
+      const query = this._searchEntry.get_text().toLowerCase();
+
+      this._effectRows.forEach(er => {
+        if (query === '') {
+          er.show();  // Show all effects if query is empty
+        } else {
+          // Show or hide each effect based on query match
+          const showEffect = er.name.toLowerCase().includes(query);
+          showEffect ? er.show() : er.hide();
+
+          // TODO
+          // maybe add a fuzzy search later
+          /*
+          const showEffect = utils.fuzzyMatch(er.name.toLowerCase(),
+          query.toLowerCase()); showEffect ? er.show() : er.hide();
+          */
+        }
       });
     });
 
@@ -250,6 +262,10 @@ export default class BurnMyWindowsPreferences extends ExtensionPreferences {
           row.set_title(effect.getLabel());
         }
 
+        // this is the fix for the merge issue when an effect doesn't have a discription
+        row.name = effect.getLabel();
+
+
         // Un-expand any previously expanded effect row. This way we ensure that there
         // is only one expanded row at any time.
         if (hasPrefs) {
@@ -273,6 +289,7 @@ export default class BurnMyWindowsPreferences extends ExtensionPreferences {
         group.add(row);
       }
     });
+
 
     // Some things can only be done once the widget is shown as we do not have access to
     // the toplevel widget before.
@@ -430,7 +447,7 @@ GitHub: <a href='https://github.com/sponsors/schneegans'>https://github.com/spon
           const translators = new Set();
           this._getJSONResource('/credits/translators.json').forEach(i => {
             for (const j of Object.values(i)) {
-              j.forEach(k => translators.add(k[1]));
+              j.forEach(k => translators.add(k.full_name));
             }
           });
 

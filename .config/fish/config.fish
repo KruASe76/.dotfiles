@@ -1,7 +1,9 @@
 if status is-interactive
     # Modifying $PATH
     fish_add_path $HOME/.local/bin
-    fish_add_path /home/kruase/.local/share/JetBrains/Toolbox/scripts
+    fish_add_path $HOME/.local/share/JetBrains/Toolbox/scripts
+    fish_add_path $HOME/.cargo/bin
+    fish_add_path /home/linuxbrew/.linuxbrew/bin
 
     # English!
     alias git='LC_ALL=en_US.utf8 command git'
@@ -19,7 +21,8 @@ if status is-interactive
     # Abbreviations
     abbr -a fc 'nano ~/.config/fish/config.fish && source ~/.config/fish/config.fish'
 
-    abbr -a su 'sudo fish'
+    abbr -a su 'sudo -E fish'
+    abbr -a sudo 'sudo -E'
 
     abbr -a rm 'rm -I --preserve-root'
     abbr -a mv 'mv -i'
@@ -29,6 +32,7 @@ if status is-interactive
     abbr -a ll 'eza -lh'
     abbr -a la 'eza -lhA'
     abbr -a mkdir 'mkdir -p'
+    abbr -a --position anywhere grep 'grep -E'
     abbr -a duc 'dust -r'
     abbr -a cat 'bat'
     abbr -a catt 'bat -p'
@@ -75,6 +79,7 @@ if status is-interactive
     abbr -a ppi 'pipenv install'
     abbr -a ppu 'pipenv uninstall'
     abbr -a pprm 'pipenv --rm'
+    abbr -a uvi 'uv init --no-readme --no-pin-python && rm hello.py'
 
     abbr -a docker-postgres 'docker run --name kruase-postgres -e POSTGRES_DB=kruase -e POSTGRES_USER=kruase -e POSTGRES_PASSWORD=kruase-password -p 5432:5432 -d postgres:16.4-alpine'
     abbr -a docker-postgres-rm 'docker container rm -fv kruase-postgres'
@@ -132,12 +137,14 @@ if status is-interactive
 
     abbr -a git-conf-mipt 'git config user.email "kruglikov.as@phystech.edu" && git config user.name "Андрей Кругликов"'
 
+
     # Aliases
     alias fan-silent='sudo sh -c "echo 2 > /sys/devices/platform/asus-nb-wmi/throttle_thermal_policy"'
     alias fan-balance='sudo sh -c "echo 0 > /sys/devices/platform/asus-nb-wmi/throttle_thermal_policy"'
     alias fan-turbo='sudo sh -c "echo 1 > /sys/devices/platform/asus-nb-wmi/throttle_thermal_policy"'
 
     alias drop-table='echo no way'
+
 
     # Custom keybinds
     bind \ck backward-kill-line
@@ -148,6 +155,7 @@ if status is-interactive
 
     # Fixing git alias completion
     complete -c git -n '__fish_seen_subcommand_from po' -a '(complete -C "git push origin ")'
+    complete -c git -n '__fish_seen_subcommand_from pfo' -a '(complete -C "git push --force origin ")'
     complete -c git -n '__fish_seen_subcommand_from pom' -a '(complete -C "git push origin main ")'
     complete -c git -n '__fish_seen_subcommand_from sha' -a '(complete -C "git stash apply ")'
     complete -c git -n '__fish_seen_subcommand_from shp' -a '(complete -C "git stash pop ")'
@@ -162,11 +170,6 @@ if status is-interactive
     # flyctl setup
     set -Ux FLYCTL_INSTALL $HOME/.fly
     fish_add_path $FLYCTL_INSTALL/bin
-
-    # pyenv setup
-    set -Ux PYENV_ROOT $HOME/.pyenv
-    fish_add_path $PYENV_ROOT/bin
-    pyenv init - | source
 
     # firefox wayland fix
     set -Ux MOZ_ENABLE_WAYLAND 1

@@ -9,14 +9,14 @@ if status is-interactive
     alias git='LC_ALL=en_US.utf8 command git'
 
     # Custom variables
-    set -Ux vm "ubuntu@130.61.124.83"
-    set -Ux mclocal_version "20"
-    set -Ux ALSOFT_DRIVERS "pulse"
-    set -Ux YDOTOOL_SOCKET '$HOME/.ydotool_socket'
-    set -Ux OLLAMA_HOST "127.0.0.1:12345"
-    set -Ux OLLAMA_KEEP_ALIVE "10m"
-    set -Ux HIP_VISIBLE_DEVICES "0,1"
-    set -Ux HSA_OVERRIDE_GFX_VERSION "11.0.2"
+    set -gx vm "root@45.89.244.232"
+    set -gx mclocal_version "20"
+    set -gx ALSOFT_DRIVERS "pulse"
+    set -gx YDOTOOL_SOCKET '$HOME/.ydotool_socket'
+    set -gx OLLAMA_HOST "127.0.0.1:12345"
+    set -gx OLLAMA_KEEP_ALIVE "10m"
+    set -gx HIP_VISIBLE_DEVICES "0,1"
+    set -gx HSA_OVERRIDE_GFX_VERSION "11.0.2"
 
     # Abbreviations
     abbr -a fc 'nano ~/.config/fish/config.fish && source ~/.config/fish/config.fish'
@@ -51,6 +51,7 @@ if status is-interactive
 
     abbr -a fix-perms 'chmod 771 ./**/* ; chmod 660 ./**/*.*'
     abbr -a fix-power 'sudo systemctl restart power-profiles-daemon.service'
+    abbr -a fix-outline 'sudo -E pkill --full -i outline'
 
     abbr -a clean 'sudo dnf5 autoremove -y && sudo dnf5 clean all && flatpak uninstall --unused -y && sudo journalctl --vacuum-time=1weeks && flatdir && rm ~/.python_history-*.tmp'
 
@@ -81,8 +82,9 @@ if status is-interactive
     abbr -a pprm 'pipenv --rm'
     abbr -a uvi 'uv init --no-readme --no-pin-python && rm hello.py'
 
-    abbr -a docker-postgres 'docker run --name kruase-postgres -e POSTGRES_DB=kruase -e POSTGRES_USER=kruase -e POSTGRES_PASSWORD=kruase-password -p 5432:5432 -d postgres:16.4-alpine'
-    abbr -a docker-postgres-rm 'docker container rm -fv kruase-postgres'
+    abbr -a dpgu 'docker run --name pocket-postgres -e POSTGRES_DB=kruase -e POSTGRES_USER=kruase -e POSTGRES_PASSWORD=kruase-password -p 5432:5432 -v kruase-postgres:/var/lib/postgresql/data -d postgres:16-alpine'
+    abbr -a dpgd 'docker container rm pocket-postgres -f'
+    abbr -a dpgdv 'docker container rm pocket-postgres -f && docker volume rm kruase-postgres'
     abbr -a dcu 'docker compose up -d'
     abbr -a dcd 'docker compose down --rmi local'
     abbr -a dcdv 'docker compose down --rmi local -v'
@@ -99,7 +101,7 @@ if status is-interactive
     abbr -a wbmipt '~/Документы/mipt/workbook_mipt/ && git status'
     abbr -a obsidian-personal '~/Документы/personal_vault/ && git status'
 
-    abbr -a vencord 'sh -c "$(curl -sS https://raw.githubusercontent.com/Vendicated/VencordInstaller/main/install.sh)"'
+    abbr -a vencord 'sh -c "$(curl -sSL "https://github.com/Vencord/Installer/blob/main/install.sh?raw=true")"'
     abbr -a musescore-dl 'npx dl-librescore@latest'
 
     abbr -a mclocal '~/games/mcservers/Divine_1-$mclocal_version/'
@@ -110,10 +112,13 @@ if status is-interactive
     abbr -a webui-sd-cpu 'bash ~/stable-diffusion-webui/webui.sh --medvram --disable-nan-check --no-half-vae --use-cpu all --precision full --no-half --xformers'
     abbr -a webui-gpt '~/freegpt-webui/ && source ./venv/bin/activate.fish && python3 run.py'
 
+    abbr -a vm 'ssh $vm'
     abbr -a serveo-ssh 'ssh -o ServerAliveInterval=60 -R krudora:22:localhost:22 serveo.net'
     abbr -a serveo-http 'ssh -o ServerAliveInterval=60 -R kruase:80:localhost:1535 serveo.net'
     abbr -a serveo-fastapi 'ssh -o ServerAliveInterval=60 -R kruase:80:localhost:8000 serveo.net'
     abbr -a serveo-mc 'ssh -R kruase-mc:1535:localhost:25565 serveo.net'
+
+    abbr -a vpn 'sudo -E vpn'
 
     abbr -a ngrok-fastapi 'ngrok http --url=crack-locally-skink.ngrok-free.app 8000'
 
@@ -164,15 +169,19 @@ if status is-interactive
     complete -c git -n '__fish_seen_subcommand_from wtr' -a '(complete -C "git worktree remove ")'
 
 
+    # Custom completion
+    complete -c vpn --no-files -a 'add remove list connect disconnect toggle status'
+
+
     # GOPATH
-    set -Ux GOPATH /tmp/go
+    set -gx GOPATH /tmp/go
 
     # flyctl setup
-    set -Ux FLYCTL_INSTALL $HOME/.fly
+    set -gx FLYCTL_INSTALL $HOME/.fly
     fish_add_path $FLYCTL_INSTALL/bin
 
     # firefox wayland fix
-    set -Ux MOZ_ENABLE_WAYLAND 1
+    set -gx MOZ_ENABLE_WAYLAND 1
 
     # wandb api key
     set -gx WANDB_API_KEY (cat $HOME/.wandb)

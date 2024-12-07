@@ -1,51 +1,72 @@
+/**
+ * @file Contains the implementation of the blacklist page.
+ * Handles creating blacklist entries and binding them to settings.
+ */
 import Adw from 'gi://Adw';
 import GLib from 'gi://GLib';
 import GObject from 'gi://GObject';
-import { getPref, setPref } from '../../utils/settings.js';
-import { BlacklistRow } from '../widgets/blacklist_row.js';
 import { gettext as _ } from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
-export const BlackList = GObject.registerClass({
+import { getPref, setPref } from '../../utils/settings.js';
+import { AppRow } from '../widgets/app_row.js';
+export const BlacklistPage = GObject.registerClass({
     Template: GLib.uri_resolve_relative(import.meta.url, 'blacklist.ui', GLib.UriFlags.NONE),
     GTypeName: 'PrefsBlacklist',
-    InternalChildren: ['blacklist_group'],
+    InternalChildren: ['blacklistGroup'],
 }, class extends Adw.PreferencesPage {
+    #blacklist = getPref('blacklist');
     constructor() {
         super();
-        this.blacklist = getPref('blacklist');
-        for (const title of this.blacklist) {
-            this.add_window(undefined, title);
+        for (const title of this.#blacklist) {
+            this.addWindow(undefined, title);
         }
     }
-    add_window(_, title) {
-        const callbacks = {
-            on_delete: row => this.delete_row(row),
-            on_title_changed: (_, old_title, new_title) => this.change_title(old_title, new_title),
-        };
-        const row = new BlacklistRow(callbacks);
-        row.set_subtitle(title ?? '');
-        this._blacklist_group.add(row);
+    /**
+     * Add a new blacklist entry.
+     * @param wmClass - The WM_CLASS of the window.
+     */
+    addWindow(_, wmClass) {
+        const row = new AppRow({
+            onDelete: row => this.#deleteWindow(row),
+            onWindowChange: (_, oldWmClass, newWmClass) => this.#changeWindow(oldWmClass, newWmClass),
+        });
+        row.set_subtitle(wmClass ?? '');
+        this._blacklistGroup.add(row);
     }
-    delete_row(row) {
-        this.blacklist.splice(this.blacklist.indexOf(row.title), 1);
-        setPref('blacklist', this.blacklist);
-        this._blacklist_group.remove(row);
+    /**
+     * Delete a blacklist entry.
+     * @param row - The row to delete.
+     */
+    #deleteWindow(row) {
+        this.#blacklist.splice(this.#blacklist.indexOf(row.title), 1);
+        setPref('blacklist', this.#blacklist);
+        this._blacklistGroup.remove(row);
     }
-    change_title(old_title, new_title) {
-        if (this.blacklist.includes(new_title)) {
+    /**
+     * Change the blacklist entry to a different window.
+     * @param oldWmClass - Current WM_CLASS of the entry.
+     * @param newWmClass - New WM_CLASS of the entry.
+     * @returns Whether the entry was changed successfully.
+     */
+    #changeWindow(oldWmClass, newWmClass) {
+        if (this.#blacklist.includes(newWmClass)) {
+            // If the new window is already in the blacklist, show an error.
             const win = this.root;
             win.add_toast(new Adw.Toast({
-                title: _(`Can't add ${new_title} to the list, because it already there`),
+                title: _(`Can't add ${newWmClass} to the list, because it already there`),
             }));
             return false;
         }
-        if (old_title === '') {
-            this.blacklist.push(new_title);
+        if (oldWmClass === '') {
+            // If the old WM_CLASS is empty, the entry was just created,
+            // so we need to just add the new window to the blacklist.
+            this.#blacklist.push(newWmClass);
         }
         else {
-            const old_id = this.blacklist.indexOf(old_title);
-            this.blacklist.splice(old_id, 1, new_title);
+            // Otherwise, replace the old window with the new one.
+            const oldId = this.#blacklist.indexOf(oldWmClass);
+            this.#blacklist.splice(oldId, 1, newWmClass);
         }
-        setPref('blacklist', this.blacklist);
+        setPref('blacklist', this.#blacklist);
         return true;
     }
 });

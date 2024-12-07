@@ -6,7 +6,7 @@
 import GLib from 'gi://GLib';
 import { logDebug } from './log.js';
 /** Mapping of schema keys to their GLib Variant type string */
-const Schema = {
+export const Schema = {
     'settings-version': 'u',
     blacklist: 'as',
     'skip-libadwaita-app': 'b',

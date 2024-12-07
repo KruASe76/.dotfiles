@@ -1,3 +1,4 @@
+/** @file A widget for setting paddings for windows, used inside of {@link CustomSettingsRow}. */
 import Adw from 'gi://Adw';
 import GLib from 'gi://GLib';
 import GObject from 'gi://GObject';

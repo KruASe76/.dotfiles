@@ -23,7 +23,6 @@ export function onAddEffect(actor) {
     unwrapActor(actor)?.add_effect_with_name(ROUNDED_CORNERS_EFFECT, new RoundedCornersEffect());
     const shadow = createShadow(actor);
     // Bind properties of the window to the shadow actor.
-    const SYNC_CREATE = GObject.BindingFlags.SYNC_CREATE;
     for (const prop of [
         'pivot-point',
         'translation-x',
@@ -32,7 +31,7 @@ export function onAddEffect(actor) {
         'scale-y',
         'visible',
     ]) {
-        actor.bind_property(prop, shadow, prop, SYNC_CREATE);
+        actor.bind_property(prop, shadow, prop, GObject.BindingFlags.SYNC_CREATE);
     }
     // Store shadow, app type, visible binding, so that we can access them later
     actor.rwcCustomData = {
@@ -218,10 +217,7 @@ function refreshRoundedCorners(actor) {
     }
     const windowContentOffset = computeWindowContentsOffset(win);
     // When window size is changed, update uniforms for corner rounding shader.
-    effect.update_uniforms(windowScaleFactor(win), cfg, computeBounds(actor, windowContentOffset), {
-        width: getPref('border-width'),
-        color: getPref('border-color'),
-    });
+    effect.updateUniforms(windowScaleFactor(win), cfg, computeBounds(actor, windowContentOffset));
     // Update BindConstraint for the shadow
     const shadow = windowInfo.shadow;
     const offsets = computeShadowActorOffset(actor, windowContentOffset);

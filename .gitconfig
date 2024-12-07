@@ -8,6 +8,8 @@
     editor = nano
 [safe]
     directory = *
+[push]
+    autoSetupRemote = true
 [rerere]
     enabled = true
 [credential]
@@ -24,26 +26,25 @@
     sta = status
     a = add
     aa = add --all
-    una = reset HEAD
-    rsh = reset HEAD
     rs = reset
+    rsh = reset HEAD
+    una = reset HEAD
+    rshard = reset --hard
     cm = commit -m
     cam = commit -am
     amend = commit --amend
     ane = commit --amend --no-edit
+    p = push
     po = push origin
     pom = push origin main
     pfo = push --force-with-lease origin
     pfom = push --force-with-lease origin main
     fetcha = fetch --all --prune
     pullr = pull --rebase
-    pulla = pull --all
     sw = switch
     swc = switch -c
     co = checkout
-    cod = checkout .
-    discard = cod
-    dc = discard
+    rst = restore
     br = branch -vv
     bra = branch -va
     brd = branch -d
@@ -54,8 +55,8 @@
     rba = rebase --abort
     rmc = rm --cached
     graph = log --graph --oneline --decorate --all
+    gra = log --graph --oneline --decorate --all
     gr = log --graph --oneline --decorate
-    gra = graph
     sh = stash
     shm = stash push -m
     sha = stash apply

@@ -104,4 +104,3 @@ postgresql-server
 postgresql-contrib
 xev
 netcat
-VirtualBox

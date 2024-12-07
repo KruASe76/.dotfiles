@@ -8,14 +8,14 @@
     <child>
       <object class="AdwPreferencesGroup">
         <property name="title" translatable="yes">Applications</property>
-        <property name="description" translatable="yes">Some applications created with LibAdwaita or LibHandy already have rounded corners. You may wish to skip cutting their corners.</property>
+        <property name="description" translatable="yes">Some applications created with LibAdwaita or LibHandy already have rounded corners. You can enable those settings to avoid rounding their corners an extra time.</property>
         <child>
-          <object class="AdwSwitchRow" id="skip_libadwaita">
+          <object class="AdwSwitchRow" id="skipLibadwaita">
             <property name="title" translatable="yes">Skip LibAdwaita applications</property>
           </object>
         </child>
         <child>
-          <object class="AdwSwitchRow" id="skip_libhandy">
+          <object class="AdwSwitchRow" id="skipLibhandy">
             <property name="title" translatable="yes">Skip LibHandy applications</property>
           </object>
         </child>
@@ -24,7 +24,7 @@
     <child>
       <object class="AdwPreferencesGroup">
         <property name="title" translatable="yes">Global settings</property>
-        <property name="description" translatable="yes">These settings will have effect on all windows</property>
+        <property name="description" translatable="yes">These settings will have an effect on all windows</property>
         <child>
           <object class="AdwActionRow">
             <property name="title" translatable="yes">Border width</property>
@@ -41,7 +41,7 @@
                   <mark value="0" position="bottom">0</mark>
                 </marks>
                 <property name="adjustment">
-                  <object class="GtkAdjustment" id="border_width">
+                  <object class="GtkAdjustment" id="borderWidth">
                     <property name="lower">-20</property>
                     <property name="upper">20</property>
                     <property name="page-increment">1</property>
@@ -56,9 +56,9 @@
           <object class="AdwActionRow">
             <property name="title" translatable="yes">Border color</property>
             <property name="activatable">true</property>
-            <property name="activatable-widget">border_color</property>
+            <property name="activatable-widget">borderColor</property>
             <child>
-              <object class="GtkColorDialogButton" id="border_color">
+              <object class="GtkColorDialogButton" id="borderColor">
                 <property name="valign">center</property>
                 <property name="dialog">
                   <object class="GtkColorDialog">
@@ -85,7 +85,7 @@
                   <mark value="12" position="bottom">12</mark>
                 </marks>
                 <property name="adjustment">
-                  <object class="GtkAdjustment" id="corner_radius">
+                  <object class="GtkAdjustment" id="cornerRadius">
                     <property name="lower">0</property>
                     <property name="upper">40</property>
                     <property name="page-increment">1</property>
@@ -111,7 +111,7 @@
                   <mark value="0" position="bottom">0</mark>
                 </marks>
                 <property name="adjustment">
-                  <object class="GtkAdjustment" id="corner_smoothing">
+                  <object class="GtkAdjustment" id="cornerSmoothing">
                     <property name="lower">0</property>
                     <property name="upper">1</property>
                     <property name="page-increment">0.1</property>
@@ -124,7 +124,7 @@
         </child>
         <child>
           <object class="AdwActionRow">
-            <property name="title" translatable="yes">Windows shadow</property>
+            <property name="title" translatable="yes">Window shadow</property>
             <property name="subtitle" translatable="yes">Customize the shadow of the rounded corner window</property>
             <property name="activatable">true</property>
             <child type="suffix">
@@ -132,16 +132,16 @@
                 <property name="icon-name">go-next-symbolic</property>
               </object>
             </child>
-            <signal name="activated" handler="show_shadow_page" />
+            <signal name="activated" handler="showShadowPage" />
           </object>
         </child>
         <child>
-          <object class="AdwSwitchRow" id="keep_for_maximized">
+          <object class="AdwSwitchRow" id="keepForMaximized">
             <property name="title" translatable="yes">Keep rounded corners for maximized windows</property>
           </object>
         </child>
         <child>
-          <object class="AdwSwitchRow" id="keep_for_fullscreen">
+          <object class="AdwSwitchRow" id="keepForFullscreen">
             <property name="title" translatable="yes">Keep rounded corners for fullscreen windows</property>
           </object>
         </child>
@@ -154,14 +154,14 @@
       <object class="AdwPreferencesGroup">
         <property name="title" translatable="yes">Tweaks</property>
         <child>
-          <object class="AdwSwitchRow" id="tweak_kitty">
-            <property name="title" translatable="yes">Try to add rounded corners to Kitty Terminal in Wayland</property>
-            <property name="subtitle" translatable="yes">Tweak clip paddings for Kitty Terminal</property>
+          <object class="AdwSwitchRow" id="tweakKitty">
+            <property name="title" translatable="yes">Add rounded corners to Kitty Terminal on Wayland</property>
+            <property name="subtitle" translatable="yes">Adjust paddings for Kitty Terminal to correctly round its corners</property>
           </object>
         </child>
         <child>
-          <object class="AdwSwitchRow" id="right_click_menu">
-            <property name="title" translatable="yes">Add Settings Entry in right-click menu of Background</property>
+          <object class="AdwSwitchRow" id="rightClickMenu">
+            <property name="title" translatable="yes">Add a settings entry in right-click menu of the desktop</property>
           </object>
         </child>
       </object>
@@ -170,9 +170,9 @@
       <object class="AdwPreferencesGroup">
         <property name="title" translatable="yes">Debug</property>
         <child>
-          <object class="AdwSwitchRow" id="enable_log">
-            <property name="title" translatable="yes">Enable Log</property>
-            <property name="subtitle" translatable="yes">Run journalctl -o cat -f /usr/bin/gnome-shell in terminal to see the log</property>
+          <object class="AdwSwitchRow" id="enableDebugLogs">
+            <property name="title" translatable="yes">Enable debug logs</property>
+            <property name="subtitle" translatable="yes">Run journalctl -o cat -f /usr/bin/gnome-shell in your terminal to see the log</property>
           </object>
         </child>
       </object>
@@ -181,13 +181,13 @@
       <object class="AdwPreferencesGroup">
         <property name="header-suffix">
           <object class="GtkButton">
-            <property name="label" translatable="yes">Open prefereces reset page</property>
+            <property name="label" translatable="yes">Reset preferences</property>
             <property name="halign">center</property>
             <style>
               <class name="pill"/>
               <class name="destructive-action"/>
             </style>
-            <signal name="clicked" handler="show_reset_page"/>
+            <signal name="clicked" handler="showResetPage"/>
           </object>
         </property>
       </object>

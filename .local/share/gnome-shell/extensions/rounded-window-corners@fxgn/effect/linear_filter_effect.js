@@ -1,3 +1,7 @@
+/**
+ * @file Applies linear interpolation to a window. This is used to make windows
+ * in the overview look better.
+ */
 import Cogl from 'gi://Cogl';
 import GObject from 'gi://GObject';
 import Shell from 'gi://Shell';

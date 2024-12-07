@@ -1,4 +1,0 @@
-[Desktop Entry]
-Name=gnome-terminal with custom commands
-Type=Application
-Exec=gnome-terminal --tab --title "kanata" -e "kanata -c /home/kruase/.config/kanata.kbd" --tab-with-profile=Monokai --title "byedpi" -e "ciadpi -i 127.0.0.1 --disorder 1 --auto=torst --tlsrec 1+s"

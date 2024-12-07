@@ -1,114 +1,152 @@
+/**
+ * @file Contains the implementation of the custom overrides page.
+ * Handles creating override rows and binding them to settings for the corresponding
+ * window.
+ */
 import Adw from 'gi://Adw';
 import GLib from 'gi://GLib';
 import GObject from 'gi://GObject';
 import { gettext as _ } from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
 import { getPref, setPref } from '../../utils/settings.js';
-import { CustomEffectRow, CustomEffectRowClass, } from '../widgets/customeffect_row.js';
-export const Custom = GObject.registerClass({
+import { CustomSettingsRow, CustomSettingsRowClass, } from '../widgets/custom_settings_row.js';
+export const CustomPage = GObject.registerClass({
     Template: GLib.uri_resolve_relative(import.meta.url, 'custom.ui', GLib.UriFlags.NONE),
     GTypeName: 'PrefsCustom',
-    InternalChildren: ['custom_group'],
+    InternalChildren: ['customGroup'],
 }, class extends Adw.PreferencesPage {
+    #customWindowSettings = getPref('custom-rounded-corner-settings');
     constructor() {
         super();
-        this._settings_cfg = getPref('custom-rounded-corner-settings');
-        for (const title in this._settings_cfg) {
-            this.add_window(undefined, title);
+        for (const wmClass in this.#customWindowSettings) {
+            this.addWindow(undefined, wmClass);
         }
     }
-    add_window(_, title) {
+    /**
+     * Add a new custom settings row for a window.
+     * @param wmClass - The WM_CLASS of the window.
+     */
+    addWindow(_, wmClass) {
         const callbacks = {
-            on_delete: row => this.delete_row(row),
-            on_title_changed: (row, old_title, new_title) => this.change_title(row, old_title, new_title),
+            onDelete: row => this.#deleteWindowConfig(row),
+            onWindowChange: (row, oldTitle, newTitle) => this.#changeWindow(row, oldTitle, newTitle),
         };
-        const row = new CustomEffectRow(callbacks);
-        if (title) {
-            this.setup_row(row, title);
+        const row = new CustomSettingsRow(callbacks);
+        if (wmClass) {
+            this.#bindRowSettings(row, wmClass);
         }
-        row.set_subtitle(title ?? '');
-        this._custom_group.add(row);
+        row.set_subtitle(wmClass ?? '');
+        this._customGroup.add(row);
     }
-    delete_row(row) {
-        delete this._settings_cfg[row.subtitle];
-        setPref('custom-rounded-corner-settings', this._settings_cfg);
-        this._custom_group.remove(row);
+    /**
+     * Delete custom overrides for a window.
+     * @param row - The row to delete.
+     */
+    #deleteWindowConfig(row) {
+        delete this.#customWindowSettings[row.subtitle];
+        setPref('custom-rounded-corner-settings', this.#customWindowSettings);
+        this._customGroup.remove(row);
     }
-    change_title(row, old_title, new_title) {
-        if (this._settings_cfg[new_title] !== undefined) {
+    /**
+     * Change the window that the override is applied to.
+     * @param row - The row with the override to change.
+     * @param oldWmClass - Current WM_CLASS of the override.
+     * @param newWmClass - New WM_CLASS of the override.
+     * @returns Whether the override was changed successfully.
+     */
+    #changeWindow(row, oldWmClass, newWmClass) {
+        // If overrides for the new window already exist, show an error.
+        if (this.#customWindowSettings[newWmClass] !== undefined) {
             const win = this.root;
             win.add_toast(new Adw.Toast({
-                title: _(`Can't add ${new_title} to the list, because it already there`),
+                title: _(`Can't add ${newWmClass} to the list, because it already there`),
             }));
             return false;
         }
-        if (old_title === '') {
-            this._settings_cfg[new_title] = getPref('global-rounded-corner-settings');
+        if (oldWmClass === '') {
+            // If the old WM_CLASS is empty, the override was just created,
+            // so we need to initialize it with the values from global settings.
+            this.#customWindowSettings[newWmClass] = getPref('global-rounded-corner-settings');
         }
         else {
-            const cfg = this._settings_cfg[old_title];
-            delete this._settings_cfg[old_title];
-            this._settings_cfg[new_title] = cfg;
+            // Otherwise, move the override to the new window.
+            const cfg = this.#customWindowSettings[oldWmClass];
+            delete this.#customWindowSettings[oldWmClass];
+            this.#customWindowSettings[newWmClass] = cfg;
         }
-        this.setup_row(row, new_title);
-        setPref('custom-rounded-corner-settings', this._settings_cfg);
+        this.#bindRowSettings(row, newWmClass);
+        setPref('custom-rounded-corner-settings', this.#customWindowSettings);
         return true;
     }
-    setup_row(row, title) {
-        if (!(row instanceof CustomEffectRowClass)) {
+    /**
+     * Bind widgets of the override row to the respective settings.
+     * @param row - The row to bind.
+     * @param wmClass - WM_CLASS of the window that the override is applied to.
+     */
+    #bindRowSettings(row, wmClass) {
+        if (!(row instanceof CustomSettingsRowClass)) {
             return;
         }
         const r = row;
         r.connect('notify::subtitle', (row) => {
-            row.check_state();
+            row.checkState();
         });
-        r.enabled_row.set_active(this._settings_cfg[title].enabled);
-        r.enabled_row.connect('notify::active', (row) => {
-            r.check_state();
-            this._settings_cfg[title].enabled = row.get_active();
-            setPref('custom-rounded-corner-settings', this._settings_cfg);
+        r.enabledRow.set_active(this.#customWindowSettings[wmClass].enabled);
+        r.enabledRow.connect('notify::active', (row) => {
+            r.checkState();
+            this.#customWindowSettings[wmClass].enabled = row.get_active();
+            setPref('custom-rounded-corner-settings', this.#customWindowSettings);
         });
-        r.corner_radius.set_value(this._settings_cfg[title].borderRadius);
-        r.corner_radius.connect('value-changed', (adj) => {
-            this._settings_cfg[title].borderRadius = adj.get_value();
-            setPref('custom-rounded-corner-settings', this._settings_cfg);
+        r.cornerRadius.set_value(this.#customWindowSettings[wmClass].borderRadius);
+        r.cornerRadius.connect('value-changed', (adj) => {
+            this.#customWindowSettings[wmClass].borderRadius =
+                adj.get_value();
+            setPref('custom-rounded-corner-settings', this.#customWindowSettings);
         });
-        r.corner_smoothing.set_value(this._settings_cfg[title].smoothing);
-        r.corner_smoothing.connect('value-changed', (adj) => {
-            this._settings_cfg[title].smoothing = adj.get_value();
-            setPref('custom-rounded-corner-settings', this._settings_cfg);
+        r.cornerSmoothing.set_value(this.#customWindowSettings[wmClass].smoothing);
+        r.cornerSmoothing.connect('value-changed', (adj) => {
+            this.#customWindowSettings[wmClass].smoothing =
+                adj.get_value();
+            setPref('custom-rounded-corner-settings', this.#customWindowSettings);
         });
-        r.keep_for_maximized.set_active(this._settings_cfg[title].keepRoundedCorners.maximized);
-        r.keep_for_maximized.connect('notify::active', (row) => {
-            this._settings_cfg[title].keepRoundedCorners.maximized =
-                row.get_active();
-            setPref('custom-rounded-corner-settings', this._settings_cfg);
+        r.keepForMaximized.set_active(this.#customWindowSettings[wmClass].keepRoundedCorners
+            .maximized);
+        r.keepForMaximized.connect('notify::active', (row) => {
+            this.#customWindowSettings[wmClass].keepRoundedCorners.maximized = row.get_active();
+            setPref('custom-rounded-corner-settings', this.#customWindowSettings);
         });
-        r.keep_for_fullscreen.set_active(this._settings_cfg[title].keepRoundedCorners.fullscreen);
-        r.keep_for_fullscreen.connect('notify::active', (row) => {
-            this._settings_cfg[title].keepRoundedCorners.fullscreen =
-                row.get_active();
-            setPref('custom-rounded-corner-settings', this._settings_cfg);
+        r.keepForFullscreen.set_active(this.#customWindowSettings[wmClass].keepRoundedCorners
+            .fullscreen);
+        r.keepForFullscreen.connect('notify::active', (row) => {
+            this.#customWindowSettings[wmClass].keepRoundedCorners.fullscreen = row.get_active();
+            setPref('custom-rounded-corner-settings', this.#customWindowSettings);
         });
-        r.paddings.paddingTop = this._settings_cfg[title].padding.top;
+        r.paddings.paddingTop =
+            this.#customWindowSettings[wmClass].padding.top;
         r.paddings.connect('notify::padding-top', (row) => {
-            this._settings_cfg[title].padding.top = row.paddingTop;
-            setPref('custom-rounded-corner-settings', this._settings_cfg);
+            this.#customWindowSettings[wmClass].padding.top =
+                row.paddingTop;
+            setPref('custom-rounded-corner-settings', this.#customWindowSettings);
         });
-        r.paddings.paddingBottom = this._settings_cfg[title].padding.bottom;
+        r.paddings.paddingBottom =
+            this.#customWindowSettings[wmClass].padding.bottom;
         r.paddings.connect('notify::padding-bottom', (row) => {
-            this._settings_cfg[title].padding.bottom =
+            this.#customWindowSettings[wmClass].padding.bottom =
                 row.paddingBottom;
-            setPref('custom-rounded-corner-settings', this._settings_cfg);
+            setPref('custom-rounded-corner-settings', this.#customWindowSettings);
         });
-        r.paddings.paddingStart = this._settings_cfg[title].padding.left;
+        r.paddings.paddingStart =
+            this.#customWindowSettings[wmClass].padding.left;
         r.paddings.connect('notify::padding-start', (row) => {
-            this._settings_cfg[title].padding.left = row.paddingStart;
-            setPref('custom-rounded-corner-settings', this._settings_cfg);
+            this.#customWindowSettings[wmClass].padding.left =
+                row.paddingStart;
+            setPref('custom-rounded-corner-settings', this.#customWindowSettings);
         });
-        r.paddings.paddingEnd = this._settings_cfg[title].padding.right;
+        r.paddings.paddingEnd =
+            this.#customWindowSettings[wmClass].padding.right;
         r.paddings.connect('notify::padding-end', (row) => {
-            this._settings_cfg[title].padding.right = row.paddingEnd;
-            setPref('custom-rounded-corner-settings', this._settings_cfg);
+            this.#customWindowSettings[wmClass].padding.right =
+                row.paddingEnd;
+            setPref('custom-rounded-corner-settings', this.#customWindowSettings);
         });
     }
 });

@@ -204,6 +204,7 @@ export class Prefs
     {
         this.#registerKeySignals();
         this.#registerProfileSignals();
+        this.#registerCryptoSupportSignals();
         this.#registerCloseSignal(window);
     }
 
@@ -278,6 +279,26 @@ export class Prefs
                 this.#setValues(profile);
             });
         }
+    }
+
+    /**
+     * register crypto support signals
+     *
+     * @returns {void}
+     */
+    #registerCryptoSupportSignals()
+    {
+        let widget = this.#builder.get_object(`support_crypto_row`);
+        let totalItems = widget.get_model().get_n_items();
+
+        widget.connect('notify::selected-item', (w) => {
+            let selectedIndex = w.get_selected();
+            for (let i = 0; i < totalItems; i++) {
+                let isVisible = i === selectedIndex;
+                this.#builder.get_object(`qr_${i}_row`).visible = isVisible;
+                this.#builder.get_object(`address_${i}_row`).visible = isVisible;
+            }
+        });
     }
 
     /**

@@ -155,7 +155,7 @@
 
     <key type="i" name="animation">
       <default>1</default>
-      <range min="0" max="7"/>
+      <range min="0" max="8"/>
       <summary>0 means disabled, 1 means default speed, animation speed otherwise</summary>
       <description>Animation Status</description>
     </key>
@@ -402,6 +402,30 @@
       <default>true</default>
       <summary>Dark Mode Toggle Button Visibility In Quick Settings</summary>
       <description>Dark Mode Toggle Button Visibility Status</description>
+    </key>
+
+    <key type="b" name="quick-settings-night-light">
+      <default>true</default>
+      <summary>Night Light Toggle Button Visibility In Quick Settings</summary>
+      <description>Night Light Toggle Button Visibility Status</description>
+    </key>
+
+    <key type="b" name="accent-color-icon">
+      <default>false</default>
+      <summary>Accent Color for Icons</summary>
+      <description>Use Accent for Icons</description>
+    </key>
+
+    <key type="b" name="workspace-thumbnail-to-main-view">
+      <default>false</default>
+      <summary>Workspace Thumbnail Click Always Goes To The Main View</summary>
+      <description>Workspace Thumbnail Click to Main View</description>
+    </key>
+
+    <key type="b" name="invert-calendar-column-items">
+      <default>false</default>
+      <summary>Invert Calendar Column Items Position</summary>
+      <description>Invert Calendar Column Items</description>
     </key>
 
   </schema>

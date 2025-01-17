@@ -193,7 +193,7 @@ export class PriorityMarkupType extends SettingsType {
         if (params.change_color !== null) {
             if (params.change_color === true) {
                 if (params.color !== null) {
-                    currentValue.colorFromString = params.color;
+                    currentValue.color = params.color;
                 }
             }
             currentValue.changeColor = params.change_color;

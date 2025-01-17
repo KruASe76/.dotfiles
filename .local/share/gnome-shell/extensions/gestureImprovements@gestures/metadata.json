@@ -6,7 +6,10 @@
   "shell-version": [
     "42",
     "43",
-    "44"
+    "44",
+    "45",
+    "46",
+    "47"
   ],
   "url": "https://github.com/harshadgavali/gnome-gesture-improvements",
   "uuid": "gestureImprovements@gestures",

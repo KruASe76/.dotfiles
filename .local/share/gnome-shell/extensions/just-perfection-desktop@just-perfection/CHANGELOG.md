@@ -7,6 +7,25 @@ We go to the next version after each release on the
 
 ## [Unreleased]
 
+## [31.0] - 2025-01-06
+
+### Added
+
+- Accent Color for Icons.
+- Crypto Support to the Preferences Window.
+- Invert Calendar Column Items.
+- Night Light Toggle Button Visibility in Quick Settings.
+- Workspace Switcher Click Always Goes to The Main View.
+- Ukrainian Translation by [@vovkiv](https://gitlab.gnome.org/vovkiv).
+
+### Fixed
+
+- Search margin when using high display scale factor and panel in overview feature.
+- Slowest animation.
+- The dash app running indicator visibility (GNOME Shell 46 and 47).
+- The Looking Glass Position Using Inspector in Overview.
+- The Workspaces Shadow in App Grid When the Search is Disabled.
+
 ## [30.0] - 2024-07-31
 
 ### Added

@@ -253,7 +253,7 @@ export class Settings {
     unregisterCallbacks() {
         if (this._connectedSignals !== null) {
             this._connectedSignals.forEach((signal) => {
-                if (signal !== undefined && signal !== null && signal !== 0) { // eslint-disable-line no-magic-numbers
+                if (signal !== undefined && signal !== null && signal !== 0) {
                     this._settings.disconnect(signal);
                 }
             });

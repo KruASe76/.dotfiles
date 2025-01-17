@@ -6,6 +6,7 @@
  *      to be public. Perhaps this would be removed in the future.
  */
 import { Extension, gettext as _, } from 'resource:///org/gnome/shell/extensions/extension.js';
+import { PopupMenuItem } from 'resource:///org/gnome/shell/ui/popupMenu.js';
 /** Enable the "rounded corner settings" item in desktop context menu. */
 export function enableBackgroundMenuItem() {
     for (const background of global.windowGroup.firstChild.get_children()) {
@@ -29,7 +30,8 @@ function addItemToMenu(menu) {
     const rwcMenuItemName = _('Rounded Corners Settings...');
     // Check if the item already exists
     for (const item of menu._getMenuItems()) {
-        if (item.label?.text === rwcMenuItemName) {
+        if (item instanceof PopupMenuItem &&
+            item.label.text === rwcMenuItemName) {
             return;
         }
     }
@@ -47,7 +49,8 @@ function removeItemFromMenu(menu) {
     const items = menu._getMenuItems();
     const rwcMenuItemName = _('Rounded Corners Settings...');
     for (const item of items) {
-        if (item.label?.text === rwcMenuItemName) {
+        if (item instanceof PopupMenuItem &&
+            item.label.text === rwcMenuItemName) {
             item.destroy();
             break;
         }

@@ -155,8 +155,8 @@ export class ScrollablePopupMenu extends PopupMenu {
             return preferred;
         }
         const diff = parent_after - parent_before;
-        const third = Math.floor(parent_after / 3); // eslint-disable-line no-magic-numbers
-        if (diff > 0) { // eslint-disable-line no-magic-numbers
+        const third = Math.floor(parent_after / 3);
+        if (diff > 0) {
             if (third > diff) {
                 this._logger.debug(`Using third of parent instead of diff ${third}`);
                 return third;

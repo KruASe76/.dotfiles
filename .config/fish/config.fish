@@ -81,6 +81,9 @@ if status is-interactive
     abbr -a ppu 'pipenv uninstall'
     abbr -a pprm 'pipenv --rm'
     abbr -a uvi 'uv init --no-readme --no-pin-python && rm hello.py'
+    abbr -a rf 'uvx ruff format .'
+    abbr -a rfl 'uvx ruff format . --line-length 79'
+    abbr -a rc 'uvx ruff check --fix .'
 
     abbr -a dpgu 'docker run --name pocket-postgres -e POSTGRES_DB=kruase -e POSTGRES_USER=kruase -e POSTGRES_PASSWORD=kruase-password -p 5432:5432 -v kruase-postgres:/var/lib/postgresql/data -d postgres:16-alpine'
     abbr -a dpgd 'docker container rm pocket-postgres -f'
@@ -185,6 +188,11 @@ if status is-interactive
 
     # wandb api key
     set -gx WANDB_API_KEY (cat $HOME/.wandb)
+
+
+    # uv completion
+    uv generate-shell-completion fish | source
+    uvx --generate-shell-completion fish | source
 end
 
 # >>> conda initialize >>>

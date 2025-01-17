@@ -1,5 +1,21 @@
 # Changelog
 
+# v46
+* Fix crash when "done task" styling was enabled
+* Fix setting of priority colors
+
+# v45
+* Make compatible with Gnome Shell 47
+* Updated translations
+
+# v44
+* Make compatible with GNOME Shell 46 (thanks Jonathan Hatakeyama Zeidler)
+* Add done task style (thanks ellnix)
+* Add comments extension (thanks ellnix)
+* Fix for broken URL highlighter
+* Fix for some settings not being applied correctly (e.g. debug level)
+
+
 # v43
 * Fix due date extension for gnome-45 (thanks ell nix)
 

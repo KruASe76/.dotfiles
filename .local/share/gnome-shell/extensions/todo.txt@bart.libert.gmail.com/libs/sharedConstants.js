@@ -1,4 +1,4 @@
-/* eslint-disable no-unused-vars */
+
 // Constant indicating grouping options
 export const NO_GROUPING = 0;
 export const GROUP_BY_PROJECTS = 1;

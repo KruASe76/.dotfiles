@@ -101,7 +101,7 @@ const TodoTxtButton = GObject.registerClass({
 
     getNbOfUnarchivedTasks() {
         if (this.tasks === null) {
-            return 0; //eslint-disable-line no-magic-numbers
+            return 0;
         }
         return this.tasks.length;
     }
@@ -265,7 +265,7 @@ const TodoTxtButton = GObject.registerClass({
         // Sync
         try {
             todoFile = new JsTextFile.JsTextFile(this.todofile, this.logger);
-        } catch (exception) {
+        } catch (exception) { // eslint-disable-line no-unused-vars
             this.logger.info('File could not be read, showing \'no file\' menu');
             this._createNoFileMenu('todo.txt');
             return false;
@@ -591,7 +591,7 @@ const TodoTxtButton = GObject.registerClass({
             }
             this.fileLoaded = true;
             return true;
-        } catch (exception) {
+        } catch (exception) { // eslint-disable-line no-unused-vars
             this.logger.info('File could not be monitored, showing \'no file\' menu');
             this._createNoFileMenu('todo.txt');
             this.fileLoaded = false;
@@ -729,7 +729,7 @@ const TodoTxtButton = GObject.registerClass({
 
     removeTask(task) {
         const index = this.tasks.indexOf(task);
-        if (index === -1) { // eslint-disable-line no-magic-numbers
+        if (index === -1) {
             this.logger.debug('Task not found');
             return false;
         }
@@ -752,7 +752,7 @@ const TodoTxtButton = GObject.registerClass({
 
     modifyTask(oldTask, newTask, save) {
         const index = this.tasks.indexOf(oldTask);
-        if (index === -1) { // eslint-disable-line no-magic-numbers
+        if (index === -1) {
             this.logger.debug('Task not found');
             return false;
         }
@@ -829,7 +829,7 @@ const TodoTxtButton = GObject.registerClass({
 
     _traverseChars(char, prev) {
         const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        /* eslint-disable no-magic-numbers */
+
         if (char === chars.charAt(0) && prev) {
             return chars.charAt(chars.length - 1);
         }
@@ -845,7 +845,7 @@ const TodoTxtButton = GObject.registerClass({
             return chars.charAt(chars.length - 1);
         }
         return chars.charAt(chars.indexOf(char) + ((prev === true) ? -1 : 1));
-        /* eslint-enable no-magic-numbers */
+
     }
 
     modifyTaskPriority(task, higher) {
@@ -896,7 +896,7 @@ const TodoTxtButton = GObject.registerClass({
             // Case a==null, b==null already covered
             return A_LARGER_THAN_B;
         }
-        return (a.priority.charCodeAt(0) - b.priority.charCodeAt(0)); //eslint-disable-line no-magic-numbers
+        return (a.priority.charCodeAt(0) - b.priority.charCodeAt(0));
     }
 });
 

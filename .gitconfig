@@ -37,6 +37,7 @@
     p = push
     po = push origin
     pom = push origin main
+    pf = push --force-with-lease
     pfo = push --force-with-lease origin
     pfom = push --force-with-lease origin main
     fetcha = fetch --all --prune
@@ -49,6 +50,7 @@
     bra = branch -va
     brd = branch -d
     brdd = branch -D
+    brm = branch -m
     rb = rebase
     rbi = rebase --interactive
     rbc = rebase --continue
@@ -58,6 +60,7 @@
     gra = log --graph --oneline --decorate --all
     gr = log --graph --oneline --decorate
     sh = stash
+    shki = stash --keep-index
     shm = stash push -m
     sha = stash apply
     shp = stash pop

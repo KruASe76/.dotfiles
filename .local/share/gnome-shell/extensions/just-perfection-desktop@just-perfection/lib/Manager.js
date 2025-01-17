@@ -115,6 +115,10 @@ export class Manager
             this.#applyQuickSettingsDarkMode(false);
         });
 
+        this.#settings.connect('changed::quick-settings-night-light', () => {
+            this.#applyQuickSettingsNightLight(false);
+        });
+
         this.#settings.connect('changed::window-picker-icon', () => {
             this.#applyWindowPickerIcon(false);
         });
@@ -302,6 +306,18 @@ export class Manager
         this.#settings.connect('changed::max-displayed-search-results', () => {
             this.#applyMaxDisplayedSearchResults(false);
         });
+
+        this.#settings.connect('changed::accent-color-icon', () => {
+            this.#applyAccentColorIcon(false);
+        });
+
+        this.#settings.connect('changed::workspace-thumbnail-to-main-view', () => {
+            this.#applyWorkspaceThumbnailToMainView(false);
+        });
+
+        this.#settings.connect('changed::invert-calendar-column-items', () => {
+            this.#applyInvertCalendarColumnItems(false);
+        });
     }
 
     /**
@@ -325,6 +341,7 @@ export class Manager
         this.#applyAccessibilityMenu(false);
         this.#applyQuickSettings(false);
         this.#applyQuickSettingsDarkMode(false);
+        this.#applyQuickSettingsNightLight(false);
         this.#applyWindowPickerIcon(false);
         this.#applyTypeToSearch(false);
         this.#applyWorkspaceSwitcherSize(false);
@@ -369,6 +386,9 @@ export class Manager
         this.#applyWorkspacePeek(false);
         this.#applyDashAppRunning(false);
         this.#applyMaxDisplayedSearchResults(false);
+        this.#applyAccentColorIcon(false);
+        this.#applyWorkspaceThumbnailToMainView(false);
+        this.#applyInvertCalendarColumnItems(false);
     }
 
     /**
@@ -392,6 +412,7 @@ export class Manager
         this.#applyAccessibilityMenu(true);
         this.#applyQuickSettings(true);
         this.#applyQuickSettingsDarkMode(true);
+        this.#applyQuickSettingsNightLight(true);
         this.#applyWindowPickerIcon(true);
         this.#applyTypeToSearch(true);
         this.#applyWorkspaceSwitcherSize(true);
@@ -436,6 +457,9 @@ export class Manager
         this.#applyWorkspacePeek(true);
         this.#applyDashAppRunning(true);
         this.#applyMaxDisplayedSearchResults(true);
+        this.#applyAccentColorIcon(true);
+        this.#applyWorkspaceThumbnailToMainView(true);
+        this.#applyInvertCalendarColumnItems(true);
     }
 
     /**
@@ -681,6 +705,22 @@ export class Manager
             this.#api.quickSettingsDarkStyleToggleShow();
         } else {
             this.#api.quickSettingsDarkStyleToggleHide();
+        }
+    }
+
+    /**
+     * apply quick settings night light
+     *
+     * @param {boolean} forceOriginal force original shell setting
+     *
+     * @returns {void}
+     */
+    #applyQuickSettingsNightLight(forceOriginal)
+    {
+        if (forceOriginal || this.#settings.get_boolean('quick-settings-night-light')) {
+            this.#api.quickSettingsNightLightToggleShow();
+        } else {
+            this.#api.quickSettingsNightLightToggleHide();
         }
     }
 
@@ -1475,6 +1515,54 @@ export class Manager
             this.#api.setMaxDisplayedSearchResultToDefault();
         } else {
             this.#api.setMaxDisplayedSearchResult(items);
+        }
+    }
+
+    /**
+     * apply accent color icon
+     *
+     * @param {boolean} forceOriginal force original shell setting
+     *
+     * @returns {void}
+     */
+    #applyAccentColorIcon(forceOriginal)
+    {
+        if (forceOriginal || !this.#settings.get_boolean('accent-color-icon')) {
+            this.#api.accentColorIconDisable();
+        } else {
+            this.#api.accentColorIconEnable();
+        }
+    }
+
+    /**
+     * apply workspace thumbnail to main view
+     *
+     * @param {boolean} forceOriginal force original shell setting
+     *
+     * @returns {void}
+     */
+    #applyWorkspaceThumbnailToMainView(forceOriginal)
+    {
+        if (forceOriginal || !this.#settings.get_boolean('workspace-thumbnail-to-main-view')) {
+            this.#api.workspaceThumbnailClickToDefault();
+        } else {
+            this.#api.workspaceThumbnailClickToMainView();
+        }
+    }
+
+    /**
+     * apply invert calendar column items
+     *
+     * @param {boolean} forceOriginal force original shell setting
+     *
+     * @returns {void}
+     */
+    #applyInvertCalendarColumnItems(forceOriginal)
+    {
+        if (forceOriginal || !this.#settings.get_boolean('invert-calendar-column-items')) {
+            this.#api.revertCalendarColumnItemsToDefault();
+        } else {
+            this.#api.invertCalendarColumnItems();
         }
     }
 }

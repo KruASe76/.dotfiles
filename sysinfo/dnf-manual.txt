@@ -1,6 +1,7 @@
 dnf5
 fish
 stow
+clang
 python3-pip
 snapd
 rocm*
@@ -79,7 +80,6 @@ blueman-nautilus
 file-roller
 file-roller-nautilus
 seahorse-nautilus
-hatch
 python3-distutils-extra
 nodejs
 yarnpkg

@@ -49,13 +49,13 @@ export class ShortcutType extends SettingsType {
             let mask = state & Gtk.accelerator_get_default_mod_mask();
             mask &= ~Gdk.ModifierType.LOCK_MASK;
 
-            if (mask === 0 && keyval === Gdk.KEY_Escape) { // eslint-disable-line no-magic-numbers
+            if (mask === 0 && keyval === Gdk.KEY_Escape) {
                 logger.info(`${shortcut} not changed`);
                 dialog.close();
                 return Gdk.EVENT_STOP;
             }
 
-            if (mask === 0 && keyval === Gdk.KEY_BackSpace) { // eslint-disable-line no-magic-numbers
+            if (mask === 0 && keyval === Gdk.KEY_BackSpace) {
                 settings.set(shortcut, '');
                 label.set_text('');
                 dialog.close();
@@ -85,7 +85,7 @@ export class ShortcutType extends SettingsType {
     }
 
     isAccelValid({ mask, keyval }) {
-        //eslint-disable-next-line no-magic-numbers
+
         return Gtk.accelerator_valid(keyval, mask) || (keyval === Gdk.KEY_Tab && mask !== 0);
     }
 
@@ -107,6 +107,7 @@ export class ShortcutType extends SettingsType {
         return forbiddenKeyvals.includes(keyval);
     }
 
+    /* eslint-disable complexity */
     isBindingValid({ mask, keycode, keyval }) {
         if ((mask === 0 || mask === Gdk.SHIFT_MASK) && keycode !== 0) {
             if (
@@ -120,13 +121,14 @@ export class ShortcutType extends SettingsType {
                 (keyval >= Gdk.KEY_hebrew_doublelowline && keyval <= Gdk.KEY_hebrew_taf) ||
                 (keyval >= Gdk.KEY_Thai_kokai && keyval <= Gdk.KEY_Thai_lekkao) ||
                 (keyval >= Gdk.KEY_Hangul_Kiyeog && keyval <= Gdk.KEY_Hangul_J_YeorinHieuh) ||
-                (keyval === Gdk.KEY_space && mask === 0) || //eslint-disable-line no-magic-numbers
+                (keyval === Gdk.KEY_space && mask === 0) ||
                 this.isKeyvalForbidden(keyval)
             ) {
                 return false;
             }
         }
         return true;
+    /* eslint-enable complexity */
     }
 
 }

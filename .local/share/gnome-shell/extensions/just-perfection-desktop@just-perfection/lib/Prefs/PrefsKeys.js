@@ -142,6 +142,18 @@ export class PrefsKeys
 
         this.#setKey(
             'visibility',
+            'quick-settings-night-light',
+            'GtkSwitch',
+            true,
+            {
+                default: true,
+                minimal: true,
+                superminimal: true,
+            }
+        );
+
+        this.#setKey(
+            'visibility',
             'screen-sharing-indicator',
             'GtkSwitch',
             true,
@@ -502,6 +514,18 @@ export class PrefsKeys
 
         this.#setKey(
             'behavior',
+            'workspace-thumbnail-to-main-view',
+            'GtkSwitch',
+            true,
+            {
+                default: false,
+                minimal: false,
+                superminimal: false,
+            }
+        );
+
+        this.#setKey(
+            'behavior',
             'overlay-key',
             'GtkSwitch',
             true,
@@ -533,6 +557,18 @@ export class PrefsKeys
                 default: true,
                 minimal: true,
                 superminimal: true,
+            }
+        );
+
+        this.#setKey(
+            'customize',
+            'accent-color-icon',
+            'GtkSwitch',
+            (this.#shellVersion >= 47),
+            {
+                default: false,
+                minimal: false,
+                superminimal: false,
             }
         );
 
@@ -807,6 +843,18 @@ export class PrefsKeys
                 default: 0,
                 minimal: 0,
                 superminimal: 0,
+            }
+        );
+
+        this.#setKey(
+            'customize',
+            'invert-calendar-column-items',
+            'GtkSwitch',
+            true,
+            {
+                default: false,
+                minimal: false,
+                superminimal: false,
             }
         );
 

@@ -152,6 +152,23 @@
     border-radius: 0;
 }
 
+.just-perfection-api-accent-color-icon StIcon
+{
+    color: -st-accent-color;
+}
+
+.just-perfection-api-accent-color-icon #panelActivities .workspace-dot
+{
+    background-color: -st-accent-color;
+}
+
+.just-perfection-api-accent-color-icon .quick-toggle-menu .icon.active,
+.just-perfection-api-accent-color-icon .quick-toggle:checked StIcon,
+.just-perfection-api-accent-color-icon .quick-menu-toggle .quick-toggle-arrow:checked StIcon
+{
+    color: -st-accent-fg-color;
+}
+
 .just-perfection-api-no-search #overview
 {
     spacing: 0;
@@ -691,7 +708,8 @@
 .just-perfection-api-osd-position-bottom .osd-window { margin: 4em 3em; }
 
 .just-perfection-api-no-dash-separator .dash-separator,
-.just-perfection-api-no-dash-app-running-dot #dash .app-well-app-running-dot
+.just-perfection-api-no-dash-app-running-dot #dash .app-well-app-running-dot,
+.just-perfection-api-no-dash-app-running-dot #dash .app-grid-running-dot
 {
     width: 0;
     height: 0;

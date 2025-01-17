@@ -1,5 +1,4 @@
 import GLib from 'gi://GLib';
-import Clutter from 'gi://Clutter';
 
 import * as Shared from './sharedConstants.js';
 import * as Utils from './utils.js'
@@ -9,7 +8,7 @@ export class Markup {
         this.bold = false;
         this.italic = false;
         this.changeColor = false;
-        this.colorFromString = 'rgb(0,0,0)';
+        this.color = 'rgb(0,0,0)';
         if (Utils.isValid(logger)) {
             this.logger = logger;
         } else {
@@ -32,15 +31,7 @@ export class Markup {
         this.bold = unpack[Shared.STYLE_BOLD];
         this.italic = unpack[Shared.STYLE_ITALIC];
         this.changeColor = unpack[Shared.STYLE_CHANGE_COLOR];
-        this.colorFromString = unpack[Shared.STYLE_COLOR];
-    }
-
-    set colorFromString(colorString) {
-        let result = false;
-        [result, this._color] = Clutter.Color.from_string(colorString);
-        if (!result) {
-            this.logger.error(`Could not convert ${colorString} to color`)
-        }
+        this.color = unpack[Shared.STYLE_COLOR];
     }
 
     toVariant() {
@@ -55,10 +46,6 @@ export class Markup {
     toString() {
         return `[object Markup] (bold: ${this.bold}, italic: ${this.italic}, changeColor: ${
             this.changeColor}, color: ${this.color})`;
-    }
-
-    get color() {
-        return `rgb(${this._color.red}, ${this._color.green}, ${this._color.blue})`
     }
 }
 

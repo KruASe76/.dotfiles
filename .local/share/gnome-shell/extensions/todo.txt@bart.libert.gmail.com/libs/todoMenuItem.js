@@ -1,4 +1,5 @@
 import Clutter from 'gi://Clutter';
+import Cogl from 'gi://Cogl';
 import GObject from 'gi://GObject';
 import St from 'gi://St';
 import Pango from 'gi://Pango';
@@ -68,7 +69,7 @@ export const TodoMenuItem = GObject.registerClass({
     }
 
     _RGBAStringtoHexString(rgbaColorString) {
-        const [success, rgbaColor] = Clutter.Color.from_string(rgbaColorString);
+        const [success, rgbaColor] = Cogl.Color.from_string(rgbaColorString);
         if (success) {
             return `#${this._RGBAColorToHex(rgbaColor.red)}${this._RGBAColorToHex(rgbaColor.green)}${this._RGBAColorToHex(rgbaColor.blue)}`;
         }
@@ -82,7 +83,7 @@ export const TodoMenuItem = GObject.registerClass({
             const NATURAL_VALUE = 1;
             const singleLineWidth = this.label.clutter_text.get_preferred_width(NO_HEIGHT_DEFINED)[NATURAL_VALUE];
             const singleLineHeight = this.label.clutter_text.get_preferred_height(NO_WIDTH_DEFINED)[NATURAL_VALUE];
-            // eslint-disable-next-line no-magic-numbers
+
             const numberOfLinesNeeded = Math.round((singleLineWidth / this.maxWidth) + 1);
 
             this.label.clutter_text.set_ellipsize(Pango.EllipsizeMode.NONE);
@@ -92,7 +93,7 @@ export const TodoMenuItem = GObject.registerClass({
 
             this.labelExpanded = true;
             for (let i = 0, len = this.buttons.length; i < len; i++) {
-                // eslint-disable-next-line no-magic-numbers
+
                 this.buttons[i].set_style(`margin-bottom: ${(numberOfLinesNeeded - 1) * singleLineHeight}px;`
                 );
             }
@@ -344,7 +345,7 @@ export const TodoMenuItem = GObject.registerClass({
             style += 'text-decoration: line-through; '
         }
 
-        let [result, color] = Clutter.Color.from_string(this.settings.get('custom-done-tasks-color') || '')
+        let [result, color] = Cogl.Color.from_string(this.settings.get('custom-done-tasks-color') || '')
         if (this.settings.get('color-done-tasks') && result) {
             style += `color: rgb(${color.red}, ${color.green}, ${color.blue}); `
         }

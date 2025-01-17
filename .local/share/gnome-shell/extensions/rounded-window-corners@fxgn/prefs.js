@@ -7,7 +7,7 @@ import { prefsTabs } from './preferences/index.js';
 import { logDebug } from './utils/log.js';
 import { initPrefs, uninitPrefs } from './utils/settings.js';
 export default class RoundedWindowCornersRebornPrefs extends ExtensionPreferences {
-    fillPreferencesWindow(win) {
+    async fillPreferencesWindow(win) {
         initPrefs(this.getSettings());
         for (const page of prefsTabs) {
             win.add(new page());

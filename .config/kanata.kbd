@@ -27,7 +27,8 @@
 )
 
 (deflayer fix-nav
-    @fallback-on   del  f12  prtsc  home   end   pause
+    @fallback-on   del  f12  prtsc  home   end   home
+    ;; @fallback-on   del  f12  prtsc  home   end   pause
 )
 
 (deflayer default

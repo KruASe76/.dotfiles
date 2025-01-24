@@ -66,6 +66,7 @@
     shp = stash pop
     shd = stash drop
     shl = stash list
+    shs = stash show
     wta = worktree add
     wtr = worktree remove
     wtl = worktree list

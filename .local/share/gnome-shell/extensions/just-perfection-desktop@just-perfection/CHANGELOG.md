@@ -7,6 +7,31 @@ We go to the next version after each release on the
 
 ## [Unreleased]
 
+## [34.0] - 2025-02-02
+
+### Removed
+
+- The monthly notification support.
+
+## [33.0] - 2025-02-02
+
+### Fixed
+
+- The monthly notification support calculation.
+
+## [32.0] - 2025-02-01
+
+### Added
+
+- Airplane Mode Toggle Button Visibility in Quick Settings.
+- GNOME Shell 48 Support.
+- More Crypto Donations (XRP, Solana, Cardano, BNB, Stellar, USDC, LTC, Shiba Inu and LBRY).
+- Support Notifier.
+
+### Fixed
+
+- Looking Glass `_resize()` issue.
+
 ## [31.0] - 2025-01-06
 
 ### Added

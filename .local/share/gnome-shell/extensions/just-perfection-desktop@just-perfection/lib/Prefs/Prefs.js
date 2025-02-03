@@ -2,7 +2,7 @@
  * Prefs Library
  *
  * @author     Javad Rahmatzadeh <j.rahmatzadeh@gmail.com>
- * @copyright  2020-2024
+ * @copyright  2020-2025
  * @license    GPL-3.0-only
  */
 
@@ -40,11 +40,25 @@ export class Prefs
     #settings = null;
 
     /**
+     * Instance of Gtk.CssProvider
+     *
+     * @type {Gtk.CssProvider|null}
+     */
+    #cssProvider = null;
+
+    /**
      * Instance of Resource
      *
      * @type {Gio.Resource|null}
      */
     #resource = null;
+
+    /**
+     * Instance of Gtk
+     *
+     * @type {Gtk|null}
+     */
+    #gtk = null;
 
     /**
      * Instance of Gdk
@@ -72,11 +86,38 @@ export class Prefs
     ];
 
     /**
+     * All available crypto addresses for donation
+     *
+     * The order should be the same as what we have in the combobox .ui file
+     *
+     * @type {Array}
+     */
+    #cryptoAddresses = [
+        ['Dogecoin', 'DULPjoiDuhZCmv5LDeJuqYPC8Uy7NK7DnW'],
+        ['Bitcoin', 'bc1qn6p0k8sapmxgedn8qjhd5gm2yzy46t5s296lnd'],
+        ['Bitcoin Cash', 'qzhuj2kdw4zjrg8r2j7knx5uzqdcpv5lwv5uxq04e0'],
+        ['Ethereum', '0xE4A6C46E1095C49688645c132672cB04d1402026'],
+        ['XRP', 'rMvJGGw3eWat3vm7TRjUb5XAtazoSm399R'],
+        ['USDT', '0xE4A6C46E1095C49688645c132672cB04d1402026'],
+        ['USDC', '0xE4A6C46E1095C49688645c132672cB04d1402026'],
+        ['Solana', '3M9d8arcHiuqAwso9zTX4pvZRoaeVVomkovWmGCYgDG2'],
+        ['Cardano', 'addr1qxgrpcsdpyuh7dl4m2mk2vpuss68zjze9y83wpsuxjyafg5sxr3q6zfe0umltk4hv5crepp5w9y9j2g0zurpcdyf6j3qeu2hqs'],
+        ['BNB', '0xE4A6C46E1095C49688645c132672cB04d1402026'],
+        ['LTC', 'LVz4se3wepdgCNGkE8V53VB47ViAjZb7F1'],
+        ['XLM', 'GDZOVYXD6PGG77V5HGHN767AGPIYZ3ZHNUC53BSXMIDRSTKVFVUJJFHZ'],
+        ['Monero', '49uPJDZCoFJMoeLAZKDpuTScHjdfgfzksMNurZdt2J4x8meKUZZwUiq3tBs9xYVq9G8PzxjwH6zkXeEZKz3JgdfiGo3aZN5'],
+        ['LBRY', 'bPMi1WVgtMDjdX3V4ofAtMt5qMj4xYM4A1'],
+        ['Shiba Inu', '0xE4A6C46E1095C49688645c132672cB04d1402026'],
+    ];
+
+    /**
      * class constructor
      *
      * @param {Object} dependencies
      *   'Builder' instance of Gtk::Builder
      *   'Settings' instance of Gio::Settings
+     *   'CssProvider': instance of Gtk::CssProvider
+     *   'Gtk' reference to Gtk
      *   'Gdk' reference to Gdk
      *   'Gio' reference to Gio
      * @param {PrefsKeys.PrefsKeys} prefsKeys instance of PrefsKeys
@@ -86,6 +127,8 @@ export class Prefs
     {
         this.#settings = dependencies['Settings'] || null;
         this.#builder = dependencies['Builder'] || null;
+        this.#cssProvider = dependencies['CssProvider'] || null;
+        this.#gtk = dependencies['Gtk'] || null;
         this.#gdk = dependencies['Gdk'] || null;
         this.#gio = dependencies['Gio'] || null;
 
@@ -114,6 +157,15 @@ export class Prefs
          ];
 
          this.#loadResource(ResourcesFolderPath);
+         
+         this.#cssProvider.load_from_resource(
+            `/org/gnome/Shell/Extensions/justperfection/css/prefs.css`
+         );
+         this.#gtk.StyleContext.add_provider_for_display(
+            this.#gdk.Display.get_default(),
+            this.#cssProvider,
+            this.#gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
+         );
  
          this.#builder.set_translation_domain(gettextDomain);
          for (let uiFilename of uiFilenames) {
@@ -130,6 +182,7 @@ export class Prefs
          this.#setValues();
          this.#guessProfile();
          this.#onlyShowSupportedRows();
+         this.#loadCryptoSupportAddress();
          this.#registerAllSignals(window);
 
          this.#setWindowSize(window);
@@ -161,8 +214,8 @@ export class Prefs
     {
         let [pmWidth, pmHeight, pmScale] = this.#getPrimaryMonitorInfo();
         let sizeTolerance = 50;
-        let width = 600;
-        let height = 730;
+        let width = 640;
+        let height = 810;
 
         if (
             (pmWidth / pmScale) - sizeTolerance >= width &&
@@ -204,7 +257,7 @@ export class Prefs
     {
         this.#registerKeySignals();
         this.#registerProfileSignals();
-        this.#registerCryptoSupportSignals();
+        this.#registerCryptoSupportSignals(window);
         this.#registerCloseSignal(window);
     }
 
@@ -283,22 +336,52 @@ export class Prefs
 
     /**
      * register crypto support signals
+     * 
+     * @param {Adw.PreferencesWindow} window prefs dialog
      *
      * @returns {void}
      */
-    #registerCryptoSupportSignals()
+    #registerCryptoSupportSignals(window)
     {
-        let widget = this.#builder.get_object(`support_crypto_row`);
-        let totalItems = widget.get_model().get_n_items();
+        let comboRow = this.#builder.get_object(`support_crypto_row`);
+        let copyButton = this.#builder.get_object(`crypto_address_copy_button`);
+        let addressEntry = this.#builder.get_object(`crypto_address_row`);
+        let toast = this.#builder.get_object(`toast_added_to_clipboard`);
 
-        widget.connect('notify::selected-item', (w) => {
+        comboRow.connect('notify::selected-item', (w) => {
             let selectedIndex = w.get_selected();
-            for (let i = 0; i < totalItems; i++) {
-                let isVisible = i === selectedIndex;
-                this.#builder.get_object(`qr_${i}_row`).visible = isVisible;
-                this.#builder.get_object(`address_${i}_row`).visible = isVisible;
-            }
+            this.#loadCryptoSupportAddress(selectedIndex);
         });
+
+        copyButton.connect('clicked', () => {
+            let display = this.#gdk.Display.get_default();
+            let clipboard = display.get_clipboard();
+            clipboard.set(addressEntry.text);
+            window.add_toast(toast);
+        });
+    }
+
+    /**
+     * load crypto address into the ui
+     * 
+     * @param {number} index coming from the crypto name combobox
+     *
+     * @returns {void}
+     */
+    #loadCryptoSupportAddress(index = 0)
+    {
+        let addressEntry = this.#builder.get_object(`crypto_address_row`);
+        let qrPicture = this.#builder.get_object(`qr_picture`);
+
+        let name = this.#cryptoAddresses[index][0];
+        let filename = name.replace(' ', '-').toLowerCase();
+        let address = this.#cryptoAddresses[index][1]
+
+        qrPicture.set_resource(
+            `/org/gnome/Shell/Extensions/justperfection/imgs/qr-${filename}.svg`
+        );
+        addressEntry.title = `${name} Address`;
+        addressEntry.text = address;
     }
 
     /**
@@ -428,4 +511,3 @@ export class Prefs
         }
      }
 };
-

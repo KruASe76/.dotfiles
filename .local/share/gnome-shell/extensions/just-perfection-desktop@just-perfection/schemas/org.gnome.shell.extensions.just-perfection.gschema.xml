@@ -410,6 +410,12 @@
       <description>Night Light Toggle Button Visibility Status</description>
     </key>
 
+    <key type="b" name="quick-settings-airplane-mode">
+      <default>true</default>
+      <summary>Airplane Mode Toggle Button Visibility In Quick Settings</summary>
+      <description>Airplane Mode Toggle Button Visibility Status</description>
+    </key>
+
     <key type="b" name="accent-color-icon">
       <default>false</default>
       <summary>Accent Color for Icons</summary>
@@ -426,6 +432,19 @@
       <default>false</default>
       <summary>Invert Calendar Column Items Position</summary>
       <description>Invert Calendar Column Items</description>
+    </key>
+
+    <key type="i" name="support-notifier-type">
+      <default>1</default>
+      <range min="0" max="1"/>
+      <summary>0 Means Never, 1 Means New Releases</summary>
+      <description>Support Notifier Type</description>
+    </key>
+
+    <key type="i" name="support-notifier-showed-version">
+      <default>0</default>
+      <summary>The Last Version The Support Notifier Showed Up</summary>
+      <description>Support Notifier Showed Version</description>
     </key>
 
   </schema>

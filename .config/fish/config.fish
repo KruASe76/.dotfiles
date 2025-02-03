@@ -12,7 +12,6 @@ if status is-interactive
     set -gx vm "root@45.89.244.232"
     set -gx mclocal_version "20"
     set -gx ALSOFT_DRIVERS "pulse"
-    set -gx YDOTOOL_SOCKET '$HOME/.ydotool_socket'
     set -gx OLLAMA_HOST "127.0.0.1:12345"
     set -gx OLLAMA_KEEP_ALIVE "10m"
     set -gx HIP_VISIBLE_DEVICES "0,1"
@@ -43,7 +42,7 @@ if status is-interactive
     abbr -a dnfi --set-cursor 'sudo dnf5 install % && nano ~/sysinfo/dnf-manual.txt'
     abbr -a dnfr --set-cursor 'sudo dnf5 remove % && nano ~/sysinfo/dnf-manual.txt'
     abbr -a dnfs 'dnf5 search'
-    abbr -a dnfsi 'dnf list installed | grep'
+    abbr -a dnfsi 'dnf5 list --installed | grep -E'
     abbr -a flup 'flatpak update'
     abbr -a brup 'brew update && brew upgrade'
     abbr -a carup 'cargo install-update -a'
@@ -92,7 +91,7 @@ if status is-interactive
     abbr -a dcd 'docker compose down --rmi local'
     abbr -a dcdv 'docker compose down --rmi local -v'
 
-    abbr -a appimage-build --set-cursor 'VERSION=% ~/appimages/appimagetool-730-x86_64.AppImage'
+    abbr -a appimage-build --set-cursor 'VERSION=% ~/appimages/appimagetool.AppImage'
 
     abbr -a psql 'sudo -u postgres psql'
 
@@ -126,6 +125,7 @@ if status is-interactive
     abbr -a ngrok-fastapi 'ngrok http --url=crack-locally-skink.ngrok-free.app 8000'
 
     abbr -a playit 'playit -c ~/.config/playit.toml'
+    abbr -a playit-tmux 'tmux new-session -d "playit -c /home/kruase/.config/playit.toml"'
 
     # abbr -a ssh-home 'ssh -o ServerAliveInterval=60 forum-lib.at.ply.gg -p 49403'
     # abbr -a scp-home --set-cursor 'scp -P 49403 % forum-lib.at.ply.gg:'
@@ -140,8 +140,6 @@ if status is-interactive
     abbr -a hollywood 'docker run -it --rm bcbcarl/hollywood'
     abbr -a ytub 'sudo youtubeUnblock 537'
     abbr -a byedpi 'ciadpi -i 127.0.0.1 --disorder 1 --auto=torst --tlsrec 1+s'
-    abbr -a ydo 'sudo -b ydotoold --socket-path=$YDOTOOL_SOCKET --socket-own="$(id -u):$(id -g)"'
-    abbr -a ydod 'sudo pkill ydotoold'
 
     abbr -a git-conf-mipt 'git config user.email "kruglikov.as@phystech.edu" && git config user.name "Андрей Кругликов"'
 

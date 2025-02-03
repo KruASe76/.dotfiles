@@ -2,7 +2,7 @@
  * Prefs Dialog
  *
  * @author     Javad Rahmatzadeh <j.rahmatzadeh@gmail.com>
- * @copyright  2020-2024
+ * @copyright  2020-2025
  * @license    GPL-3.0-only
  */
 
@@ -38,6 +38,8 @@ export default class JustPerfectionPrefs extends ExtensionPreferences
             {
                 Builder: new Gtk.Builder(),
                 Settings: this.getSettings(),
+                CssProvider: new Gtk.CssProvider(),
+                Gtk,
                 Gdk,
                 Gio,
             },

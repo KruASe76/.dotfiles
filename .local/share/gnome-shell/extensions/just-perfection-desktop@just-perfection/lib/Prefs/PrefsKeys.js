@@ -2,7 +2,7 @@
  * PrefsKeys Library
  *
  * @author     Javad Rahmatzadeh <j.rahmatzadeh@gmail.com>
- * @copyright  2020-2024
+ * @copyright  2020-2025
  * @license    GPL-3.0-only
  */
 
@@ -45,7 +45,6 @@ export class PrefsKeys
     #setDefaults()
     {
         this.#setKey(
-            'visibility',
             'panel',
             'GtkSwitch',
             true,
@@ -57,7 +56,6 @@ export class PrefsKeys
         );
 
         this.#setKey(
-            'visibility',
             'panel-in-overview',
             'GtkSwitch',
             true,
@@ -69,7 +67,6 @@ export class PrefsKeys
         );
 
         this.#setKey(
-            'visibility',
             'activities-button',
             'GtkSwitch',
             true,
@@ -81,7 +78,6 @@ export class PrefsKeys
         );
 
         this.#setKey(
-            'visibility',
             'clock-menu',
             'GtkSwitch',
             true,
@@ -93,7 +89,6 @@ export class PrefsKeys
         );
 
         this.#setKey(
-            'visibility',
             'keyboard-layout',
             'GtkSwitch',
             true,
@@ -105,7 +100,6 @@ export class PrefsKeys
         );
 
         this.#setKey(
-            'visibility',
             'accessibility-menu',
             'GtkSwitch',
             true,
@@ -117,7 +111,6 @@ export class PrefsKeys
         );
 
         this.#setKey(
-            'visibility',
             'quick-settings',
             'GtkSwitch',
             true,
@@ -129,7 +122,6 @@ export class PrefsKeys
         );
 
         this.#setKey(
-            'visibility',
             'quick-settings-dark-mode',
             'GtkSwitch',
             true,
@@ -141,7 +133,6 @@ export class PrefsKeys
         );
 
         this.#setKey(
-            'visibility',
             'quick-settings-night-light',
             'GtkSwitch',
             true,
@@ -153,7 +144,17 @@ export class PrefsKeys
         );
 
         this.#setKey(
-            'visibility',
+            'quick-settings-airplane-mode',
+            'GtkSwitch',
+            true,
+            {
+                default: true,
+                minimal: true,
+                superminimal: true,
+            }
+        );
+
+        this.#setKey(
             'screen-sharing-indicator',
             'GtkSwitch',
             true,
@@ -165,7 +166,6 @@ export class PrefsKeys
         );
 
         this.#setKey(
-            'visibility',
             'screen-recording-indicator',
             'GtkSwitch',
             true,
@@ -177,7 +177,6 @@ export class PrefsKeys
         );
 
         this.#setKey(
-            'visibility',
             'search',
             'GtkSwitch',
             true,
@@ -189,7 +188,6 @@ export class PrefsKeys
         );
 
         this.#setKey(
-            'visibility',
             'dash',
             'GtkSwitch',
             true,
@@ -201,7 +199,6 @@ export class PrefsKeys
         );
 
         this.#setKey(
-            'visibility',
             'dash-separator',
             'GtkSwitch',
             true,
@@ -213,7 +210,6 @@ export class PrefsKeys
         );
         
         this.#setKey(
-            'visibility',
             'dash-app-running',
             'GtkSwitch',
             true,
@@ -225,7 +221,6 @@ export class PrefsKeys
         );
 
         this.#setKey(
-            'visibility',
             'osd',
             'GtkSwitch',
             true,
@@ -237,7 +232,6 @@ export class PrefsKeys
         );
 
         this.#setKey(
-            'visibility',
             'workspace-popup',
             'GtkSwitch',
             true,
@@ -249,7 +243,6 @@ export class PrefsKeys
         );
 
         this.#setKey(
-            'visibility',
             'workspace',
             'GtkSwitch',
             true,
@@ -261,7 +254,6 @@ export class PrefsKeys
         );
 
         this.#setKey(
-            'visibility',
             'background-menu',
             'GtkSwitch',
             true,
@@ -273,7 +265,6 @@ export class PrefsKeys
         );
 
         this.#setKey(
-            'visibility',
             'show-apps-button',
             'GtkSwitch',
             true,
@@ -285,7 +276,6 @@ export class PrefsKeys
         );
 
         this.#setKey(
-            'visibility',
             'workspaces-in-app-grid',
             'GtkSwitch',
             true,
@@ -297,7 +287,6 @@ export class PrefsKeys
         );
 
         this.#setKey(
-            'visibility',
             'window-preview-caption',
             'GtkSwitch',
             true,
@@ -309,7 +298,6 @@ export class PrefsKeys
         );
 
         this.#setKey(
-            'visibility',
             'window-preview-close-button',
             'GtkSwitch',
             true,
@@ -321,7 +309,6 @@ export class PrefsKeys
         );
 
         this.#setKey(
-            'visibility',
             'ripple-box',
             'GtkSwitch',
             true,
@@ -333,7 +320,6 @@ export class PrefsKeys
         );
 
         this.#setKey(
-            'visibility',
             'world-clock',
             'GtkSwitch',
             true,
@@ -345,7 +331,6 @@ export class PrefsKeys
         );
 
         this.#setKey(
-            'visibility',
             'weather',
             'GtkSwitch',
             true,
@@ -357,7 +342,6 @@ export class PrefsKeys
         );
 
         this.#setKey(
-            'visibility',
             'calendar',
             'GtkSwitch',
             true,
@@ -369,7 +353,6 @@ export class PrefsKeys
         );
 
         this.#setKey(
-            'visibility',
             'events-button',
             'GtkSwitch',
             true,
@@ -381,7 +364,6 @@ export class PrefsKeys
         );
 
         this.#setKey(
-            'visibility',
             'window-menu-take-screenshot-button',
             'GtkSwitch',
             true,
@@ -393,7 +375,6 @@ export class PrefsKeys
         );
 
         this.#setKey(
-            'icons',
             'panel-notification-icon',
             'GtkSwitch',
             true,
@@ -405,7 +386,6 @@ export class PrefsKeys
         );
 
         this.#setKey(
-            'icons',
             'power-icon',
             'GtkSwitch',
             true,
@@ -417,7 +397,6 @@ export class PrefsKeys
         );
 
         this.#setKey(
-            'icons',
             'window-picker-icon',
             'GtkSwitch',
             true,
@@ -429,7 +408,6 @@ export class PrefsKeys
         );
 
         this.#setKey(
-            'behavior',
             'type-to-search',
             'GtkSwitch',
             true,
@@ -441,7 +419,6 @@ export class PrefsKeys
         );
 
         this.#setKey(
-            'behavior',
             'window-demands-attention-focus',
             'GtkSwitch',
             true,
@@ -453,7 +430,6 @@ export class PrefsKeys
         );
 
         this.#setKey(
-            'behavior',
             'window-maximized-on-create',
             'GtkSwitch',
             true,
@@ -465,7 +441,6 @@ export class PrefsKeys
         );
 
         this.#setKey(
-            'behavior',
             'workspace-switcher-should-show',
             'GtkSwitch',
             true,
@@ -477,7 +452,6 @@ export class PrefsKeys
         );
 
         this.#setKey(
-            'behavior',
             'startup-status',
             'AdwActionRow',
             true,
@@ -489,7 +463,6 @@ export class PrefsKeys
         );
 
         this.#setKey(
-            'behavior',
             'workspace-wrap-around',
             'GtkSwitch',
             true,
@@ -501,7 +474,6 @@ export class PrefsKeys
         );
 
         this.#setKey(
-            'behavior',
             'workspace-peek',
             'GtkSwitch',
             true,
@@ -513,7 +485,6 @@ export class PrefsKeys
         );
 
         this.#setKey(
-            'behavior',
             'workspace-thumbnail-to-main-view',
             'GtkSwitch',
             true,
@@ -525,7 +496,6 @@ export class PrefsKeys
         );
 
         this.#setKey(
-            'behavior',
             'overlay-key',
             'GtkSwitch',
             true,
@@ -537,7 +507,6 @@ export class PrefsKeys
         );
 
         this.#setKey(
-            'behavior',
             'double-super-to-appgrid',
             'GtkSwitch',
             true,
@@ -549,7 +518,6 @@ export class PrefsKeys
         );
 
         this.#setKey(
-            'behavior',
             'switcher-popup-delay',
             'GtkSwitch',
             true,
@@ -561,7 +529,6 @@ export class PrefsKeys
         );
 
         this.#setKey(
-            'customize',
             'accent-color-icon',
             'GtkSwitch',
             (this.#shellVersion >= 47),
@@ -573,7 +540,6 @@ export class PrefsKeys
         );
 
         this.#setKey(
-            'customize',
             'controls-manager-spacing-size',
             'AdwActionRow',
             true,
@@ -585,7 +551,6 @@ export class PrefsKeys
         );
 
         this.#setKey(
-            'customize',
             'workspace-background-corner-size',
             'AdwActionRow',
             true,
@@ -597,7 +562,6 @@ export class PrefsKeys
         );
 
         this.#setKey(
-            'customize',
             'top-panel-position',
             'AdwActionRow',
             true,
@@ -609,7 +573,6 @@ export class PrefsKeys
         );
 
         this.#setKey(
-            'customize',
             'clock-menu-position',
             'AdwActionRow',
             true,
@@ -621,7 +584,6 @@ export class PrefsKeys
         );
 
         this.#setKey(
-            'customize',
             'clock-menu-position-offset',
             'AdwSpinRow',
             true,
@@ -633,7 +595,6 @@ export class PrefsKeys
         );
 
         this.#setKey(
-            'customize',
             'workspace-switcher-size',
             'AdwActionRow',
             true,
@@ -645,7 +606,6 @@ export class PrefsKeys
         );
 
         this.#setKey(
-            'customize',
             'animation',
             'AdwActionRow',
             true,
@@ -657,7 +617,6 @@ export class PrefsKeys
         );
 
         this.#setKey(
-            'customize',
             'dash-icon-size',
             'AdwActionRow',
             true,
@@ -679,7 +638,6 @@ export class PrefsKeys
         );
 
         this.#setKey(
-            'customize',
             'notification-banner-position',
             'AdwActionRow',
             true,
@@ -691,7 +649,6 @@ export class PrefsKeys
         );
 
         this.#setKey(
-            'customize',
             'panel-size',
             'AdwActionRow',
             true,
@@ -703,7 +660,6 @@ export class PrefsKeys
         );
 
         this.#setKey(
-            'customize',
             'panel-button-padding-size',
             'AdwActionRow',
             true,
@@ -715,7 +671,6 @@ export class PrefsKeys
         );
 
         this.#setKey(
-            'customize',
             'panel-indicator-padding-size',
             'AdwActionRow',
             true,
@@ -727,7 +682,6 @@ export class PrefsKeys
         );
 
         this.#setKey(
-            'customize',
             'panel-icon-size',
             'AdwActionRow',
             true,
@@ -739,7 +693,6 @@ export class PrefsKeys
         );
 
         this.#setKey(
-            'customize',
             'osd-position',
             'AdwActionRow',
             true,
@@ -751,7 +704,6 @@ export class PrefsKeys
         );
 
         this.#setKey(
-            'customize',
             'looking-glass-width',
             'AdwActionRow',
             true,
@@ -763,7 +715,6 @@ export class PrefsKeys
         );
 
         this.#setKey(
-            'customize',
             'looking-glass-height',
             'AdwActionRow',
             true,
@@ -775,7 +726,6 @@ export class PrefsKeys
         );
 
         this.#setKey(
-            'customize',
             'alt-tab-window-preview-size',
             'AdwActionRow',
             true,
@@ -795,7 +745,6 @@ export class PrefsKeys
         );
 
         this.#setKey(
-            'customize',
             'alt-tab-small-icon-size',
             'AdwActionRow',
             true,
@@ -815,7 +764,6 @@ export class PrefsKeys
         );
 
         this.#setKey(
-            'customize',
             'alt-tab-icon-size',
             'AdwActionRow',
             true,
@@ -835,7 +783,6 @@ export class PrefsKeys
         );
 
         this.#setKey(
-            'customize',
             'max-displayed-search-results',
             'AdwActionRow',
             true,
@@ -847,7 +794,6 @@ export class PrefsKeys
         );
 
         this.#setKey(
-            'customize',
             'invert-calendar-column-items',
             'GtkSwitch',
             true,
@@ -859,7 +805,6 @@ export class PrefsKeys
         );
 
         this.#setKey(
-            'override',
             'theme',
             'GtkSwitch',
             true,
@@ -869,17 +814,16 @@ export class PrefsKeys
                 superminimal: true,
             }
         );
+
+        this.#setKey(
+            'support-notifier-type',
+            'AdwActionRow'
+        );
     }
 
     /**
      * set key
      *
-     * @param {string} category possible values:
-     *   - visibility
-     *   - icons
-     *   - behavior
-     *   - customize
-     *   - override
      * @param {string} name should be the same as gsettings key name
      * @param {string} widgetType gtk widget type like 'GtkSwitch'.
      * @param {boolean} supported whether supported in the current shell
@@ -891,7 +835,7 @@ export class PrefsKeys
      *
      * @returns {void}
      */
-    #setKey(category, name, widgetType, supported, profiles, maps = {})
+    #setKey(name, widgetType, supported = true, profiles = {}, maps = {})
     {
         let id = name.replace(/-/g, '_');
         let widgetName = widgetType.toLowerCase().replace('gtk', '');
@@ -902,7 +846,6 @@ export class PrefsKeys
         : `${id}_${widgetName}`;
 
         this.keys[id] = {
-            category,
             widgetType,
             name,
             id,

@@ -1,10 +1,12 @@
 from dataclasses import dataclass
-import tkinter as tk
 from typing import Iterable
 
 import pydotool
 import mouse
 import keyboard
+
+
+WIDTH, HEIGHT = 1920, 1200
 
 DIGIT_POSITIONS = {
     7: (0, 0),
@@ -17,9 +19,11 @@ DIGIT_POSITIONS = {
     2: (1, 2),
     3: (2, 2),
 }
-SMALL_MOVE_STEP = 10  # in pixels
+SMALL_MOVE_STEP = 15  # in pixels
+SMALLER_MOVE_STEP = 5
+SMALLER_MODIFIER = "shift"
 
-MODIFIERS = ("alt", "alt gr")
+MODIFIERS = ("ctrl", "alt", "alt gr")
 MOUSE_LEFT = ("÷", "enter")
 MOUSE_MIDDLE = ("×",)
 MOUSE_RIGHT = ("-", "+")
@@ -59,24 +63,14 @@ def get_new_rect(rect: Rect, digit: int) -> Rect:
     return new_rect
 
 
-def get_small_move_position(digit: int) -> tuple[int, int]:
+def get_small_move_position(digit: int, is_smaller: bool) -> tuple[int, int]:
     nth_horizontal, nth_vertical = DIGIT_POSITIONS[digit]
+    step = SMALLER_MOVE_STEP if is_smaller else SMALL_MOVE_STEP
 
     nth_horizontal -= 1
     nth_vertical -= 1
 
-    return nth_horizontal * SMALL_MOVE_STEP, nth_vertical * SMALL_MOVE_STEP
-
-
-def get_screen_size() -> tuple[int, int]:
-    tk_root = tk.Tk()
-    tk_root.withdraw()
-
-    result = (tk_root.winfo_screenwidth(), tk_root.winfo_screenheight())
-
-    tk_root.destroy()
-
-    return result
+    return nth_horizontal * step, nth_vertical * step
 
 
 def get_relative_position(
@@ -88,7 +82,7 @@ def get_relative_position(
     )
 
 
-def multiple_wait(keys: Iterable[str]) -> None:
+def multiple_wait(keys: Iterable[int]) -> None:
     lock = keyboard._Event()
 
     hotkeys_to_remove = []
@@ -107,15 +101,12 @@ def multiple_wait(keys: Iterable[str]) -> None:
 def main() -> None:
     pydotool.init()
 
-    WIDTH, HEIGHT = get_screen_size()
-
     while True:
         multiple_wait(MODIFIERS)
-        print("modifier pressed")
 
         last_pressed_digit: str | None = None
         current_rect = Rect(0, 0, WIDTH, HEIGHT)
-        small_mode = False
+        small_mode = True
 
         while True:
             raw_key = keyboard.read_event()
@@ -142,7 +133,10 @@ def main() -> None:
             elif raw_key.name in MOUSE_POSITION:
                 if small_mode:
                     pydotool.mouse_move(
-                        get_small_move_position(int(raw_key.name)), is_abs=False
+                        get_small_move_position(
+                            int(raw_key.name), SMALLER_MODIFIER in raw_key.modifiers
+                        ),
+                        is_abs=False,
                     )
                 else:
                     new_rect = get_new_rect(current_rect, int(raw_key.name))

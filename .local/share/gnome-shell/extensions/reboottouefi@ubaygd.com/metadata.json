@@ -7,9 +7,10 @@
   "shell-version": [
     "45",
     "46",
-    "47"
+    "47",
+    "48"
   ],
   "url": "https://github.com/UbayGD/reboottouefi",
   "uuid": "reboottouefi@ubaygd.com",
-  "version": 23
+  "version": 24
 }

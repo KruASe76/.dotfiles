@@ -11,6 +11,8 @@ set tabsize 4
 set tabstospaces
 set smarthome
 
+bind M-Q verbatim main
+
 set titlecolor black,yellow
 set keycolor bold,black,red
 set functioncolor bold,green,black

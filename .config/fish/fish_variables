@@ -1,7 +1,6 @@
 # This file contains fish universal variable definitions.
 # VERSION: 3.0
 SETUVAR --export ALSOFT_DRIVERS:pulse
-SETUVAR --export FLYCTL_INSTALL:/home/kruase/\x2efly
 SETUVAR --export --path GOPATH:/tmp/go
 SETUVAR --export HIP_VISIBLE_DEVICES:0\x2c1
 SETUVAR --export HSA_OVERRIDE_GFX_VERSION:11\x2e0\x2e2
@@ -11,10 +10,10 @@ SETUVAR --export OLLAMA_HOST:127\x2e0\x2e0\x2e1\x3a12345
 SETUVAR --export OLLAMA_KEEP_ALIVE:10m
 SETUVAR --export PYENV_ROOT:/home/kruase/\x2epyenv
 SETUVAR RANGER_LOAD_DEFAULT_RC:\x1d
-SETUVAR --export SSH_HOME_DOMAIN:5\x2etcp\x2eeu\x2engrok\x2eio
-SETUVAR --export SSH_HOME_PORT:14008
+SETUVAR --export SSH_HOME_DOMAIN:7\x2etcp\x2eeu\x2engrok\x2eio
+SETUVAR --export SSH_HOME_PORT:15680
 SETUVAR XCURSOR_THEME:Adwaita
-SETUVAR __fish_initialized:3400
+SETUVAR __fish_initialized:3800
 SETUVAR _fish_abbr_appimage_2D_build:\x2d\x2dset\x2dcursor\x20VERSION\x3d\x25\x20\x7e/tools/appimagetool\x2d730\x2dx86_64\x2eAppImage
 SETUVAR _fish_abbr_bc:bc\x20\x2dl
 SETUVAR _fish_abbr_cp:cp\x20\x2di
@@ -71,6 +70,6 @@ SETUVAR fish_pager_color_description:49483E
 SETUVAR fish_pager_color_prefix:F8F8F2
 SETUVAR fish_pager_color_progress:F8F8F2
 SETUVAR fish_pager_color_selected_background:\x2dr
-SETUVAR fish_user_paths:/home/kruase/\x2elocal/bin\x1e/home/linuxbrew/\x2elinuxbrew/bin\x1e/home/kruase/\x2ecargo/bin\x1e/home/kruase/\x2efly/bin\x1e/home/kruase/\x2elocal/share/JetBrains/Toolbox/scripts
+SETUVAR fish_user_paths:/home/kruase/\x2elocal/bin\x1e/home/linuxbrew/\x2elinuxbrew/bin\x1e/home/kruase/\x2ecargo/bin\x1e/home/kruase/\x2elocal/share/JetBrains/Toolbox/scripts
 SETUVAR --export mclocal_version:20
 SETUVAR --export vm:root\x40104\x2e252\x2e127\x2e63

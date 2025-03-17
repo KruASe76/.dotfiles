@@ -16,6 +16,7 @@
 
 import Gio from 'gi://Gio';
 import Shell from 'gi://Shell';
+import Cogl from 'gi://Cogl';
 import GObject from 'gi://GObject';
 import Clutter from 'gi://Clutter';
 import Meta from 'gi://Meta';
@@ -47,166 +48,178 @@ import * as utils from './utils.js';
 //                         used to clean up any resources.
 //////////////////////////////////////////////////////////////////////////////////////////
 
-export var Shader = GObject.registerClass(
-  {
-    Signals: {
-      'begin-animation': {
-        param_types: [
-          Gio.Settings.$gtype, GObject.TYPE_BOOLEAN, GObject.TYPE_BOOLEAN,
-          Clutter.Actor.$gtype
-        ]
-      },
-      'update-animation': {param_types: [GObject.TYPE_DOUBLE]},
-      'end-animation': {}
-    }
-  },
-  class Shader extends Shell.GLSLEffect {  // --------------------------------------------
-    // The constructor automagically loads the shader's source code (in
-    // vfunc_build_pipeline()) from the resource file resources/shaders/<nick>.glsl
-    // resolving any #includes in this file.
-    _init(nick) {
-      this._nick = nick;
+export var Shader = GObject.registerClass({
+  Signals: {
+    'begin-animation': {
+      param_types: [
+        Gio.Settings.$gtype, GObject.TYPE_BOOLEAN, GObject.TYPE_BOOLEAN,
+        Clutter.Actor.$gtype
+      ]
+    },
+    'update-animation': {param_types: [GObject.TYPE_DOUBLE]},
+    'end-animation': {}
+  }
+},
 
-      // This will call vfunc_build_pipeline().
-      super._init();
+                                          class Shader extends Shell.GLSLEffect {
+  // --------------------------------------------
+  // The constructor automagically loads the shader's source code (in
+  // vfunc_build_pipeline()) from the resource file resources/shaders/<nick>.glsl
+  // resolving any #includes in this file.
+  _init(nick) {
+    this._nick = nick;
 
-      // These will be updated during the animation.
-      this._progress = 0;
-      this._time     = 0;
+    // This will call vfunc_build_pipeline().
+    super._init();
 
-      // Store standard uniform locations.
-      this._uForOpening   = this.get_uniform_location('uForOpening');
-      this._uIsFullscreen = this.get_uniform_location('uIsFullscreen');
-      this._uProgress     = this.get_uniform_location('uProgress');
-      this._uDuration     = this.get_uniform_location('uDuration');
-      this._uSize         = this.get_uniform_location('uSize');
-      this._uPadding      = this.get_uniform_location('uPadding');
+    // These will be updated during the animation.
+    this._progress = 0;
+    this._time     = 0;
 
-      // Create a timeline to drive the animation.
-      this._timeline = new Clutter.Timeline();
+    // Store standard uniform locations.
+    this._uForOpening   = this.get_uniform_location('uForOpening');
+    this._uIsFullscreen = this.get_uniform_location('uIsFullscreen');
+    this._uProgress     = this.get_uniform_location('uProgress');
+    this._uDuration     = this.get_uniform_location('uDuration');
+    this._uSize         = this.get_uniform_location('uSize');
+    this._uPadding      = this.get_uniform_location('uPadding');
 
-      // Call updateAnimation() once a frame.
-      this._timeline.connect('new-frame', (t) => {
-        if (this._testMode) {
-          this.updateAnimation(0.5);
-        } else {
-          this.updateAnimation(t.get_progress());
-        }
-      });
+    // Create a timeline to drive the animation.
+    this._timeline = new Clutter.Timeline();
 
-      // Clean up if the animation finished or was interrupted.
-      this._timeline.connect('stopped', (t, finished) => {
-        this.endAnimation();
-      });
-    }
-
-    // This is called once each time the shader is used.
-    beginAnimation(settings, forOpening, testMode, duration, actor) {
-      if (this._timeline.is_playing()) {
-        this._timeline.stop();
+    // Call updateAnimation() once a frame.
+    this._timeline.connect('new-frame', (t) => {
+      if (this._testMode) {
+        this.updateAnimation(0.5);
+      } else {
+        this.updateAnimation(t.get_progress());
       }
+    });
 
-      // On GNOME 3.36 this method was not yet available.
-      if (this._timeline.set_actor) {
-        this._timeline.set_actor(actor);
-      }
+    // Clean up if the animation finished or was interrupted.
+    this._timeline.connect('stopped', (t, finished) => {
+      this.endAnimation();
+    });
+  }
 
-      this._timeline.set_duration(duration);
-      this._timeline.start();
+  // This is called once each time the shader is used.
+  beginAnimation(settings, forOpening, testMode, duration, actor) {
+    if (this._timeline.is_playing()) {
+      this._timeline.stop();
+    }
 
-      // Make sure that no fullscreen window is drawn over our animations.
+    // On GNOME 3.36 this method was not yet available.
+    if (this._timeline.set_actor) {
+      this._timeline.set_actor(actor);
+    }
+
+    this._timeline.set_duration(duration);
+    this._timeline.start();
+
+    // Make sure that no fullscreen window is drawn over our animations. Since GNOME 48
+    // this is a "global" method.
+    if (Meta.disable_unredirect_for_display) {
       Meta.disable_unredirect_for_display(global.display);
-      global.begin_work();
-
-      // Reset progress value.
-      this._progress = 0;
-      this._testMode = testMode;
-
-      // This is not necessarily symmetric, but I haven't figured out a way to
-      // get the actual values...
-      const padding = (actor.width - actor.meta_window.get_frame_rect().width) / 2;
-      const isFullscreen =
-        actor.meta_window.get_maximized() === Meta.MaximizeFlags.BOTH ||
-        actor.meta_window.fullscreen;
-
-      this.set_uniform_float(this._uPadding, 1, [padding]);
-      this.set_uniform_float(this._uForOpening, 1, [forOpening]);
-      this.set_uniform_float(this._uIsFullscreen, 1, [isFullscreen]);
-      this.set_uniform_float(this._uDuration, 1, [duration * 0.001]);
-      this.set_uniform_float(this._uSize, 2, [actor.width, actor.height]);
-
-      this.emit('begin-animation', settings, forOpening, testMode, actor);
+    } else {
+      global.compositor.disable_unredirect();
     }
 
-    // This is called at each frame during the animation.
-    updateAnimation(progress) {
-      // Store the current progress value. The corresponding signal is emitted each frame
-      // in vfunc_paint_target. We do not emit it here, as the pipeline which may be used
-      // by handlers must not have been created yet.
-      this._progress = progress;
+    global.begin_work();
 
-      this.queue_repaint();
+    // Reset progress value.
+    this._progress = 0;
+    this._testMode = testMode;
+
+    // This is not necessarily symmetric, but I haven't figured out a way to
+    // get the actual values...
+    const padding      = (actor.width - actor.meta_window.get_frame_rect().width) / 2;
+    const isFullscreen = actor.meta_window.get_maximized() === Meta.MaximizeFlags.BOTH ||
+      actor.meta_window.fullscreen;
+
+    this.set_uniform_float(this._uPadding, 1, [padding]);
+    this.set_uniform_float(this._uForOpening, 1, [forOpening]);
+    this.set_uniform_float(this._uIsFullscreen, 1, [isFullscreen]);
+    this.set_uniform_float(this._uDuration, 1, [duration * 0.001]);
+    this.set_uniform_float(this._uSize, 2, [actor.width, actor.height]);
+
+    this.emit('begin-animation', settings, forOpening, testMode, actor);
+  }
+
+  // This is called at each frame during the animation.
+  updateAnimation(progress) {
+    // Store the current progress value. The corresponding signal is emitted each frame
+    // in vfunc_paint_target. We do not emit it here, as the pipeline which may be used
+    // by handlers must not have been created yet.
+    this._progress = progress;
+
+    this.queue_repaint();
+  }
+
+  // This will stop any running animation and emit the end-animation signal.
+  endAnimation() {
+    // This will call endAnimation() again, so we can return for now.
+    if (this._timeline.is_playing()) {
+      this._timeline.stop();
+      return;
     }
 
-    // This will stop any running animation and emit the end-animation signal.
-    endAnimation() {
-      // This will call endAnimation() again, so we can return for now.
-      if (this._timeline.is_playing()) {
-        this._timeline.stop();
-        return;
-      }
-
-      // Restore unredirecting behavior for fullscreen windows.
+    // Restore unredirecting behavior for fullscreen windows. Since GNOME 48 this is a
+    // "global" method.
+    if (Meta.disable_unredirect_for_display) {
       Meta.enable_unredirect_for_display(global.display);
-      global.end_work();
-
-      this.emit('end-animation');
+    } else {
+      global.compositor.enable_unredirect();
     }
+    global.end_work();
 
-    // This is called by the constructor. This means, it's only called when the
-    // effect is used for the first time.
-    vfunc_build_pipeline() {
+    this.emit('end-animation');
+  }
 
-      // Shell.GLSLEffect requires the declarations and the main source code as separate
-      // strings. As it's more convenient to store the in one GLSL file, we use a regex
-      // here to split the source code in two parts.
-      const code = this._loadShaderResource(`/shaders/${this._nick}.frag`);
+  // This is called by the constructor. This means, it's only called when the
+  // effect is used for the first time.
+  vfunc_build_pipeline() {
+    // Shell.GLSLEffect requires the declarations and the main source code as separate
+    // strings. As it's more convenient to store the in one GLSL file, we use a regex
+    // here to split the source code in two parts.
+    const code = this._loadShaderResource(`/shaders/${this._nick}.frag`);
 
-      // Match anything between the curly brackets of "void main() {...}".
-      const regex = RegExp('void main *\\(\\) *\\{([\\S\\s]+)\\}');
-      const match = regex.exec(code);
+    // Match anything between the curly brackets of "void main() {...}".
+    const regex = RegExp('void main *\\(\\) *\\{([\\S\\s]+)\\}');
+    const match = regex.exec(code);
 
-      const declarations = code.substr(0, match.index);
-      const main         = match[1];
+    const declarations = code.substr(0, match.index);
+    const main         = match[1];
 
-      this.add_glsl_snippet(Shell.SnippetHook.FRAGMENT, declarations, main, true);
-    }
+    this.add_glsl_snippet(
+      Cogl.SnippetHook ? Cogl.SnippetHook.FRAGMENT : Shell.SnippetHook.FRAGMENT,
+      declarations, main, true);
+  }
 
-    // We use this vfunc to trigger the update as it allows calling this.get_pipeline() in
-    // the handler. This could still be null if called from the updateAnimation() above.
-    vfunc_paint_target(...params) {
-      this.emit('update-animation', this._progress);
+  // We use this vfunc to trigger the update as it allows calling this.get_pipeline() in
+  // the handler. This could still be null if called from the updateAnimation() above.
+  vfunc_paint_target(...params) {
+    this.emit('update-animation', this._progress);
 
-      // Starting with GNOME 44.2, the alpha channel is not written to by default. We need
-      // to undo this. It is a pity that we have to do this here, as it is not really
-      // required to be done each frame. But it's the only place where we can do it.
-      // https://gitlab.gnome.org/GNOME/gnome-shell/-/merge_requests/2650
-      this.get_pipeline().set_blend(
-        'RGBA = ADD (SRC_COLOR * (SRC_COLOR[A]), DST_COLOR * (1-SRC_COLOR[A]))');
+    // Starting with GNOME 44.2, the alpha channel is not written to by default. We need
+    // to undo this. It is a pity that we have to do this here, as it is not really
+    // required to be done each frame. But it's the only place where we can do it.
+    // https://gitlab.gnome.org/GNOME/gnome-shell/-/merge_requests/2650
+    this.get_pipeline().set_blend(
+      'RGBA = ADD (SRC_COLOR * (SRC_COLOR[A]), DST_COLOR * (1-SRC_COLOR[A]))');
 
-      this.set_uniform_float(this._uProgress, 1, [this._progress]);
-      super.vfunc_paint_target(...params);
-    }
+    this.set_uniform_float(this._uProgress, 1, [this._progress]);
+    super.vfunc_paint_target(...params);
+  }
 
-    // --------------------------------------------------------------------- private stuff
+  // --------------------------------------------------------------------- private stuff
 
-    // This loads a GLSL file from the extension's resources to a JavaScript string. The
-    // code from "common.glsl" is prepended automatically.
-    _loadShaderResource(path) {
-      let common = utils.getStringResource('/shaders/common.glsl');
-      let code   = utils.getStringResource(path);
+  // This loads a GLSL file from the extension's resources to a JavaScript string. The
+  // code from "common.glsl" is prepended automatically.
+  _loadShaderResource(path) {
+    let common = utils.getStringResource('/shaders/common.glsl');
+    let code   = utils.getStringResource(path);
 
-      // Add a trailing newline. Else the GLSL compiler complains...
-      return common + '\n' + code + '\n';
-    }
-  });
+    // Add a trailing newline. Else the GLSL compiler complains...
+    return common + '\n' + code + '\n';
+  }
+});

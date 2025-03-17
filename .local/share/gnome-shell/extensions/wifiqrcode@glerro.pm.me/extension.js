@@ -5,7 +5,7 @@
  *
  * extension.js
  *
- * Copyright (c) 2021-2024 Gianni Lerro {glerro} ~ <glerro@pm.me>
+ * Copyright (c) 2021-2025 Gianni Lerro {glerro} ~ <glerro@pm.me>
  *
  * Wifi QR Code is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by the
@@ -21,7 +21,7 @@
  * with Wifi QR Code. If not, see <https://www.gnu.org/licenses/>.
  *
  * SPDX-License-Identifier: GPL-3.0-or-later
- * SPDX-FileCopyrightText: 2021-2024 Gianni Lerro <glerro@pm.me>
+ * SPDX-FileCopyrightText: 2021-2025 Gianni Lerro <glerro@pm.me>
  */
 
 'use strict';
@@ -32,13 +32,13 @@ import * as WifiQrCode from './WifiQrCode.js';
 
 export default class WifiQrCodeExtension extends Extension {
     enable() {
-        console.log(`Enabling ${this.metadata.name} - Version ${this.metadata.version}`);
+        console.log(`Enabling ${this.metadata.name} - Version ${this.metadata['version-name']}`);
 
         this._wifiqrcode = new WifiQrCode.WifiQrCode(this);
     }
 
     disable() {
-        console.log(`Disabling ${this.metadata.name} - Version ${this.metadata.version}`);
+        console.log(`Disabling ${this.metadata.name} - Version ${this.metadata['version-name']}`);
 
         if (this._wifiqrcode !== null) {
             this._wifiqrcode.destroy();

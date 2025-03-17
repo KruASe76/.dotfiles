@@ -1,7 +1,0 @@
-<?xml version='1.0' encoding='utf-8'?>
-<child>
-    <object class="AdwEntryRow" id="widget-id">
-        <property name="title" translatable="yes"></property>
-        <property name="tooltip-text" translatable="yes"></property>
-    </object>
-</child>

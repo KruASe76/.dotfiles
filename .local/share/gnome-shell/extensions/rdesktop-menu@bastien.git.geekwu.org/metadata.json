@@ -6,9 +6,10 @@
   "shell-version": [
     "45",
     "46",
-    "47"
+    "47",
+    "48"
   ],
   "url": "https://git.geekwu.org/bastien/rdesktop-menu",
   "uuid": "rdesktop-menu@bastien.git.geekwu.org",
-  "version": 25
+  "version": 27
 }

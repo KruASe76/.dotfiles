@@ -5,11 +5,11 @@
   "name": "RunCat",
   "settings-schema": "org.gnome.shell.extensions.runcat",
   "shell-version": [
-    "45",
     "46",
-    "47"
+    "47",
+    "48"
   ],
   "url": "https://github.com/win0err/gnome-runcat",
   "uuid": "runcat@kolesnikov.se",
-  "version": 28
+  "version": 29
 }

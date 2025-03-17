@@ -12,9 +12,10 @@
   "shell-version": [
     "45",
     "46",
-    "47"
+    "47",
+    "48"
   ],
   "url": "https://github.com/Schneegans/Burn-My-Windows",
   "uuid": "burn-my-windows@schneegans.github.com",
-  "version": 44
+  "version": 46
 }

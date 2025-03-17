@@ -4,11 +4,11 @@
   "name": "Custom Reboot",
   "original-author": "Nova1545",
   "shell-version": [
-    "45",
     "46",
-    "47"
+    "47",
+    "48"
   ],
   "url": "https://github.com/Nova1545/gnome-shell-extension-customreboot",
   "uuid": "customreboot@nova1545",
-  "version": 11
+  "version": 12
 }

@@ -10,6 +10,13 @@ export class CustomSettingsRowClass extends AppRowClass {
     enabledRow = new Adw.SwitchRow({
         title: _('Enabled'),
     });
+    #borderColorRow = new Adw.ActionRow({
+        title: _('Border color'),
+    });
+    borderColorButton = new Gtk.ColorDialogButton({
+        valign: Gtk.Align.CENTER,
+    });
+    borderColorDialog = new Gtk.ColorDialog();
     #cornerRadiusRow = new Adw.ActionRow({
         title: _('Corner radius'),
     });
@@ -39,6 +46,8 @@ export class CustomSettingsRowClass extends AppRowClass {
     paddings = new PaddingsRow();
     constructor(cb) {
         super(cb);
+        this.#borderColorRow.add_suffix(this.borderColorButton);
+        this.borderColorButton.set_dialog(this.borderColorDialog);
         this.#cornerRadiusRow.add_suffix(new Gtk.Scale({
             valign: Gtk.Align.CENTER,
             hexpand: true,
@@ -59,6 +68,7 @@ export class CustomSettingsRowClass extends AppRowClass {
             adjustment: this.cornerSmoothing,
         }));
         this.add_row(this.enabledRow);
+        this.add_row(this.#borderColorRow);
         this.add_row(this.#cornerRadiusRow);
         this.add_row(this.#cornerSmoothingRow);
         this.add_row(this.keepForMaximized);
@@ -78,6 +88,7 @@ export class CustomSettingsRowClass extends AppRowClass {
         this.toggleSensitivity(true);
     }
     toggleSensitivity(state) {
+        this.#borderColorRow.set_sensitive(state);
         this.#cornerRadiusRow.set_sensitive(state);
         this.#cornerSmoothingRow.set_sensitive(state);
         this.keepForMaximized.set_sensitive(state);

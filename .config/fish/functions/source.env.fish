@@ -6,16 +6,22 @@ function source.env
     end
 
     if test -d $env_file
-        set env_file "$env_file/.env"
+        set -f env_file "$env_file/.env"
     end
 
     if ! test -f $env_file
         echo "File $env_file does not exist" >2
     end
 
-    for line in (cat $env_file)
-        if ! test -z $line
-            set -gx (string split -m 1 "=" $line)
+    while read -l line
+        if ! test -z $line -o (string sub -l 1 (string trim $line)) = "#"
+            set -f name_and_value (string split -m 1 "=" $line)
+
+            if test (string sub -l 1 $name_and_value[2]) = \" -a (string sub -s -1 $name_and_value[2]) = \"
+                set -f name_and_value[2] (string sub -s 2 -e -1 $name_and_value[2])
+            end
+
+            set -gx $name_and_value
         end
-    end
+    end < $env_file
 end

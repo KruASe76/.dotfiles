@@ -54,7 +54,7 @@ export function TalkativeLog(msg) {
  * @returns {string} the version
  */
 export function getFullVersion() {
-    return '1.10.0'; // FULL_VERSION
+    return '1.11.1'; // FULL_VERSION
 }
 
 /**

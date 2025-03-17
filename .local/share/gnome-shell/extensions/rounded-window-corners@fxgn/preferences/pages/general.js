@@ -40,16 +40,17 @@ export const GeneralPage = GObject.registerClass({
         bindPref('border-width', this._borderWidth, 'value', Gio.SettingsBindFlags.DEFAULT);
         const color = new Gdk.RGBA();
         [color.red, color.green, color.blue, color.alpha] =
-            getPref('border-color');
+            this.#settings.borderColor;
         this._borderColor.set_rgba(color);
         this._borderColor.connect('notify::rgba', (button) => {
             const color = button.get_rgba();
-            setPref('border-color', [
+            this.#settings.borderColor = [
                 color.red,
                 color.green,
                 color.blue,
                 color.alpha,
-            ]);
+            ];
+            this.#updateGlobalConfig();
         });
         this._cornerRadius.set_value(this.#settings.borderRadius);
         this._cornerRadius.connect('value-changed', (adj) => {

@@ -2,9 +2,9 @@
 Description=Daemon for Kanata
 
 [Service]
-Type=simple
+Type=exec
 ExecStart=%h/.cargo/bin/kanata -c %h/.config/kanata.kbd
-Restart=on-failure
+Restart=always
 
 [Install]
 WantedBy=default.target

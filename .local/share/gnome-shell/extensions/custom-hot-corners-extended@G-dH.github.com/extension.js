@@ -2,7 +2,7 @@
  * Custom Hot Corners - Extended
  *
  * @author     GdH <G-dH@github.com>
- * @copyright  2021-2024
+ * @copyright  2021-2025
  * @license    GPL-3.0
  */
 
@@ -53,6 +53,7 @@ export default class CustomHotCornersExtended extends Extension {
         this._extensionEnabled     = false;
         this._watch                = {};
         this._listTriggers           = Settings.listTriggers();
+        this._disableDisplayUnredirect = false;
     }
 
     enable() {
@@ -93,8 +94,6 @@ export default class CustomHotCornersExtended extends Extension {
                 return GLib.SOURCE_REMOVE;
             }
         );
-
-        console.log(`${this.metadata.name}: enabled`);
     }
 
     disable() {
@@ -138,14 +137,9 @@ export default class CustomHotCornersExtended extends Extension {
         Settings.cleanGlobals();
         ActionList.cleanGlobals();
 
-        if (this._displayRedirectionDisabled) {
-            Meta.enable_unredirect_for_display(global.display);
-            this._displayRedirectionDisabled = false;
-        }
+        this._setDisplayUnredirection(false);
 
         chce = null;
-
-        console.log(`${this.metadata.name}: 'disabled'`);
     }
 
     _replace_updateHotCornersFunc() {
@@ -244,8 +238,10 @@ export default class CustomHotCornersExtended extends Extension {
 
         // corners can be temporarily disabled from panel menu
         const cornersDisabled = !chce._mscOptions.get('hotCornersEnabled', true);
-        if (cornersDisabled)
+        if (cornersDisabled) {
+            chce._setDisplayUnredirection(false);
             return;
+        }
 
         let primaryIndex = Main.layoutManager.primaryIndex;
         // avoid creating new corners if this extension is disabled...
@@ -284,9 +280,22 @@ export default class CustomHotCornersExtended extends Extension {
         // If any corner action should be available in fullscreen mode,
         // disable bypassing the compositor when the display switches to fullscreen mode
         // and keep track of its state - each disable has to be enabled, it works as a stack
-        if (chce._fullscreenRequired && !chce._displayRedirectionDisabled) {
-            Meta.disable_unredirect_for_display(global.display);
-            chce._displayRedirectionDisabled = true;
+        chce._setDisplayUnredirection(chce._fullscreenRequired);
+    }
+
+    _setDisplayUnredirection(disable) {
+        if (disable && !chce._disableDisplayUnredirect) {
+            if (Meta.disable_unredirect_for_display)
+                Meta.disable_unredirect_for_display(global.display);
+            else // since GS 48
+                global.compositor.disable_unredirect();
+            chce._disableDisplayUnredirect = true;
+        } else if (!disable && chce._disableDisplayUnredirect) {
+            if (Meta.enable_unredirect_for_display)
+                Meta.enable_unredirect_for_display(global.display);
+            else // since GS 48
+                global.compositor.enable_unredirect();
+            chce._disableDisplayUnredirect = false;
         }
     }
 
@@ -325,7 +334,7 @@ export default class CustomHotCornersExtended extends Extension {
     _shouldExistHotCorner(corner) {
         let answer = false;
         for (let trigger of chce._listTriggers) {
-            const cornerActive = corner.action[trigger] !== 'disabled';
+            const cornerActive = corner.get('action', trigger) !== 'disabled';
             answer = answer || cornerActive;
             chce._fullscreenRequired = chce._fullscreenRequired || (cornerActive && corner.get('fullscreen', trigger));
         }
@@ -378,4 +387,3 @@ export default class CustomHotCornersExtended extends Extension {
         this._myCorners[1] = Main.layoutManager.hotCorners[0] ? Main.layoutManager.hotCorners[0]._pressureBarrier._trigger : null;
     }
 }
-

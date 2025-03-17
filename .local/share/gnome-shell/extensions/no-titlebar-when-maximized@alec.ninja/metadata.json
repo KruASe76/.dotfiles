@@ -5,9 +5,10 @@
   "shell-version": [
     "45",
     "46",
-    "47"
+    "47",
+    "48"
   ],
   "url": "https://github.com/alecdotninja/no-titlebar-when-maximized",
   "uuid": "no-titlebar-when-maximized@alec.ninja",
-  "version": 15
+  "version": 18
 }

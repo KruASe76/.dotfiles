@@ -1,38 +1,71 @@
-47.3
+48.2
 ====
-* places-menu: Fix opening drives with mount operations [Florian; !361]
-* window-list: Fix hiding when entering overview with gestures [Florian; !364]
-* workspace-indicator: Only show previews of regular windows [Florian; !363]
-* Misc. bug fixes and cleanups [Florian, Bartłomiej; !362, !365, !367,
-  !368, !370]
+* windowsNavigator: Fix handling keyboard shortcuts [Daniel; !395]
+* build: Allow disabling the X11 session [Neal; !396, !400]
 
 Contributors:
-  Florian Müllner, Bartłomiej Piotrowski
+  Daniel Buch Hansen, Neal Gompa
+
+48.1
+====
 
 Translators:
-  Yi-Jyun Pan [zh_TW]
+  Hugo Carvalho [pt], Danial Behzadi [fa]
 
-47.2
+48.0
 ====
-* places-menu: Fix a11y labelling [Florian; #542]
-* screenshot-window-sizer: Mention shortcut in description [Florian; !358]
-* Misc. bug fixes and cleanups [Florian; !353, !354]
+* apps-menu: Fix scrolling items into view on keynav [Victor; !391]
+* Misc. bug fixes and cleanups [Florian, Stuart; !390, !392]
+
+Contributors:
+  Stuart Hayhurst, Victor Kareh, Florian Müllner
+
+48.rc
+=====
+* Misc. bug fixes and cleanups [Florian; !385, !388]
 
 Contributors:
   Florian Müllner
 
 Translators:
-  Fabio Tomat [fur], Nathan Follens [nl], Марко Костић [sr]
+  Emilio Sepúlveda [ia], Mathews M [ml], Daniel Rusek [cs], Piotr Drąg [pl],
+  Anders Jonsson [sv], Ekaterine Papava [ka], Yuri Chornoivan [uk],
+  Aurimas Černius [lt], Luming Zh [zh_CN], Jiri Grönroos [fi]
 
-47.1
-====
+48.beta
+=======
+* window-list: Fix regression in chrome tracking [Florian; !379]
+* Misc. bug fixes and cleanups [Florian; !380]
+
+Contributors:
+  Florian Müllner, Emilio Sepúlveda
+
+Translators:
+  Rafael Fontenelle [pt_BR], Emilio Sepúlveda [ia]
+
+48.alpha
+========
 * classic: Add missing top-bar indicators [Florian; !339]
 * window-list: Fix window state styling [Florian; !342]
 * window-list: Fix "ignore-workspace" setting getting reset [Florian; !341]
-* Misc. bug fixes and cleanups [Florian; !337, !338, !345, !347, !349]
+* window-list: Allow rearranging window buttons [Florian, Jakub; !338]
+* window-list: Add workspaces page to preference dialog [Florian; !344]
+* places-menu: Sync list of places with nautilus [Florian; !340]
+* places-menu: Fix a11y labelling [Florian; #542]
+* places-menu: Fix opening drives with mount operations [Florian; !361]
+* window-list: Fix hiding when entering overview with gestures [Florian; !364]
+* workspace-indicator: Only show previews of regular windows [Florian; !363]
+* window-list: Add attention indicator [Florian; !366]
+* Misc. bug fixes and cleanups [Florian, Bartłomiej; !337, !343, !345, !347,
+  !348, !349, !351, !352, !353, !354, !358, !362, !365, !367, !368, !370, !375]
 
 Contributors:
-  Florian Müllner
+  Florian Müllner, Bartłomiej Piotrowski, Jakub Steiner
+
+Translators:
+  Fabio Tomat [fur], Martin [sl], Jordi Mas i Hernandez [ca], Vasil Pupkin [be],
+  Nathan Follens [nl], Artur S0 [ru], Марко Костић [sr],
+  Yaron Shahrabani [he], Sabri Ünal [tr], Yi-Jyun Pan [zh_TW]
 
 47.0
 ====

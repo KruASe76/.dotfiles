@@ -1,0 +1,86 @@
+{
+  "mode": "disable",
+  "sync": false,
+  "autoBackup": false,
+  "passthrough": "",
+  "theme": "moonlight",
+  "container": {},
+  "commands": {
+    "setProxy": "",
+    "setTabProxy": "",
+    "quickAdd": ""
+  },
+  "data": [
+    {
+      "active": true,
+      "title": "amnezia",
+      "type": "socks5",
+      "hostname": "45.89.244.232",
+      "port": "31875",
+      "username": "proxy_user",
+      "password": "ZoHLzpHpEFD7rZfs",
+      "cc": "",
+      "city": "",
+      "color": "#000000",
+      "pac": "",
+      "pacString": "",
+      "proxyDNS": true,
+      "include": [
+        {
+          "type": "regex",
+          "title": "www.perplexity.ai",
+          "pattern": "^https://www\\.perplexity\\.ai/",
+          "active": true
+        },
+        {
+          "type": "regex",
+          "title": "www.youtube.com",
+          "pattern": "^https://www\\.youtube\\.com/",
+          "active": true
+        },
+        {
+          "type": "regex",
+          "title": "poe.com",
+          "pattern": "^https://poe\\.com/",
+          "active": true
+        },
+        {
+          "type": "regex",
+          "title": "www.notion.so",
+          "pattern": "^https://www\\.notion\\.so/",
+          "active": true
+        },
+        {
+          "type": "regex",
+          "title": "calendar.notion.so",
+          "pattern": "^https://calendar\\.notion\\.so/",
+          "active": true
+        },
+        {
+          "type": "regex",
+          "title": "docs.astral.sh",
+          "pattern": "^https://docs\\.astral\\.sh/",
+          "active": true
+        }
+      ],
+      "exclude": []
+    },
+    {
+      "active": true,
+      "title": "byedpi",
+      "type": "socks5",
+      "hostname": "localhost",
+      "port": "1080",
+      "username": "proxy_user",
+      "password": "ZoHLzpHpEFD7rZfs",
+      "cc": "",
+      "city": "",
+      "color": "#9141ac",
+      "pac": "",
+      "pacString": "",
+      "proxyDNS": true,
+      "include": [],
+      "exclude": []
+    }
+  ]
+}

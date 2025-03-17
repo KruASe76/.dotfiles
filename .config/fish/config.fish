@@ -1,23 +1,17 @@
 if status is-interactive
-    # Modifying $PATH
+    # modifying $PATH
     fish_add_path $HOME/.local/bin
     fish_add_path $HOME/.local/share/JetBrains/Toolbox/scripts
     fish_add_path $HOME/.cargo/bin
     fish_add_path /home/linuxbrew/.linuxbrew/bin
 
-    # English!
+    # english!
     alias git='LC_ALL=en_US.utf8 command git'
 
-    # Custom variables
-    set -gx vm "root@45.89.244.232"
-    set -gx mclocal_version "20"
-    set -gx ALSOFT_DRIVERS "pulse"
-    set -gx OLLAMA_HOST "127.0.0.1:12345"
-    set -gx OLLAMA_KEEP_ALIVE "10m"
-    set -gx HIP_VISIBLE_DEVICES "0,1"
-    set -gx HSA_OVERRIDE_GFX_VERSION "11.0.2"
+    # custom variables
+    source.env $HOME
 
-    # Abbreviations
+    # abbreviations
     abbr -a fc 'nano ~/.config/fish/config.fish && source ~/.config/fish/config.fish'
 
     abbr -a su 'sudo -E fish'
@@ -30,12 +24,16 @@ if status is-interactive
     abbr -a ls 'eza'
     abbr -a ll 'eza -lh'
     abbr -a la 'eza -lhA'
+    abbr -a tree 'eza -T'
     abbr -a mkdir 'mkdir -p'
     abbr -a --position anywhere grep 'grep -E'
     abbr -a duc 'dust -r'
-    abbr -a cat 'bat'
-    abbr -a catt 'bat -p'
-    abbr -a batt 'bat -p'
+    abbr -a cat 'bat -p'
+    abbr -a bat 'bat -p'
+    abbr -a catl 'bat -pP'
+    abbr -a batl 'bat -pP'
+
+    abbr -a ta 'tmux attach'
 
     abbr -a up 'sudo dnf5 --refresh upgrade'
     abbr -a upy 'sudo dnf5 --refresh upgrade -y'
@@ -51,6 +49,7 @@ if status is-interactive
     abbr -a fix-perms 'chmod 771 ./**/* ; chmod 660 ./**/*.*'
     abbr -a fix-power 'sudo systemctl restart power-profiles-daemon.service'
     abbr -a fix-outline 'sudo -E pkill --full -i outline'
+    abbr -a fix-numpad 'sudo systemctl restart numpad-mouse-script.service'
 
     abbr -a clean 'sudo dnf5 autoremove -y && sudo dnf5 clean all && flatpak uninstall --unused -y && sudo journalctl --vacuum-time=1weeks && flatdir && rm ~/.python_history-*.tmp'
 
@@ -79,10 +78,12 @@ if status is-interactive
     abbr -a ppi 'pipenv install'
     abbr -a ppu 'pipenv uninstall'
     abbr -a pprm 'pipenv --rm'
-    abbr -a uvi 'uv init --no-readme --no-pin-python && rm hello.py'
+    abbr -a uvi 'uv init --no-readme && rm main.py'
     abbr -a rf 'uvx ruff format .'
     abbr -a rfl 'uvx ruff format . --line-length 79'
     abbr -a rc 'uvx ruff check --fix .'
+
+    abbr -a gapf 'git add --all && git commit --amend --no-edit && git push --force-with-lease'
 
     abbr -a dpgu 'docker run --name pocket-postgres -e POSTGRES_DB=kruase -e POSTGRES_USER=kruase -e POSTGRES_PASSWORD=kruase-password -p 5432:5432 -v kruase-postgres:/var/lib/postgresql/data -d postgres:16-alpine'
     abbr -a dpgd 'docker container rm pocket-postgres -f'
@@ -90,10 +91,11 @@ if status is-interactive
     abbr -a dcu 'docker compose up -d'
     abbr -a dcd 'docker compose down --rmi local'
     abbr -a dcdv 'docker compose down --rmi local -v'
+    abbr -a dcr 'docker compose down --rmi local && docker compose up -d'
+    abbr -a dcp 'docker compose pull'
+
 
     abbr -a appimage-build --set-cursor 'VERSION=% ~/appimages/appimagetool.AppImage'
-
-    abbr -a psql 'sudo -u postgres psql'
 
     abbr -a mongo-backup --set-cursor 'mongodump --gzip --archive=/mnt/ext4/mongo_backup/%'
     abbr -a mongo-restore --set-cursor 'mongorestore --gzip --drop --archive=/mnt/ext4/mongo_backup/%'
@@ -106,7 +108,7 @@ if status is-interactive
     abbr -a vencord 'sh -c "$(curl -sSL "https://github.com/Vencord/Installer/blob/main/install.sh?raw=true")"'
     abbr -a musescore-dl 'npx dl-librescore@latest'
 
-    abbr -a mclocal '~/games/mcservers/Divine_1-$mclocal_version/'
+    abbr -a mclocal '~/games/mcservers/divine/'
     abbr -a mcrun 'java -Xms2048M -Xmx8192M -jar server.jar nogui'
     abbr -a mcdebug --set-cursor 'java -Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005 -Xms2048M -Xmx2048M -jar server.jar nogui'
 
@@ -129,8 +131,10 @@ if status is-interactive
 
     # abbr -a ssh-home 'ssh -o ServerAliveInterval=60 forum-lib.at.ply.gg -p 49403'
     # abbr -a scp-home --set-cursor 'scp -P 49403 % forum-lib.at.ply.gg:'
-    abbr -a ssh-home 'ssh -o ServerAliveInterval=60 kruase@$SSH_HOME_DOMAIN -p $SSH_HOME_PORT'
-    abbr -a scp-home --set-cursor 'scp -P $SSH_HOME_PORT % kruase@$SSH_HOME_DOMAIN:'
+    # abbr -a ssh-home 'ssh -o ServerAliveInterval=60 -o PreferredAuthentications=password kruase@$SSH_HOME_DOMAIN -p $SSH_HOME_PORT'
+    # abbr -a scp-home --set-cursor 'scp -P $SSH_HOME_PORT % kruase@$SSH_HOME_DOMAIN:'
+    abbr -a ssh-home 'ssh kruase@$home_static_ip'
+    abbr -a scp-home --set-cursor 'scp % kruase@$home_static_ip:'
 
     abbr -a nf 'fastfetch'
     abbr -a gitfetch 'onefetch'
@@ -144,7 +148,7 @@ if status is-interactive
     abbr -a git-conf-mipt 'git config user.email "kruglikov.as@phystech.edu" && git config user.name "Андрей Кругликов"'
 
 
-    # Aliases
+    # aliases
     alias fan-silent='sudo sh -c "echo 2 > /sys/devices/platform/asus-nb-wmi/throttle_thermal_policy"'
     alias fan-balance='sudo sh -c "echo 0 > /sys/devices/platform/asus-nb-wmi/throttle_thermal_policy"'
     alias fan-turbo='sudo sh -c "echo 1 > /sys/devices/platform/asus-nb-wmi/throttle_thermal_policy"'
@@ -152,49 +156,47 @@ if status is-interactive
     alias drop-table='echo no way'
 
 
-    # Custom keybinds
+    # custom keybinds
     bind \ck backward-kill-line
     bind \cu yank
     bind \eu yank-pop
     bind -e \cd
 
 
-    # Fixing git alias completion
-    complete -c git -n '__fish_seen_subcommand_from po' -a '(complete -C "git push origin ")'
-    complete -c git -n '__fish_seen_subcommand_from pfo' -a '(complete -C "git push --force origin ")'
-    complete -c git -n '__fish_seen_subcommand_from pom' -a '(complete -C "git push origin main ")'
-    complete -c git -n '__fish_seen_subcommand_from sha' -a '(complete -C "git stash apply ")'
-    complete -c git -n '__fish_seen_subcommand_from shp' -a '(complete -C "git stash pop ")'
-    complete -c git -n '__fish_seen_subcommand_from shd' -a '(complete -C "git stash drop ")'
-    complete -c git -n '__fish_seen_subcommand_from wta' -a '(complete -C "git worktree add ")'
-    complete -c git -n '__fish_seen_subcommand_from wtr' -a '(complete -C "git worktree remove ")'
+    # uv completion
+    uv generate-shell-completion fish | source
+    uvx --generate-shell-completion fish | source
 
+    # fixing git alias completion
+    if test -f ~/.gitconfig
+        while read -l line
+            if test -z $inside_alias_section; and test $line = "[alias]"
+                set -f inside_alias_section true
+            else if test $inside_alias_section; and test (string sub -l 1 $line) = "["
+                set -e inside_alias_section
+            else if test $inside_alias_section
+                set -f alias_line (string split = $line | string trim)
+                complete -c git -n "__fish_seen_subcommand_from $alias_line[1]" -a "(complete -C \"git $alias_line[2] \")"
+            end
+        end < ~/.gitconfig
+    end
 
-    # Custom completion
+    # custom completion
     complete -c vpn --no-files -a 'add remove list connect disconnect toggle status'
 
 
-    # GOPATH
+    # gopath
     set -gx GOPATH /tmp/go
-
-    # flyctl setup
-    set -gx FLYCTL_INSTALL $HOME/.fly
-    fish_add_path $FLYCTL_INSTALL/bin
 
     # firefox wayland fix
     set -gx MOZ_ENABLE_WAYLAND 1
 
-    # wandb api key
-    set -gx WANDB_API_KEY (cat $HOME/.wandb)
-
-
-    # uv completion
-    uv generate-shell-completion fish | source
-    uvx --generate-shell-completion fish | source
+    # automatically warpify subshells
+    printf '\eP$f{"hook": "SourcedRcFileForWarp", "value": { "shell": "fish"}}\x9c'
 end
 
 # >>> conda initialize >>>
-# !! Contents within this block are managed by 'conda init' !!
+# !! contents within this block are managed by 'conda init' !!
 if test -f /home/kruase/anaconda3/bin/conda
     eval /home/kruase/anaconda3/bin/conda "shell.fish" "hook" $argv | source
 else

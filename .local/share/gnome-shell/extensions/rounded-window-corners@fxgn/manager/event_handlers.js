@@ -118,7 +118,6 @@ export function onSettingsChanged(key) {
             break;
         case 'global-rounded-corner-settings':
         case 'custom-rounded-corner-settings':
-        case 'border-color':
         case 'border-width':
         case 'tweak-kitty-terminal':
             refreshAllRoundedCorners();

@@ -6,9 +6,10 @@
   "shell-version": [
     "45",
     "46",
-    "47"
+    "47",
+    "48"
   ],
   "url": "https://github.com/axxapy/gnome-ui-tune",
   "uuid": "gnome-ui-tune@itstime.tech",
-  "version": 23
+  "version": 24
 }

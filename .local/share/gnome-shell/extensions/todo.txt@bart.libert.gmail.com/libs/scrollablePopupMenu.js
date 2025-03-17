@@ -1,3 +1,4 @@
+import Clutter from 'gi://Clutter';
 import St from 'gi://St';
 import {PopupMenu, PopupMenuBase, PopupSeparatorMenuItem, PopupSubMenuMenuItem} from 'resource:///org/gnome/shell/ui/popupMenu.js';
 
@@ -18,7 +19,7 @@ export class ScrollablePopupMenu extends PopupMenu {
         });
 
         this.boxlayout = new St.BoxLayout({
-            vertical: true
+            orientation: Clutter.Orientation.VERTICAL
         });
 
         this._boxPointer.bin.style_class = 'popup-menu-content';
@@ -73,7 +74,7 @@ export class ScrollablePopupMenu extends PopupMenu {
         }
         const sectionName = this._getSectionName(name);
         this[sectionName] = new St.BoxLayout({
-            vertical: true,
+            orientation: Clutter.Orientation.VERTICAL,
             style_class: this._getStyleName(name)
         });
         if (before === true) {

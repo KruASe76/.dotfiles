@@ -6,6 +6,7 @@
 import Adw from 'gi://Adw';
 import GLib from 'gi://GLib';
 import GObject from 'gi://GObject';
+import Gdk from 'gi://Gdk';
 import { gettext as _ } from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
 import { getPref, setPref } from '../../utils/settings.js';
 import { CustomSettingsRow, CustomSettingsRowClass, } from '../widgets/custom_settings_row.js';
@@ -94,6 +95,20 @@ export const CustomPage = GObject.registerClass({
         r.enabledRow.connect('notify::active', (row) => {
             r.checkState();
             this.#customWindowSettings[wmClass].enabled = row.get_active();
+            setPref('custom-rounded-corner-settings', this.#customWindowSettings);
+        });
+        const color = new Gdk.RGBA();
+        [color.red, color.green, color.blue, color.alpha] =
+            this.#customWindowSettings[wmClass].borderColor;
+        r.borderColorButton.set_rgba(color);
+        r.borderColorButton.connect('notify::rgba', (_button) => {
+            const color = r.borderColorButton.get_rgba();
+            this.#customWindowSettings[wmClass].borderColor = [
+                color.red,
+                color.green,
+                color.blue,
+                color.alpha,
+            ];
             setPref('custom-rounded-corner-settings', this.#customWindowSettings);
         });
         r.cornerRadius.set_value(this.#customWindowSettings[wmClass].borderRadius);

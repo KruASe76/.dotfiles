@@ -12,7 +12,6 @@ export const Schema = {
     'skip-libadwaita-app': 'b',
     'skip-libhandy-app': 'b',
     'border-width': 'i',
-    'border-color': '(dddd)',
     'global-rounded-corner-settings': 'a{sv}',
     'custom-rounded-corner-settings': 'a{sv}',
     'focused-shadow': 'a{si}',
@@ -77,7 +76,7 @@ export function bindPref(key, object, property, flags) {
  * @param prefs the GSettings object to clean.
  */
 function resetOutdated(prefs) {
-    const lastVersion = 6;
+    const lastVersion = 7;
     const currentVersion = prefs
         .get_user_value('settings-version')
         ?.recursiveUnpack();
@@ -87,6 +86,9 @@ function resetOutdated(prefs) {
         }
         prefs.reset('global-rounded-corner-settings');
         prefs.reset('custom-rounded-corner-settings');
+        if (prefs.list_keys().includes('border-color')) {
+            prefs.reset('border-color');
+        }
         prefs.reset('focused-shadow');
         prefs.reset('unfocused-shadow');
         prefs.set_uint('settings-version', lastVersion);
@@ -109,12 +111,14 @@ function packRoundedCornerSettings(settings) {
     const keepRoundedCorners = new GLib.Variant('a{sb}', settings.keepRoundedCorners);
     const borderRadius = GLib.Variant.new_uint32(settings.borderRadius);
     const smoothing = GLib.Variant.new_double(settings.smoothing);
+    const borderColor = new GLib.Variant('(dddd)', settings.borderColor);
     const enabled = GLib.Variant.new_boolean(settings.enabled);
     const variantObject = {
         padding: padding,
         keepRoundedCorners: keepRoundedCorners,
         borderRadius: borderRadius,
         smoothing: smoothing,
+        borderColor: borderColor,
         enabled: enabled,
     };
     return new GLib.Variant('a{sv}', variantObject);

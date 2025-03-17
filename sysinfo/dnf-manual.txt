@@ -25,14 +25,16 @@ glibc-static
 libtool
 mozilla-openh264
 docker-ce
+podman
+go
 links
 v4l2loopback
 steam
 portproton
 android-tools
 catimg
-chromedriver
 chromium
+chromedriver
 cmatrix
 code
 cowsay
@@ -104,3 +106,4 @@ postgresql-server
 postgresql-contrib
 xev
 netcat
+iftop

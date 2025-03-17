@@ -10,6 +10,7 @@ if status is-interactive
 
     # Custom variables
     set -gx vm "root@45.89.244.232"
+    set -gx home_static_ip "89.19.177.86"
     set -gx mclocal_version "20"
     set -gx ALSOFT_DRIVERS "pulse"
     set -gx OLLAMA_HOST "127.0.0.1:12345"
@@ -51,6 +52,7 @@ if status is-interactive
     abbr -a fix-perms 'chmod 771 ./**/* ; chmod 660 ./**/*.*'
     abbr -a fix-power 'sudo systemctl restart power-profiles-daemon.service'
     abbr -a fix-outline 'sudo -E pkill --full -i outline'
+    abbr -a fix-numpad 'sudo systemctl restart numpad-mouse-script.service'
 
     abbr -a clean 'sudo dnf5 autoremove -y && sudo dnf5 clean all && flatpak uninstall --unused -y && sudo journalctl --vacuum-time=1weeks && flatdir && rm ~/.python_history-*.tmp'
 
@@ -79,7 +81,7 @@ if status is-interactive
     abbr -a ppi 'pipenv install'
     abbr -a ppu 'pipenv uninstall'
     abbr -a pprm 'pipenv --rm'
-    abbr -a uvi 'uv init --no-readme --no-pin-python && rm hello.py'
+    abbr -a uvi 'uv init --no-readme && rm main.py'
     abbr -a rf 'uvx ruff format .'
     abbr -a rfl 'uvx ruff format . --line-length 79'
     abbr -a rc 'uvx ruff check --fix .'
@@ -92,8 +94,6 @@ if status is-interactive
     abbr -a dcdv 'docker compose down --rmi local -v'
 
     abbr -a appimage-build --set-cursor 'VERSION=% ~/appimages/appimagetool.AppImage'
-
-    abbr -a psql 'sudo -u postgres psql'
 
     abbr -a mongo-backup --set-cursor 'mongodump --gzip --archive=/mnt/ext4/mongo_backup/%'
     abbr -a mongo-restore --set-cursor 'mongorestore --gzip --drop --archive=/mnt/ext4/mongo_backup/%'
@@ -129,8 +129,10 @@ if status is-interactive
 
     # abbr -a ssh-home 'ssh -o ServerAliveInterval=60 forum-lib.at.ply.gg -p 49403'
     # abbr -a scp-home --set-cursor 'scp -P 49403 % forum-lib.at.ply.gg:'
-    abbr -a ssh-home 'ssh -o ServerAliveInterval=60 kruase@$SSH_HOME_DOMAIN -p $SSH_HOME_PORT'
-    abbr -a scp-home --set-cursor 'scp -P $SSH_HOME_PORT % kruase@$SSH_HOME_DOMAIN:'
+    # abbr -a ssh-home 'ssh -o ServerAliveInterval=60 -o PreferredAuthentications=password kruase@$SSH_HOME_DOMAIN -p $SSH_HOME_PORT'
+    # abbr -a scp-home --set-cursor 'scp -P $SSH_HOME_PORT % kruase@$SSH_HOME_DOMAIN:'
+    abbr -a ssh-home 'ssh kruase@$home_static_ip'
+    abbr -a scp-home --set-cursor 'scp % kruase@$home_static_ip:'
 
     abbr -a nf 'fastfetch'
     abbr -a gitfetch 'onefetch'
@@ -159,6 +161,10 @@ if status is-interactive
     bind -e \cd
 
 
+    # uv completion
+    uv generate-shell-completion fish | source
+    uvx --generate-shell-completion fish | source
+
     # Fixing git alias completion
     complete -c git -n '__fish_seen_subcommand_from po' -a '(complete -C "git push origin ")'
     complete -c git -n '__fish_seen_subcommand_from pfo' -a '(complete -C "git push --force origin ")'
@@ -168,7 +174,6 @@ if status is-interactive
     complete -c git -n '__fish_seen_subcommand_from shd' -a '(complete -C "git stash drop ")'
     complete -c git -n '__fish_seen_subcommand_from wta' -a '(complete -C "git worktree add ")'
     complete -c git -n '__fish_seen_subcommand_from wtr' -a '(complete -C "git worktree remove ")'
-
 
     # Custom completion
     complete -c vpn --no-files -a 'add remove list connect disconnect toggle status'
@@ -186,11 +191,6 @@ if status is-interactive
 
     # wandb api key
     set -gx WANDB_API_KEY (cat $HOME/.wandb)
-
-
-    # uv completion
-    uv generate-shell-completion fish | source
-    uvx --generate-shell-completion fish | source
 end
 
 # >>> conda initialize >>>

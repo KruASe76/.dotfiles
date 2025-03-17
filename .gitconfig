@@ -26,9 +26,9 @@
     sta = status
     a = add
     aa = add --all
+    una = restore --staged
+    unaa = restore --staged .
     rs = reset
-    rsh = reset HEAD
-    una = reset HEAD
     rshard = reset --hard
     cm = commit -m
     cam = commit -am
@@ -41,7 +41,9 @@
     pfo = push --force-with-lease origin
     pfom = push --force-with-lease origin main
     fetcha = fetch --all --prune
-    pullr = pull --rebase
+    fo = fetch origin
+    pu = pull
+    pur = pull --rebase
     sw = switch
     swc = switch -c
     co = checkout
@@ -55,6 +57,9 @@
     rbi = rebase --interactive
     rbc = rebase --continue
     rba = rebase --abort
+    chp = cherry-pick
+    chpc = cherry-pick --continue
+    chpa = cherry-pick --abort
     rmc = rm --cached
     graph = log --graph --oneline --decorate --all
     gra = log --graph --oneline --decorate --all

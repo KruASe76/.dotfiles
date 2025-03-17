@@ -11,8 +11,8 @@ SETUVAR --export OLLAMA_HOST:127\x2e0\x2e0\x2e1\x3a12345
 SETUVAR --export OLLAMA_KEEP_ALIVE:10m
 SETUVAR --export PYENV_ROOT:/home/kruase/\x2epyenv
 SETUVAR RANGER_LOAD_DEFAULT_RC:\x1d
-SETUVAR --export SSH_HOME_DOMAIN:5\x2etcp\x2eeu\x2engrok\x2eio
-SETUVAR --export SSH_HOME_PORT:14008
+SETUVAR --export SSH_HOME_DOMAIN:7\x2etcp\x2eeu\x2engrok\x2eio
+SETUVAR --export SSH_HOME_PORT:15680
 SETUVAR XCURSOR_THEME:Adwaita
 SETUVAR __fish_initialized:3400
 SETUVAR _fish_abbr_appimage_2D_build:\x2d\x2dset\x2dcursor\x20VERSION\x3d\x25\x20\x7e/tools/appimagetool\x2d730\x2dx86_64\x2eAppImage

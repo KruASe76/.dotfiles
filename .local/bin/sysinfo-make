@@ -25,13 +25,13 @@ snap_blacklist = (
 )
 
 
-os.system(f"dnf list installed > {prefix}dnf_raw.txt")
+os.system(f"dnf5 list --installed > {prefix}dnf_raw.txt")
 with open(f"{prefix}dnf_raw.txt", "r") as raw, open(f"{prefix}dnf.txt", "w") as result:
     lines = raw.readlines()[1:]
     result.write(" ".join(map(lambda line: line.split()[0], lines)))
 
 
-os.system(f"flatpak list > {prefix}flatpak-flathub_raw.txt")
+os.system(f"flatpak list --app > {prefix}flatpak-flathub_raw.txt")
 with open(f"{prefix}flatpak-flathub_raw.txt", "r") as raw, open(f"{prefix}flatpak-flathub.txt", "w") as result:
     lines = raw.readlines()
     lines = filter(lambda line: all([entry not in line for entry in flatpak_blacklist]), lines)

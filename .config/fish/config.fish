@@ -11,6 +11,7 @@ if status is-interactive
     # Custom variables
     set -gx vm "root@45.89.244.232"
     set -gx home_static_ip "89.19.177.86"
+    set -gx home_inner_ip "192.168.1.3"
     set -gx mclocal_version "20"
     set -gx ALSOFT_DRIVERS "pulse"
     set -gx OLLAMA_HOST "127.0.0.1:12345"
@@ -34,9 +35,12 @@ if status is-interactive
     abbr -a mkdir 'mkdir -p'
     abbr -a --position anywhere grep 'grep -E'
     abbr -a duc 'dust -r'
-    abbr -a cat 'bat'
-    abbr -a catt 'bat -p'
-    abbr -a batt 'bat -p'
+    abbr -a cat 'bat -p'
+    abbr -a bat 'bat -p'
+    abbr -a catl 'bat -pP'
+    abbr -a batl 'bat -pP'
+
+    abbr -a ta 'tmux attach'
 
     abbr -a up 'sudo dnf5 --refresh upgrade'
     abbr -a upy 'sudo dnf5 --refresh upgrade -y'
@@ -86,12 +90,17 @@ if status is-interactive
     abbr -a rfl 'uvx ruff format . --line-length 79'
     abbr -a rc 'uvx ruff check --fix .'
 
+    abbr -a gapf 'git add --all && git commit --amend --no-edit && git push --force-with-lease'
+
     abbr -a dpgu 'docker run --name pocket-postgres -e POSTGRES_DB=kruase -e POSTGRES_USER=kruase -e POSTGRES_PASSWORD=kruase-password -p 5432:5432 -v kruase-postgres:/var/lib/postgresql/data -d postgres:16-alpine'
     abbr -a dpgd 'docker container rm pocket-postgres -f'
     abbr -a dpgdv 'docker container rm pocket-postgres -f && docker volume rm kruase-postgres'
     abbr -a dcu 'docker compose up -d'
     abbr -a dcd 'docker compose down --rmi local'
     abbr -a dcdv 'docker compose down --rmi local -v'
+    abbr -a dcr 'docker compose down --rmi local && docker compose up -d'
+    abbr -a dcp 'docker compose pull'
+
 
     abbr -a appimage-build --set-cursor 'VERSION=% ~/appimages/appimagetool.AppImage'
 
@@ -166,14 +175,18 @@ if status is-interactive
     uvx --generate-shell-completion fish | source
 
     # Fixing git alias completion
-    complete -c git -n '__fish_seen_subcommand_from po' -a '(complete -C "git push origin ")'
-    complete -c git -n '__fish_seen_subcommand_from pfo' -a '(complete -C "git push --force origin ")'
-    complete -c git -n '__fish_seen_subcommand_from pom' -a '(complete -C "git push origin main ")'
-    complete -c git -n '__fish_seen_subcommand_from sha' -a '(complete -C "git stash apply ")'
-    complete -c git -n '__fish_seen_subcommand_from shp' -a '(complete -C "git stash pop ")'
-    complete -c git -n '__fish_seen_subcommand_from shd' -a '(complete -C "git stash drop ")'
-    complete -c git -n '__fish_seen_subcommand_from wta' -a '(complete -C "git worktree add ")'
-    complete -c git -n '__fish_seen_subcommand_from wtr' -a '(complete -C "git worktree remove ")'
+    if test -f ~/.gitconfig
+        while read -l line
+            if test -z $inside_alias_section; and test $line = "[alias]"
+                set inside_alias_section true
+            else if test $inside_alias_section; and test (string sub -l 1 $line) = "["
+                set -e inside_alias_section
+            else if test $inside_alias_section
+                set alias_line (string split = $line | string trim)
+                complete -c git -n "__fish_seen_subcommand_from $alias_line[1]" -a "(complete -C \"git $alias_line[2] \")"
+            end
+        end < ~/.gitconfig
+    end
 
     # Custom completion
     complete -c vpn --no-files -a 'add remove list connect disconnect toggle status'

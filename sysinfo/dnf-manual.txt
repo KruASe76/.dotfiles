@@ -8,11 +8,13 @@ rocm*
 dnf-utils
 util-linux-user
 pv
+ptyxis
 gnome-tweaks
 touchegg
 zen-browser
 ratbagd
 piper
+wl-clipboard
 tk-devel
 bzip2-devel
 readline-devel

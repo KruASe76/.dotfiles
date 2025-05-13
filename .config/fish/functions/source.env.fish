@@ -14,7 +14,7 @@ function source.env
     end
 
     for line in (cat $env_file)
-        if ! test -z $line
+        if ! test -z $line -o (string sub -l 1 (string trim $line)) = "#"
             set -gx (string split -m 1 "=" $line)
         end
     end

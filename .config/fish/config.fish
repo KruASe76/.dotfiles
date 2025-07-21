@@ -94,6 +94,8 @@ if status is-interactive
     abbr -a dcr 'docker compose down --rmi local && docker compose up -d'
     abbr -a dcp 'docker compose pull'
 
+    abbr -a nu 'netbird up'
+    abbr -a nd 'netbird down'
 
     abbr -a appimage-build --set-cursor 'VERSION=% ~/appimages/appimagetool.AppImage'
 

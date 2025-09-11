@@ -1,5 +1,6 @@
 # This file contains fish universal variable definitions.
 # VERSION: 3.0
+SETUVAR --export REQUESTS_CA_BUNDLE:/etc/pki/tls/certs/ca\x2dbundle\x2ecrt
 SETUVAR __fish_initialized:3800
 SETUVAR _fish_abbr_appimage_2D_build:\x2d\x2dset\x2dcursor\x20VERSION\x3d\x25\x20\x7e/tools/appimagetool\x2d730\x2dx86_64\x2eAppImage
 SETUVAR _fish_abbr_bc:bc\x20\x2dl
@@ -68,4 +69,4 @@ SETUVAR fish_pager_color_selected_background:\x2d\x2dreverse
 SETUVAR fish_pager_color_selected_completion:\x1d
 SETUVAR fish_pager_color_selected_description:\x1d
 SETUVAR fish_pager_color_selected_prefix:\x1d
-SETUVAR fish_user_paths:/home/kruase/\x2elocal/bin\x1e/home/linuxbrew/\x2elinuxbrew/bin\x1e/home/kruase/\x2ecargo/bin\x1e/home/kruase/\x2elocal/share/JetBrains/Toolbox/scripts
+SETUVAR fish_user_paths:/home/kruase/appimages\x1e/home/kruase/\x2elocal/bin\x1e/home/linuxbrew/\x2elinuxbrew/bin\x1e/home/kruase/\x2ecargo/bin\x1e/home/kruase/\x2elocal/share/JetBrains/Toolbox/scripts

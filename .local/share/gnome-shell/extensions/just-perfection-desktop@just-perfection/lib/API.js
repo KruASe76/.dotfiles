@@ -145,7 +145,28 @@ export class API
     open()
     {
         this.UIStyleClassAdd(this.#getAPIClassname('shell-version'));
-        this.#registerLookingGlassSignals();
+
+        // Getting the looking glass instance before having primary monitor
+        // can cause fatal error. So we wait for primary monitor
+        // until it is available
+        // Fixes #166
+        this.#timeoutIds.registerLookingGlassSignals = this._glib.timeout_add(
+            this._glib.PRIORITY_DEFAULT,
+            1000,
+            () => {
+                let pMonitor = this._main.layoutManager.primaryMonitor;
+
+                if (!pMonitor) {
+                    return this._glib.SOURCE_CONTINUE;
+                }
+
+                this.#registerLookingGlassSignals();
+
+                this.#timeoutIds.registerLookingGlassSignals = null;
+
+                return this._glib.SOURCE_REMOVE;
+            }
+        );
     }
 
     /**
@@ -155,16 +176,19 @@ export class API
      */
     close()
     {
+        for (let [name, id] of Object.entries(this.#timeoutIds)) {
+            if (id) {
+                this._glib.source_remove(id);
+            }
+            delete(this.#timeoutIds[name]);
+        }
+
         this.UIStyleClassRemove(this.#getAPIClassname('shell-version'));
         this.#startSearchSignal(false);
         this.#computeWorkspacesBoxForStateSetDefault();
         this.#altTabSizesSetDefault();
         this.#unregisterLookingGlassSignals();
-        
-        for (let [name, id] of Object.entries(this.#timeoutIds)) {
-            this._glib.source_remove(id);
-            delete(this.#timeoutIds[name]);
-        }
+        this.#stopAllOnQuickSettingsPropertyCalls();
     }
 
     /**
@@ -1643,15 +1667,19 @@ export class API
             return;
         }
 
-        let display = global.display;
-
-        let createdFunction = (display, window) => {
-            if (window.can_maximize()) {
-                window.maximize(this._meta.MaximizeFlags.HORIZONTAL | this._meta.MaximizeFlags.VERTICAL);
+        this._displayWindowCreatedSignal = global.display.connect(
+            'window-created',
+            (display, window) => {
+                if (!window.can_maximize()) {
+                    return;
+                }
+                if (this.#shellVersion >= 49) {
+                    window.maximize();
+                } else {
+                    window.maximize(this._meta.MaximizeFlags.HORIZONTAL | this._meta.MaximizeFlags.VERTICAL);
+                }
             }
-        };
-
-        this._displayWindowCreatedSignal = display.connect('window-created', createdFunction);
+        );
     }
 
     /**
@@ -1665,9 +1693,7 @@ export class API
             return;
         }
 
-        let display = global.display;
-
-        display.disconnect(this._displayWindowCreatedSignal);
+        global.display.disconnect(this._displayWindowCreatedSignal);
         delete(this._displayWindowCreatedSignal);
     }
 
@@ -2991,6 +3017,43 @@ export class API
     }
 
     /**
+     * show window menu
+     *
+     * @returns {void}
+     */
+    windowMenuShow()
+    {
+        let WindowMenuManagerProto = this._windowMenu.WindowMenuManager.prototype;
+
+        if (!this.#originals['showWindowMenuForWindow']) {
+            return;
+        }
+
+        WindowMenuManagerProto.showWindowMenuForWindow = this.#originals['showWindowMenuForWindow'];
+
+        delete(this.#originals['showWindowMenuForWindow']);
+    }
+
+    /**
+     * hide window menu
+     *
+     * @returns {void}
+     */
+    windowMenuHide()
+    {
+        let WindowMenuManagerProto = this._windowMenu.WindowMenuManager.prototype;
+
+        if (!this.#originals['showWindowMenuForWindow']) {
+            this.#originals['showWindowMenuForWindow'] = WindowMenuManagerProto.showWindowMenuForWindow;
+        }
+
+        WindowMenuManagerProto.showWindowMenuForWindow = (window, _type, _rect) => {
+            window.focus(global.get_current_time());
+            window.raise();
+        };
+    }
+
+    /**
      * show screenshot in window menu
      *
      * @returns {void}
@@ -3417,7 +3480,7 @@ export class API
     }
 
     /**
-     * set workspaces view spacing size
+     * call a function when async property of quick settings is available
      *
      * @param {string} propertyName
      * @param {Function} func function to call when the property is available
@@ -3427,14 +3490,57 @@ export class API
     #onQuickSettingsPropertyCall(propertyName, func)
     {
         const quickSettings = this._main.panel.statusArea.quickSettings;
+        const indicators = quickSettings._indicators;
 
-        this._glib.idle_add(this._glib.PRIORITY_DEFAULT_IDLE, () => {
-            if (!quickSettings[propertyName]) {
-                return this._glib.SOURCE_CONTINUE;
-            }
+        if (quickSettings[propertyName]) {
             func(quickSettings[propertyName]);
-            return this._glib.SOURCE_REMOVE;
-        });
+            return;
+        }
+
+        if (!this._quickSettingsCallSignals) {
+            this._quickSettingsCallSignals = {};
+        }
+
+        if (this._quickSettingsCallSignals[propertyName]) {
+            indicators.disconnect(this._quickSettingsCallSignals[propertyName]);
+        }
+
+        this._quickSettingsCallSignals[propertyName] = indicators.connect(
+            (this.#shellVersion >= 46) ? 'child-added' : 'actor-added',
+            () => {
+                if (!quickSettings[propertyName]) {
+                    return;
+                }
+
+                if (this._quickSettingsCallSignals[propertyName]) {
+                    indicators.disconnect(this._quickSettingsCallSignals[propertyName]);
+                }
+
+                func(quickSettings[propertyName]);
+            }
+        );
+    }
+
+    /**
+     * disconnect all quick settings property calls
+     *
+     * @returns {void}
+     */
+    #stopAllOnQuickSettingsPropertyCalls()
+    {
+        if (!this._quickSettingsCallSignals) {
+            return;
+        }
+
+        const indicators = this._main.panel.statusArea.quickSettings._indicators;
+
+        for (let [_name, id] of Object.entries(this._quickSettingsCallSignals)) {
+            if (id) {
+                indicators.disconnect(id);
+            }
+        }
+
+        delete(this._quickSettingsCallSignals);
     }
 
     /**

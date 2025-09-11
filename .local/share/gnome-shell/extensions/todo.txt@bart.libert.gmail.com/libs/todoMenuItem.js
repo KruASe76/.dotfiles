@@ -139,7 +139,9 @@ export const TodoMenuItem = GObject.registerClass({
                 }
             });
         }
-        this.label.set_style(`max-width: ${this.maxWidth}px`);
+        // Preserve existing styles and add max-width
+       const currentStyle = this.label.get_style() || '';
+       this.label.set_style(`${currentStyle} max-width: ${this.maxWidth}px; `);
     }
 
     _getLabelText(source) {

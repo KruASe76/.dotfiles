@@ -7,6 +7,20 @@ We go to the next version after each release on the
 
 ## [Unreleased]
 
+## [35.0] - 2025-08-29
+
+### Added
+
+- GNOME Shell 49 Support.
+- Window Menu Visibility.
+
+### Fixed
+
+- Avoid showing support notifications immediately after login.
+- Primary monitor error for registering looking glass signals.
+- Startup freeze on NixOS.
+- The page icon in preferences window for GNOME Shell 48.
+
 ## [34.0] - 2025-02-02
 
 ### Removed
@@ -18,6 +32,7 @@ We go to the next version after each release on the
 ### Fixed
 
 - The monthly notification support calculation.
+- German Translation by [@uwe-ss](https://gitlab.gnome.org/uwe-ss).
 
 ## [32.0] - 2025-02-01
 

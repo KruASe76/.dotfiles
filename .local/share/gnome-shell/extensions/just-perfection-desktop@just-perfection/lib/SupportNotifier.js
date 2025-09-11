@@ -50,6 +50,7 @@ export class SupportNotifier
      * @param {Object} dependencies
      *   'MessageTray' reference to ui::messageTray
      *   'Main' reference to ui::main
+     *   'GLib' reference to GLib
      *   'Gio' reference to Gio
      * @param {number} shellVersion float in major.minor format
      * @param {number} extensionVersion integer
@@ -59,6 +60,7 @@ export class SupportNotifier
     {
         this._messageTray = dependencies['MessageTray'] || null;
         this._main = dependencies['Main'] || null;
+        this._glib = dependencies['GLib'] || null;
         this._gio = dependencies['Gio'] || null;
         this.#settings = dependencies['Settings'] || null;
 
@@ -88,11 +90,27 @@ export class SupportNotifier
      */
     start()
     {
+        if (!this.#isAllowedForCurrentVersion()) {
+            return;
+        }
+
         let type = this.#settings.get_int('support-notifier-type');
 
         if (type === TYPE.NEW_RELEASE) {
             if (!this.#isShownForCurrentVersion()) {
-                this.#showNotification();
+                if (this._timeoutId) {
+                    this._glib.source_remove(this._timeoutId);
+                    this._timeoutId = null;
+                }
+                this._timeoutId = this._glib.timeout_add_seconds(
+                    this._glib.PRIORITY_LOW,
+                    300,
+                    () => {
+                        this.#showNotification();
+                        this._timeoutId = null;
+                        return this._glib.SOURCE_REMOVE;
+                    }
+                );
             }
         }
     }
@@ -104,6 +122,10 @@ export class SupportNotifier
      */
     stop()
     {
+        if (this._timeoutId) {
+            this._glib.source_remove(this._timeoutId);
+            this._timeoutId = null;
+        }
     }
 
     /**
@@ -115,6 +137,19 @@ export class SupportNotifier
     {
         this.stop();
         this.start();
+    }
+
+    /**
+     * checks whether the notification can be shown for the current version.
+     *
+     * we are going to only show the notification for specific versions,
+     * for example, every 'n' versions.
+     *
+     * @returns {boolean}
+     */
+    #isAllowedForCurrentVersion()
+    {
+        return this.#extensionVersion % 3 === 0;
     }
 
     /**
@@ -136,7 +171,7 @@ export class SupportNotifier
      */
     #showNotification()
     {
-        let title = "Support Just Perfection Extension";
+        let title = `Just Perfection Extension Updated To Version ${this.#extensionVersion}`;
         let body = "The future of the Just Perfection extension depends on your support! " +
             "Your donation will help add new features and updates. " +
             "Please consider making a donation." +

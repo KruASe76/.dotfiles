@@ -78,7 +78,7 @@ if status is-interactive
     abbr -a ppi 'pipenv install'
     abbr -a ppu 'pipenv uninstall'
     abbr -a pprm 'pipenv --rm'
-    abbr -a uvi 'uv init --no-readme && rm main.py'
+    abbr -a uvi 'uv init --bare'
     abbr -a rf 'uvx ruff format .'
     abbr -a rfl 'uvx ruff format . --line-length 79'
     abbr -a rc 'uvx ruff check --fix .'
@@ -89,13 +89,17 @@ if status is-interactive
     abbr -a dpgd 'docker container rm pocket-postgres -f'
     abbr -a dpgdv 'docker container rm pocket-postgres -f && docker volume rm kruase-postgres'
     abbr -a dcu 'docker compose up -d'
-    abbr -a dcd 'docker compose down --rmi local'
-    abbr -a dcdv 'docker compose down --rmi local -v'
-    abbr -a dcr 'docker compose down --rmi local && docker compose up -d'
+    abbr -a dcd 'docker compose down'
+    abbr -a dcdr 'docker compose down --rmi local'
+    abbr -a dcdv 'docker compose down -v'
+    abbr -a dcdvr 'docker compose down -v --rmi local'
+    abbr -a dcr 'docker compose down && docker compose up -d'
+    abbr -a dcrr 'docker compose down --rmi local && docker compose up -d'
     abbr -a dcp 'docker compose pull'
 
     abbr -a nu 'netbird up'
     abbr -a nd 'netbird down'
+    abbr -a ns 'netbird status'
 
     abbr -a appimage-build --set-cursor 'VERSION=% ~/appimages/appimagetool.AppImage'
 
@@ -148,6 +152,7 @@ if status is-interactive
     abbr -a byedpi 'ciadpi -i 127.0.0.1 --disorder 1 --auto=torst --tlsrec 1+s'
 
     abbr -a git-conf-mipt 'git config user.email "kruglikov.as@phystech.edu" && git config user.name "Андрей Кругликов"'
+    abbr -a git-conf-apt 'git config user.email "a.kruglikov@cicada8.ru" && git config user.name "Андрей Кругликов"'
 
 
     # aliases
@@ -165,9 +170,8 @@ if status is-interactive
     bind -e \cd
 
 
-    # uv completion
-    uv generate-shell-completion fish | source
-    uvx --generate-shell-completion fish | source
+    # brew completions
+    set -a fish_complete_path /home/linuxbrew/.linuxbrew/share/fish/vendor_completions.d
 
     # fixing git alias completion
     if test -f ~/.gitconfig
@@ -195,6 +199,10 @@ if status is-interactive
 
     # automatically warpify subshells
     printf '\eP$f{"hook": "SourcedRcFileForWarp", "value": { "shell": "fish"}}\x9c'
+
+    # make poetry trust system certificates
+    set -gx REQUESTS_CA_BUNDLE /etc/pki/tls/certs/ca-bundle.crt
+    set -gx SSL_CERT_FILE /etc/pki/tls/certs/ca-bundle.crt
 end
 
 # >>> conda initialize >>>

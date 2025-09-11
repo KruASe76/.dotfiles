@@ -1,0 +1,4 @@
+dust
+lazydocker
+pipx
+uv

@@ -22,6 +22,10 @@ import * as utils from '../utils.js';
 // only uses the static metadata of the effect.
 const ShaderFactory = await utils.importInShellOnly('./ShaderFactory.js');
 
+// We import Gtk for the color preview in the preferences dialog. This is only available
+// and required in the preferences process.
+const Gtk = await utils.importInPrefsOnly('gi://Gtk');
+
 const _ = await utils.importGettext();
 
 //////////////////////////////////////////////////////////////////////////////////////////
@@ -102,6 +106,31 @@ export default class Effect {
     dialog.bindAdjustment('aura-glow-edge-size');
     dialog.bindAdjustment('aura-glow-edge-hardness');
     dialog.bindAdjustment('aura-glow-blur');
+
+    dialog.getBuilder()
+      .get_object('aura-glow-hue-preview')
+      .set_draw_func((area, cairo) => {
+        const hueScale  = dialog.getBuilder().get_object('aura-glow-start-hue-slider');
+        const satScale  = dialog.getBuilder().get_object('aura-glow-saturation-slider');
+        const [r, g, b] = Gtk.hsv_to_rgb(hueScale.get_value(), satScale.get_value(), 1);
+        const height    = area.get_allocated_height();
+        const width     = area.get_allocated_width();
+        cairo.setSourceRGB(r, g, b);
+        cairo.arc(width / 2, height / 2, width / 2, 0.0, 2 * Math.PI);
+        cairo.fill();
+      });
+
+    function redrawHuePreview() {
+      dialog.getBuilder().get_object('aura-glow-hue-preview').queue_draw();
+    }
+
+    dialog.getBuilder()
+      .get_object('aura-glow-start-hue-slider')
+      .connect('value-changed', redrawHuePreview);
+
+    dialog.getBuilder()
+      .get_object('aura-glow-saturation-slider')
+      .connect('value-changed', redrawHuePreview);
 
     // enable and disable the one slider
     function enableDisablePref(dialog, state) {

@@ -3,6 +3,7 @@ fish
 stow
 clang
 python3-pip
+pipx
 snapd
 rocm*
 dnf-utils
@@ -109,3 +110,5 @@ postgresql-contrib
 xev
 netcat
 iftop
+cronie
+socat

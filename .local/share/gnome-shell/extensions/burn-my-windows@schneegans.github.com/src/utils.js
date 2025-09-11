@@ -102,6 +102,15 @@ export async function importInShellOnly(module) {
   return null;
 }
 
+// This method can be used to import a module in the preferences process only. The same as
+// importInShellOnly(), but the other way around.
+export async function importInPrefsOnly(module) {
+  if (typeof global === 'undefined') {
+    return (await import(module)).default;
+  }
+  return null;
+}
+
 // This method can be used to import gettext. This is done differently in the
 // GNOME Shell process and in the preferences process.
 export async function importGettext() {

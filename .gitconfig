@@ -27,7 +27,7 @@
     a = add
     aa = add --all
     una = restore --staged
-    unaa = restore --staged .
+    unaa = reset
     rs = reset
     rshard = reset --hard
     cm = commit -m
@@ -41,6 +41,7 @@
     pfo = push --force-with-lease origin
     pfom = push --force-with-lease origin main
     f = fetch
+    fo = fetch origin
     fa = fetch --all --prune
     pu = pull
     pur = pull --rebase

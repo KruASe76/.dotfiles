@@ -339,6 +339,12 @@
       <description>OSD Position Status</description>
     </key>
 
+    <key type="b" name="window-menu">
+      <default>true</default>
+      <summary>Window Menu</summary>
+      <description>Window Menu Status</description>
+    </key>
+
     <key type="b" name="window-menu-take-screenshot-button">
       <default>true</default>
       <summary>Window Menu Take Screenshot Button Visibility</summary>
@@ -392,7 +398,7 @@
     </key>
 
     <key type="i" name="max-displayed-search-results">
-      <default>1</default>
+      <default>0</default>
       <range min="0" max="40"/>
       <summary>0 means default, max displayed search results otherwise</summary>
       <description>Max Displayed Search Results</description>

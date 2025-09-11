@@ -1,5 +1,10 @@
 # Changelog
 
+# v53
+
+- Make compatible with Gnome Shell 49
+- Fix "won't show color when truncate is on" (thanks LeonardNJU)
+
 # v52
 
 - Update Catalan translations

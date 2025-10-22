@@ -15,7 +15,7 @@ import * as handlers from './event_handlers.js';
  */
 export function enableEffect() {
     // Update the effect when settings are changed.
-    connect(prefs, 'changed', (_, key) => handlers.onSettingsChanged(key));
+    connect(prefs, 'changed', handlers.onSettingsChanged);
     const wm = global.windowManager;
     // Add the effect to all windows when the extension is enabled.
     const windowActors = global.get_window_actors();
@@ -65,8 +65,7 @@ const connections = [];
  * @param callback - The function to connect to the signal.
  */
 function connect(object, signal, 
-// Signal callbacks can have any return args and return types.
-// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+// biome-ignore lint/suspicious/noExplicitAny: Signal callbacks can have any return args and return types.
 callback) {
     connections.push({
         object: object,
@@ -119,6 +118,9 @@ function applyEffectTo(actor) {
     connect(texture, 'size-changed', () => {
         handlers.onSizeChanged(actor);
     });
+    // Get notified about fullscreen explicitly, since a window must not change in
+    // size to go fullscreen
+    connect(actor.metaWindow, 'notify::fullscreen', () => handlers.onSizeChanged(actor));
     // Window focus changed.
     connect(actor.metaWindow, 'notify::appears-focused', () => handlers.onFocusChanged(actor));
     // Workspace or monitor of the window changed.

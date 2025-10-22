@@ -4,9 +4,10 @@
   "name": "Do Not Disturb While Screen Sharing Or Recording",
   "shell-version": [
     "47",
-    "48"
+    "48",
+    "49"
   ],
   "url": "https://github.com/marcinjahn/gnome-do-not-disturb-while-screen-sharing-or-recording-extension",
   "uuid": "do-not-disturb-while-screen-sharing-or-recording@marcinjahn.com",
-  "version": 5
+  "version": 6
 }

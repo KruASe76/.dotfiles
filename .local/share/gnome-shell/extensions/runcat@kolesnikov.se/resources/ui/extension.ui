@@ -18,6 +18,4 @@
         <property name="x-align">fill</property>
         <property name="y-align">center</property>
     </object>
-
-    <object class="StBoxLayout" id="labelBox" />
 </interface>

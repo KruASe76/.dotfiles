@@ -5,7 +5,7 @@
  * XXX: It seems like this relies on GNOME Shell methods which aren't supposed
  *      to be public. Perhaps this would be removed in the future.
  */
-import { Extension, gettext as _, } from 'resource:///org/gnome/shell/extensions/extension.js';
+import { gettext as _, Extension, } from 'resource:///org/gnome/shell/extensions/extension.js';
 import { PopupMenuItem } from 'resource:///org/gnome/shell/ui/popupMenu.js';
 /** Enable the "rounded corner settings" item in desktop context menu. */
 export function enableBackgroundMenuItem() {

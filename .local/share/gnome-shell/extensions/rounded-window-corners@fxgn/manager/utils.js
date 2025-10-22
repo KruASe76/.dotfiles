@@ -81,17 +81,15 @@ export function computeBounds(actor, [x, y, width, height]) {
     };
     // Kitty draws its window decoration by itself, so we need to manually
     // clip its shadow and recompute the outer bounds for it.
-    if (getPref('tweak-kitty-terminal')) {
-        if (actor.metaWindow.get_client_type() ===
-            Meta.WindowClientType.WAYLAND &&
-            actor.metaWindow.get_wm_class_instance() === 'kitty') {
-            const [x1, y1, x2, y2] = APP_SHADOWS.kitty;
-            const scale = windowScaleFactor(actor.metaWindow);
-            bounds.x1 += x1 * scale;
-            bounds.y1 += y1 * scale;
-            bounds.x2 -= x2 * scale;
-            bounds.y2 -= y2 * scale;
-        }
+    if (getPref('tweak-kitty-terminal') &&
+        actor.metaWindow.get_client_type() === Meta.WindowClientType.WAYLAND &&
+        actor.metaWindow.get_wm_class_instance() === 'kitty') {
+        const [x1, y1, x2, y2] = APP_SHADOWS.kitty;
+        const scale = windowScaleFactor(actor.metaWindow);
+        bounds.x1 += x1 * scale;
+        bounds.y1 += y1 * scale;
+        bounds.x2 -= x2 * scale;
+        bounds.y2 -= y2 * scale;
     }
     return bounds;
 }
@@ -205,7 +203,7 @@ export function shouldEnableEffect(win) {
     const fullscreen = win.fullscreen;
     const cfg = getRoundedCornersCfg(win);
     return (!(maximized || fullscreen) ||
-        (maximized && cfg.keepRoundedCorners.maximized) ||
+        (maximized && !fullscreen && cfg.keepRoundedCorners.maximized) ||
         (fullscreen && cfg.keepRoundedCorners.fullscreen));
 }
 /**
@@ -215,6 +213,14 @@ export function shouldEnableEffect(win) {
  * @returns the type of the application.
  */
 function getAppType(win) {
+    // Calling win.get_pid() on Nauilus (Files app) returns the PID of
+    // Gnome Shell instead of Nautilus itself, so checking it's maps file for
+    // libadwaita doesn't work.
+    //
+    // See https://gitlab.gnome.org/GNOME/mutter/-/issues/4038
+    if (win.wmClass === 'org.gnome.Nautilus') {
+        return 'LibAdwaita';
+    }
     try {
         // May throw a permission error.
         const contents = readFile(`/proc/${win.get_pid()}/maps`);

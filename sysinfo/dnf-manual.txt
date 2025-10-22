@@ -88,7 +88,6 @@ seahorse-nautilus
 python3-distutils-extra
 nodejs
 yarnpkg
-prismlauncher-qt5
 obs-studio
 btop
 bat
@@ -112,3 +111,5 @@ netcat
 iftop
 cronie
 socat
+compiler-rt
+hydra

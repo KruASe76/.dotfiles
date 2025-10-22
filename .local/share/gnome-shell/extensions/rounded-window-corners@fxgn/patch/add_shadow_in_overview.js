@@ -15,10 +15,6 @@ import { logDebug } from '../utils/log.js';
 export function addShadowInOverview(window, self) {
     // Create a new error object and use it to get the call stack of
     // the function.
-    //
-    // Since the error is not actually being raised, it doesn't need
-    // an error message.
-    // biome-ignore lint/suspicious/useErrorMessage:
     const stack = new Error().stack?.trim();
     if (stack === undefined ||
         stack.indexOf('_updateAttachedDialogs') !== -1 ||

@@ -1,6 +1,5 @@
 import { Extension } from 'resource:///org/gnome/shell/extensions/extension.js'
 import { panel as MainPanel } from 'resource:///org/gnome/shell/ui/main.js'
-
 import RunCatIndicator from './indicator.js'
 
 
@@ -13,7 +12,7 @@ export default class RunCatExtension extends Extension {
 	}
 
 	disable() {
-		this.#indicator.destroy()
+		this.#indicator?.destroy()
 		this.#indicator = null
 	}
 }

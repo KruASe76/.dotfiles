@@ -7,9 +7,10 @@
   "shell-version": [
     "46",
     "47",
-    "48"
+    "48",
+    "49"
   ],
   "url": "https://github.com/win0err/gnome-runcat",
   "uuid": "runcat@kolesnikov.se",
-  "version": 29
+  "version": 31
 }

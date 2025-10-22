@@ -2,8 +2,8 @@
  * @file This file contains the implementation of the DBus interface for the
  * window picker. See the {@link WindowPicker} class for more information.
  */
-import GLib from 'gi://GLib';
 import Gio from 'gi://Gio';
+import GLib from 'gi://GLib';
 import Meta from 'gi://Meta';
 import { Inspector } from 'resource:///org/gnome/shell/ui/lookingGlass.js';
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';

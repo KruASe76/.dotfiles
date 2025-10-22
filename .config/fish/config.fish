@@ -44,6 +44,7 @@ if status is-interactive
     abbr -a flup 'flatpak update'
     abbr -a brup 'brew update && brew upgrade'
     abbr -a carup 'cargo install-update -a'
+    abbr -a uvup 'uv tool upgrade --all'
     abbr -a up-pip "pip --disable-pip-version-check list --outdated --format=json | python3 -c \"import json, sys; print('\n'.join([x['name'] for x in json.load(sys.stdin)]))\" | xargs -n1 pip install -U"
 
     abbr -a fix-perms 'chmod 771 ./**/* ; chmod 660 ./**/*.*'
@@ -95,6 +96,7 @@ if status is-interactive
     abbr -a dcdvr 'docker compose down -v --rmi local'
     abbr -a dcr 'docker compose down && docker compose up -d'
     abbr -a dcrr 'docker compose down --rmi local && docker compose up -d'
+    abbr -a dcrvr 'docker compose down --rmi local -v && docker compose up -d'
     abbr -a dcp 'docker compose pull'
 
     abbr -a nu 'netbird up'

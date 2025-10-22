@@ -6,9 +6,10 @@
     "45",
     "46",
     "47",
-    "48"
+    "48",
+    "49"
   ],
-  "url": "https://github.com/ethnarque/gnome-disable-workspace-animation",
+  "url": "https://github.com/monologiq/gnome-disable-workspace-animation",
   "uuid": "disable-workspace-animation@ethnarque",
-  "version": 7
+  "version": 8
 }

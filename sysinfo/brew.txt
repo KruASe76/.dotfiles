@@ -2,3 +2,5 @@ dust
 lazydocker
 pipx
 uv
+gemini-cli
+qwen-code

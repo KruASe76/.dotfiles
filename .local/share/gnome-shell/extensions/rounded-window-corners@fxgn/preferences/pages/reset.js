@@ -7,7 +7,7 @@ import Adw from 'gi://Adw';
 import GLib from 'gi://GLib';
 import GObject from 'gi://GObject';
 import { gettext as _ } from 'resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js';
-import { Schema, getPref, prefs, setPref, } from '../../utils/settings.js';
+import { getPref, prefs, Schema, setPref, } from '../../utils/settings.js';
 export const ResetPage = GObject.registerClass({
     Template: GLib.uri_resolve_relative(import.meta.url, 'reset.ui', GLib.UriFlags.NONE),
     GTypeName: 'ResetPage',

@@ -34,9 +34,7 @@ export default class RoundedWindowCornersReborn extends Extension {
                     enableBackgroundMenuItem();
                 }
                 layoutManager.disconnect(
-                // Since this happens inside of the connection, there
-                // is no way for this to be null.
-                // biome-ignore lint/style/noNonNullAssertion:
+                // biome-ignore lint/style/noNonNullAssertion: Since this happens inside of the connection, there is no way for this to be null.
                 this.#layoutManagerStartupConnection);
             });
         }

@@ -24,16 +24,14 @@ import St from 'gi://St';
 import Meta from 'gi://Meta';
 import Pango from 'gi://Pango';
 import GLib from 'gi://GLib';
-import Cogl from 'gi://Cogl';
 import Graphene from 'gi://Graphene';
-
 
 import * as Main from 'resource:///org/gnome/shell/ui/main.js';
 
 import {ColorEffect} from './effects/color_effect.js';
 import {GlitchEffect} from './effects/glitch_effect.js';
 import {Placement, Direction} from './preview.js';
-import {MySwipeTracker} from './swipeTracker.js';
+import {SwipeTracker} from './swipeTracker.js';
 
 import {__ABSTRACT_METHOD__} from './lib.js';
 
@@ -121,9 +119,8 @@ export class Switcher {
             invert = this._settings.invert_swipes;
         }
 
-        const swipeTracker = new MySwipeTracker(this.actor,
+        const swipeTracker = new SwipeTracker(this.actor,
             Clutter.Orientation.HORIZONTAL,
-            0,
             { allowDrag: true, allowScroll: true, inverted: invert },
             this._manager.platform.getSettings());
         swipeTracker.allowLongSwipes = true;
@@ -605,7 +602,6 @@ export class Switcher {
     _getWindowTitle(index) {
 
         let overlay_icon_size = this._settings.overlay_icon_size;
-        this._logger.debug(`icon size ${this._settings.overlay_icon_size}`)
         let window_title = new St.Label({
             style_class: 'switcher-list',
             text: this._windows[index].get_title(),
@@ -643,7 +639,6 @@ export class Switcher {
             });
         }
         icon.opacity = this._settings.icon_style === "Classic" ? 255 : 255 * this._settings.overlay_icon_opacity;
-        this._logger.debug(`icon actual size ${icon.get_icon_size()}`)
         if (this._settings.icon_has_shadow) {
             icon.add_style_class_name("icon-dropshadow");
         }
@@ -800,6 +795,7 @@ export class Switcher {
             let icon_box_high = this._windowIconBoxes[idx_high];
 
             let scale = this._settings.icon_style === "Classic" ? 1 : app_icon_size;
+            ;
             let alpha = 1;
             if (this._settings.icon_style === "Attached") {
                 scale = 0;
@@ -1050,7 +1046,7 @@ export class Switcher {
             }
         }
         this.animateClosed(CloseReason.ACTIVATE_SELECTED);
-        if (this._parent === null) {
+        if (this._isAppSwitcher && !this.isDestroyed()) {
             for (let switcher of this._subSwitchers.values()) {
                 for (let p of switcher._allPreviews) {
                     p.removeIcon(this._getRandomTime());
@@ -1117,7 +1113,7 @@ export class Switcher {
             this._logger.log("Destroying Sub-switchers DONE");
         }
 
-        if (this._initialDelayTimeoutId !== 0) {
+        if (this._parent === null && this._initialDelayTimeoutId !== 0) {
             GLib.Source.remove(this._initialDelayTimeoutId);
         }
 

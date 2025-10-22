@@ -61,6 +61,8 @@ export function setPref(key, value) {
         variant = packCustomRoundedCornerSettings(value);
     }
     else {
+        // @ts-expect-error
+        // TypeScript can't figure out that the value will always match the glib schema type here
         variant = new GLib.Variant(Schema[key], value);
     }
     prefs.set_value(key, variant);

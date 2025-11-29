@@ -1,0 +1,163 @@
+#!/usr/bin/env python3
+import argparse
+import urllib.parse
+import json
+import tempfile
+import subprocess
+import sys
+import shutil
+import os
+
+def parse_vless_to_tun(uri):
+    # Same parsing logic as before
+    parsed = urllib.parse.urlparse(uri)
+    if parsed.scheme != "vless":
+        print("Error: Feed me a valid vless:// URI.")
+        sys.exit(1)
+
+    qs = urllib.parse.parse_qs(parsed.query)
+    vless_outbound = {
+        "type": "vless",
+        "tag": "proxy",
+        "server": parsed.hostname,
+        "server_port": int(parsed.port) if parsed.port else 443,
+        "uuid": parsed.username,
+    }
+    flow = qs.get("flow", [""])[0]
+    if flow:
+        vless_outbound["flow"] = flow
+
+    security = qs.get("security", [""])[0]
+    if security in ["tls", "reality"]:
+        tls = {
+            "enabled": True,
+            "server_name": qs.get("sni", [""])[0],
+            "utls": {"enabled": True, "fingerprint": qs.get("fp", ["chrome"])[0]}
+        }
+        if security == "reality":
+            tls["reality"] = {
+                "enabled": True,
+                "public_key": qs.get("pbk", [""])[0],
+                "short_id": qs.get("sid", [""])[0]
+            }
+        vless_outbound["tls"] = tls
+
+    return {
+        "log": {"level": "info"}, # Kept at info so you can see connection states in the daemon terminal
+        "dns": {
+            "servers": [
+                {"tag": "dns-remote", "type": "https", "server": "1.1.1.1", "detour": "proxy"},
+                {"tag": "dns-local", "type": "local"},
+                {"tag": "dns-fakeip", "type": "fakeip", "inet4_range": "198.18.0.0/15", "inet6_range": "fc00::/18"}
+            ],
+            "rules": [{"query_type": ["A", "AAAA"], "server": "dns-fakeip"}],
+            "independent_cache": True
+        },
+        "inbounds": [
+            {
+                "type": "tun",
+                "tag": "tun-in",
+                "interface_name": "singtun0",
+                "address": ["172.19.0.1/30", "fdfe:dcba:9876::1/126"],
+                "auto_route": True,
+                "strict_route": True,
+                "stack": "system"
+            }
+        ],
+        "outbounds": [vless_outbound, {"type": "direct", "tag": "direct"}],
+        "route": {
+            "default_domain_resolver": {"server": "dns-local"},
+            "rules": [
+                {"action": "sniff"},
+                {"protocol": "dns", "action": "hijack-dns"},
+                {"port": 53, "action": "hijack-dns"},
+                {"ip_cidr": ["198.18.0.0/15", "fc00::/18"], "outbound": "proxy"}
+            ],
+            "auto_detect_interface": True
+        }
+    }
+
+def run(cmd):
+    subprocess.run(cmd, shell=True, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
+def main():
+    parser = argparse.ArgumentParser(description="Spin up the persistent VLESS network namespace daemon.")
+    parser.add_argument("uri", help="The vless:// URI string")
+    args = parser.parse_args()
+
+    if os.geteuid() != 0:
+        print("[!] Error: Run with sudo. The daemon needs kernel privileges.")
+        sys.exit(1)
+
+    USER = os.environ.get("SUDO_USER", "root")
+    NS_NAME = "vless-space"
+    VETH_HOST = "veth-host"
+    VETH_GUEST = "veth-guest"
+    SUDOERS_FILE = f"/etc/sudoers.d/vless-{USER}"
+
+    config_data = parse_vless_to_tun(args.uri)
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as tmp:
+        json.dump(config_data, tmp, indent=2)
+        tmp_path = tmp.name
+
+    print(f"[*] Building namespace '{NS_NAME}'...")
+    
+    try:
+        run(f"ip netns add {NS_NAME}")
+        
+        # Tailscale bypass
+        run(f"mkdir -p /etc/netns/{NS_NAME}")
+        with open(f"/etc/netns/{NS_NAME}/resolv.conf", "w") as f:
+            f.write("nameserver 1.1.1.1\nnameserver 8.8.8.8\n")
+
+        run(f"ip link add {VETH_HOST} type veth peer name {VETH_GUEST}")
+        run(f"ip link set {VETH_GUEST} netns {NS_NAME}")
+        
+        run(f"ip addr add 10.200.200.1/24 dev {VETH_HOST}")
+        run(f"ip link set {VETH_HOST} up")
+        
+        run(f"ip netns exec {NS_NAME} ip addr add 10.200.200.2/24 dev {VETH_GUEST}")
+        run(f"ip netns exec {NS_NAME} ip link set {VETH_GUEST} up")
+        run(f"ip netns exec {NS_NAME} ip link set lo up")
+        run(f"ip netns exec {NS_NAME} ip route add default via 10.200.200.1")
+        
+        run("sysctl -w net.ipv4.ip_forward=1")
+        run(f"iptables -t nat -A POSTROUTING -s 10.200.200.0/24 -j MASQUERADE")
+
+        run(f"iptables -I FORWARD 1 -i {VETH_HOST} -j ACCEPT")
+        run(f"iptables -I FORWARD 1 -o {VETH_HOST} -j ACCEPT")
+
+        print("[*] Granting passwordless client execution rights via sudoers.d...")
+        # We explicitly map both /sbin/ip and /usr/sbin/ip to prevent PATH resolution issues
+        sudoers_content = f"{USER} ALL=(root) NOPASSWD: /sbin/ip netns exec {NS_NAME} *, /usr/sbin/ip netns exec {NS_NAME} *\n"
+        with open(SUDOERS_FILE, "w") as f:
+            f.write(sudoers_content)
+        os.chmod(SUDOERS_FILE, 0o440)
+
+        print("[*] Launching Sing-box daemon. Press Ctrl+C to stop.")
+        print("-" * 50)
+        # We run this in the foreground now. It blocks here.
+        subprocess.run(f"ip netns exec {NS_NAME} sing-box run -c {tmp_path}", shell=True)
+
+    except KeyboardInterrupt:
+        pass
+    finally:
+        print("\n" + "-" * 50)
+        print("[*] Tearing down infrastructure...")
+
+        subprocess.run(f"ip netns delete {NS_NAME}", shell=True, stderr=subprocess.DEVNULL)
+        subprocess.run(f"rm -rf /etc/netns/{NS_NAME}", shell=True, stderr=subprocess.DEVNULL)
+
+        subprocess.run(f"iptables -t nat -D POSTROUTING -s 10.200.200.0/24 -j MASQUERADE", shell=True, stderr=subprocess.DEVNULL)
+
+        subprocess.run(f"iptables -D FORWARD -i {VETH_HOST} -j ACCEPT", shell=True, stderr=subprocess.DEVNULL)
+        subprocess.run(f"iptables -D FORWARD -o {VETH_HOST} -j ACCEPT", shell=True, stderr=subprocess.DEVNULL)
+
+        subprocess.run(f"rm -f {SUDOERS_FILE}", shell=True, stderr=subprocess.DEVNULL)
+        if os.path.exists(tmp_path):
+            os.remove(tmp_path)
+        print("[*] Clean exit.")
+
+if __name__ == "__main__":
+    subprocess.run("ip netns delete vless-space", shell=True, stderr=subprocess.DEVNULL)
+    main()

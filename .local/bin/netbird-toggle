@@ -1,0 +1,8 @@
+#!/bin/env bash
+
+if [ "$(netbird status | grep 'Management: Disconnected')" ]
+then
+    netbird up
+else
+    netbird down
+fi

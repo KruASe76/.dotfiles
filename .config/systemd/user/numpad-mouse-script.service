@@ -1,0 +1,11 @@
+[Unit]
+Description=Daemon for numpad_mouse_script.py
+After=ydotool.service
+
+[Service]
+Type=exec
+ExecStart=/usr/bin/sudo %h/.local/bin/numpad_mouse_start
+Restart=always
+
+[Install]
+WantedBy=default.target

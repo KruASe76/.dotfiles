@@ -1,0 +1,11 @@
+[Unit]
+Description=Daemon for vless-proxy
+After=network.target
+
+[Service]
+Type=exec
+ExecStart=/usr/bin/fish -l -c 'exec vless-proxy $vless_key'
+Restart=always
+
+[Install]
+WantedBy=default.target

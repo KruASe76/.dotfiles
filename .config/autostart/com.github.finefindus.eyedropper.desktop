@@ -1,0 +1,6 @@
+[Desktop Entry]
+Type=Application
+Name=com.github.finefindus.eyedropper
+X-XDP-Autostart=com.github.finefindus.eyedropper
+Exec=flatpak run --command=eyedropper com.github.finefindus.eyedropper --gapplication-service
+X-Flatpak=com.github.finefindus.eyedropper

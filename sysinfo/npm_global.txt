@@ -1,0 +1,1 @@
+@google/gemini-cli@latest @qwen-code/qwen-code@latest

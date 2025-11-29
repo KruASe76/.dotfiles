@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+title="$1"
+summary="$2"
+
+(
+    action=$(
+    	notify-send \
+        -a 'Pika Backup' \
+        -i org.gnome.World.PikaBackup \
+        -n org.gnome.World.PikaBackup \
+        -A default=default \
+        "$title" "$summary"
+    )
+
+    if [ "$action" = "default" ]; then
+        nohup flatpak run org.gnome.World.PikaBackup > /dev/null 2>&1 &
+    fi
+) > /dev/null 2>&1 &

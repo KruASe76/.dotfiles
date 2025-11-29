@@ -1,0 +1,263 @@
+.sanket-notif-card {
+    margin: 0;
+}
+
+.sanket-notif-card:ltr {
+    padding-right: 0;
+}
+
+.sanket-notif-card:rtl {
+    padding-left: 0;
+}
+
+.sanket-notif-card .message-list {
+    width: 0;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border-width: 0;
+}
+
+.sanket-calendar-column.sanket-calendar-side {
+    min-width: 22em;
+}
+
+.sanket-calendar-column.sanket-calendar-side.sanket-calendar-scrolling {
+    min-width: 22.5em;
+}
+
+.sanket-notif-card StScrollView StScrollBar StButton#vhandle {
+    border-width: 1px;
+}
+
+.sanket-notif-card StScrollView StScrollBar {
+    min-width: 5px;
+    margin-top: 16px;
+    margin-bottom: 16px;
+    padding-top: 16px;
+    padding-bottom: 16px;
+}
+
+.sanket-notif-card .sanket-more-pill-btn {
+    border-radius: 99px;
+    margin: 0;
+    padding: 6px 16px;
+    font-weight: bold;
+}
+
+.sanket-notif-card .message-list-controls {
+    padding: 6px 0 0;
+    margin: 0;
+}
+
+.sanket-notif-card.sanket-controls-top .message-list-controls {
+    padding: 0 0 6px;
+}
+
+.sanket-notif-merged.sanket-merged-below {
+    margin-top: 12px;
+}
+
+.sanket-notif-merged.sanket-merged-above {
+    margin-bottom: 12px;
+}
+
+.sanket-merged-below .sanket-merged-separator {
+    margin-bottom: 12px;
+}
+
+.sanket-merged-above .sanket-merged-separator {
+    margin-top: 12px;
+}
+
+.sanket-notif-island.sanket-notif-calendar {
+    padding: 4px 4px 0;
+}
+
+.quick-settings-system-item > StBoxLayout {
+    spacing: 8px;
+}
+
+.quick-settings-system-item .icon-button {
+    padding: 8px;
+}
+
+.sanket-more-pill-content {
+    spacing: 6px;
+}
+
+.sanket-pill-row {
+    spacing: 6px;
+}
+
+.sanket-compact-box {
+    spacing: 6px;
+    padding-top: 12px;
+}
+
+.sanket-compact-grid {
+    spacing: 12px;
+}
+
+.quick-toggle.sanket-compact-toggle {
+    width: 48px;
+    height: 48px;
+    min-width: 48px;
+    max-width: 48px;
+    min-height: 48px;
+    max-height: 48px;
+    padding: 0;
+    border-radius: 99px;
+}
+
+.sanket-compact-toggle .quick-toggle-icon {
+    margin: 0;
+    padding: 0;
+}
+
+.sanket-notif-card .message .message-header {
+    spacing: 2px;
+}
+
+.sanket-notif-card .message .message-header .message-header-content {
+    margin: 0 4px;
+}
+
+.sanket-notif-card .message .message-header .message-expand-button,
+.sanket-notif-card .message .message-header .message-close-button {
+    margin: 0;
+    padding: 6px;
+    min-width: 0;
+    min-height: 0;
+}
+
+.sanket-notif-card .message .message-header .message-expand-button StIcon,
+.sanket-notif-card .message .message-header .message-close-button StIcon {
+    icon-size: 16px;
+}
+
+.quick-toggle.sanket-compact-ghost {
+    padding: 0;
+    border-radius: 999px;
+}
+
+.sanket-stack {
+    spacing: 0;
+}
+
+.sanket-stack-peek {
+    height: 6px;
+}
+
+.sanket-calendar-panel {
+    spacing: 12px;
+}
+
+.sanket-calendar-panel .world-clocks-button.sanket-clocks-card,
+.sanket-calendar-panel .weather-button.sanket-weather-card {
+    padding: 12px;
+}
+
+.sanket-clocks-page {
+    spacing: 10px;
+}
+
+.sanket-clock-row {
+    spacing: 12px;
+}
+
+.sanket-clock-row-compact {
+    spacing: 10px;
+}
+
+.sanket-clock-city {
+    font-weight: bold;
+}
+
+.sanket-clock-time {
+    font-size: 0.9em;
+    font-feature-settings: "tnum";
+}
+
+.sanket-analog-clock {
+    width: 32px;
+    height: 32px;
+}
+
+.sanket-analog-clock.sanket-analog-clock-small {
+    width: 20px;
+    height: 20px;
+}
+
+.sanket-clocks-dots {
+    spacing: 6px;
+    padding-top: 10px;
+}
+
+.sanket-clocks-dot {
+    padding: 2px;
+    border-radius: 99px;
+}
+
+.sanket-clocks-dot StIcon {
+    icon-size: 6px;
+}
+
+.sanket-setup-hint {
+    spacing: 8px;
+}
+
+.sanket-setup-hint-icon {
+    icon-size: 16px;
+}
+
+.sanket-weather-box {
+    spacing: 12px;
+}
+
+.sanket-weather-scene {
+    width: 72px;
+    height: 56px;
+}
+
+.sanket-weather-temperature {
+    font-size: 2em;
+    font-weight: 300;
+    font-feature-settings: "tnum";
+}
+
+.sanket-weather-details {
+    spacing: 2px;
+}
+
+.sanket-weather-summary {
+    font-weight: bold;
+}
+
+.sanket-weather-range,
+.sanket-weather-location {
+    font-size: 0.85em;
+    font-feature-settings: "tnum";
+}
+
+.sanket-weather-card.sanket-setup-hint .sanket-weather-summary {
+    font-weight: normal;
+}
+
+.message .message-icon.sanket-message-image:ltr,
+.message .message-icon.sanket-message-image:rtl {
+    margin: 0;
+}
+
+.message .message-icon.sanket-message-image.message-themed-icon {
+    min-width: 40px;
+    min-height: 40px;
+}
+
+.sanket-message-image-frame:ltr {
+    margin-left: 12px;
+}
+
+.sanket-message-image-frame:rtl {
+    margin-right: 12px;
+}

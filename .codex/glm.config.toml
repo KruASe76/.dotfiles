@@ -1,0 +1,31 @@
+model_provider = "zai"
+model_catalog_json = "/home/kruase/.codex/zai-catalog.json"
+model = "glm-5.3"
+model_reasoning_effort = "max"
+
+model_instructions_file = "/home/kruase/.codex/GLM_COMPAT.md"
+
+[model_providers.zai]
+name = "Z.ai OpenAI-compatible API"
+base_url = "https://api.z.ai/api/v1"
+env_key = "Z_AI_API_KEY"
+wire_api = "responses"
+requires_openai_auth = false
+
+[features]
+apps = false
+
+[hooks.state]
+
+[hooks.state."ponytail@ponytail:hooks/claude-codex-hooks.json:session_start:0:0"]
+trusted_hash = "sha256:defea43402fc8edba23234c694a1117cf80efc2da38968a40a1004cd9d63f725"
+trusted_content_hash = "sha256:354c32923e60039b86ed84b80c82fbc60c2ff45ebf52efe19623f387d8015887"
+
+[hooks.state."ponytail@ponytail:hooks/claude-codex-hooks.json:user_prompt_submit:0:0"]
+trusted_hash = "sha256:5aa5ec474e0bb546f207794993b37fdf7507e54a64e09216be164c5b7b42a197"
+trusted_content_hash = "sha256:354c32923e60039b86ed84b80c82fbc60c2ff45ebf52efe19623f387d8015887"
+
+[hooks.state."ponytail@ponytail:hooks/claude-codex-hooks.json:subagent_start:0:0"]
+trusted_hash = "sha256:5b2c1dfa8c7ecc5e8881c8e69479f65d46ed727e0bc5b8e7b4553cee9e5c3daf"
+trusted_content_hash = "sha256:354c32923e60039b86ed84b80c82fbc60c2ff45ebf52efe19623f387d8015887"
+

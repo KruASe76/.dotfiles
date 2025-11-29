@@ -1,0 +1,1 @@
+dust fnm jj lazydocker nats sing-box uv

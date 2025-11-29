@@ -1,0 +1,29 @@
+export const LOG_PREFIX = 'RuncatExtension'
+
+export const SYSTEM_MONITOR_COMMAND = 'gnome-system-monitor -r'
+
+export const displayingItemNickToValue = {
+	'character-and-percentage': { character: true, percentage: true },
+	'percentage-only': { character: false, percentage: true },
+	'character-only': { character: true, percentage: false },
+}
+
+export const SettingsSchemaKeys = {
+	IDLE_THRESHOLD: 'idle-threshold',
+	DISPLAYING_ITEMS: 'displaying-items',
+	INVERT_SPEED: 'invert-speed',
+	SMOOTH_SPEED_CHANGES: 'smooth-speed-changes',
+	CUSTOM_SYSTEM_MONITOR: {
+		ENABLED: 'custom-system-monitor-enabled',
+		COMMAND: 'custom-system-monitor-command',
+	},
+}
+
+export const ReactiveProperties = {
+	CPU_USAGE: 'cpuUsage',
+	CURRENT_SPRITE_FRAME: 'currentSpriteFrame',
+	DISPLAYING_ITEMS: 'displayingItems',
+	IS_SPEED_INVERTED: 'isSpeedInverted',
+	IDLE_THRESHOLD: 'idleThreshold',
+	IS_ANIMATION_SMOOTHING_ENABLED: 'isAnimationSmoothingEnabled',
+}

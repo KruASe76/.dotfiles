@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Copyright 2018 Bartosz Jaroszewski
+SPDX-License-Identifier: GPL-2.0-or-later
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+-->
+<interface domain="bluetooth-quick-connect">
+  <object class="GtkAdjustment" id="auto_power_off_interval_adjustment">
+    <property name="lower">1</property>
+    <property name="upper">3600</property>
+    <property name="step-increment">1</property>
+    <property name="page-increment">5</property>
+  </object>
+  <object class="AdwToolbarView" id="auto_power_off_settings">
+    <child type="top">
+      <object class="AdwHeaderBar"/>
+    </child>
+    <property name="content">
+      <object class="AdwPreferencesPage">
+        <child>
+          <object class="AdwPreferencesGroup">
+            <child>
+              <object class="AdwSpinRow" id="auto_power_off_interval">
+                <property name="title" translatable="yes">Checking idle interval (seconds)</property>
+                <property name="value">60</property>
+                <property name="adjustment">auto_power_off_interval_adjustment</property>
+                <property name="climb-rate">1</property>
+                <property name="snap-to-ticks">True</property>
+                <property name="numeric">True</property>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </property>
+  </object>
+  <object class="AdwPreferencesPage" id="items_container">
+    <child>
+      <object class="AdwPreferencesGroup">
+        <child>
+          <object class="AdwSwitchRow" id="auto_power_on_switch">
+            <property name="title" translatable="yes">Enable bluetooth when menu opened</property>
+          </object>
+        </child>
+        <child>
+          <object class="AdwSwitchRow" id="auto_power_off_switch">
+            <property name="title" translatable="yes">Disable bluetooth if idle</property>
+            <child type="suffix">
+              <object class="GtkButton" id="auto_power_off_settings_button">
+                <property name="icon-name">emblem-system-symbolic</property>
+                <property name="valign">center</property>
+                <style>
+                  <class name="circular" />
+                </style>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="AdwSwitchRow" id="keep_menu_on_toggle">
+            <property name="title" translatable="yes">Keep the menu open after toggling the connection (restart required)</property>
+          </object>
+        </child>
+        <child>
+          <object class="AdwSwitchRow" id="refresh_button_on">
+            <property name="title" translatable="yes">Show reconnect button (restart required)</property>
+          </object>
+        </child>
+        <child>
+          <object class="AdwSwitchRow" id="debug_mode_on">
+            <property name="title" translatable="yes">Debug mode (restart required)</property>
+          </object>
+        </child>
+        <child>
+          <object class="AdwSwitchRow" id="show_battery_value_on">
+            <property name="title" translatable="yes">Show battery value (restart required)</property>
+          </object>
+        </child>
+        <child>
+          <object class="AdwSwitchRow" id="show_battery_icon_on">
+            <property name="title" translatable="yes">Show battery icon (restart required)</property>
+          </object>
+        </child>
+      </object>
+    </child>
+  </object>
+</interface>

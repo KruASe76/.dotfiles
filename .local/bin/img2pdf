@@ -1,0 +1,73 @@
+#!/bin/python3
+
+import sys
+import tempfile
+from pathlib import Path
+import re
+
+try:
+    from PIL import Image
+    import PyPDF2 as pdf
+    from tqdm import tqdm
+except ModuleNotFoundError:
+    print("Installing missing modules (pillow, pypdf2, tqdm)...")
+
+    import os
+    os.system("pip install pillow pypdf2 tqdm")
+
+    from PIL import Image
+    import PyPDF2 as pdf
+    from tqdm import tqdm
+
+    print()
+
+
+TEMP_DIR = Path(tempfile.gettempdir(), "img2pdf")
+TEMP_DIR.mkdir(exist_ok=True)
+PATTERN = re.compile(r"(.*?)(\d*)")
+
+def sorting_function(path: Path):
+    match = PATTERN.fullmatch(path.stem)
+    if match.groups()[1]:
+        return int(match.groups()[1])
+    else:
+        return path.name
+
+
+def main() -> None:
+    if len(sys.argv) > 1:
+        directory = sys.argv[1]
+    else:
+        directory = input("Enter directory path (leave empty to use the current one):\n> ").strip()
+    directory = Path(directory)
+
+    if len(sys.argv) > 2:
+        file_extension = sys.argv[2].replace(".", "")
+    else:
+        file_extension = input("Enter file extension to look for:\n> ").strip().replace(".", "")
+    file_suffix = f".{file_extension}"
+
+    if len(sys.argv) > 3:
+        result_filename = sys.argv[3]
+    else:
+        result_filename = input("Enter result file name:\n> ").strip()
+    result_path = Path(result_filename).with_suffix(".pdf")
+
+    merger = pdf.PdfMerger()
+
+    image_paths = tuple(sorted(filter(lambda path: path.suffix == file_suffix, directory.iterdir()), key=sorting_function))
+    if not image_paths:
+        print("No such images found")
+        return
+
+    for image_path in tqdm(image_paths):
+        pdf_path = Path(TEMP_DIR, image_path.with_suffix(".pdf").name)
+
+        Image.open(image_path).save(pdf_path, "pdf", resolution=72)
+        merger.append(pdf_path)
+
+    merger.write(result_path)
+
+
+if __name__ == "__main__":
+    main()

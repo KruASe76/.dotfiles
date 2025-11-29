@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=outline-client.AppImage
+Comment=outline-client.AppImagestartup script
+Exec=/home/kruase/appimages/outline-client.AppImage
+StartupNotify=false
+Terminal=false

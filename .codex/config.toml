@@ -1,0 +1,196 @@
+model = "gpt-6-luna"
+model_reasoning_effort = "medium"
+personality = "pragmatic"
+
+approval_policy = "never"
+sandbox_mode = "danger-full-access"
+
+[features]
+hooks = true
+memories = true
+prevent_idle_sleep = true
+daemon_auto_start = false
+
+[tui]
+status_line = ["current-dir", "git-branch", "model-with-reasoning", "run-state", "task-progress", "five-hour-limit", "weekly-limit", "context-remaining"]
+status_line_use_colors = true
+theme = "monokai-spectrum"
+session_picker_view = "comfortable"
+screen_reader_detection_done = true
+fullscreen_transcript = false
+
+[tui.keymap.composer]
+queue = "alt-q"
+
+[tui.keymap.editor]
+move_line_end = "end"
+
+[tui.keymap.global]
+open_external_editor = "ctrl-e"
+
+[tui.model_availability_nux]
+"gpt-5.5" = 4
+gpt-6-astra = 2
+"gpt-6.1-sol" = 4
+
+[notice]
+fast_default_opt_out = true
+
+[tools.update_plan]
+enabled = true
+
+[mcp_servers.cavemem]
+command = "/home/kruase/.local/share/fnm/node-versions/v24.15.0/installation/bin/node"
+args = [
+    "/home/kruase/.local/share/fnm/node-versions/v24.15.0/installation/lib/node_modules/cavemem/dist/index.js",
+    "mcp"
+]
+
+[mcp_servers.context7]
+command = "caveman-shrink"
+args = [
+    "context7-mcp",
+]
+
+[mcp_servers.serena]
+command = "caveman-shrink"
+args = [
+    "serena",
+    "start-mcp-server",
+    "--project-from-cwd",
+    "--context=codex",
+]
+startup_timeout_sec = 20
+
+[mcp_servers.serena.tools.write_memory]
+approval_mode = "approve"
+
+[mcp_servers.serena.tools.replace_content]
+approval_mode = "approve"
+
+[mcp_servers.serena.tools.insert_after_symbol]
+approval_mode = "approve"
+
+[mcp_servers.serena.tools.replace_symbol_body]
+approval_mode = "approve"
+
+[mcp_servers."chrome-devtools"]
+command = "caveman-shrink"
+args = [
+    "chrome-devtools-mcp",
+]
+
+[mcp_servers.playwright]
+command = "caveman-shrink"
+args = [
+    "playwright-mcp",
+]
+
+[mcp_servers.fetch]
+command = "caveman-shrink"
+args = [
+    "mcp-fetch-server",
+]
+
+[mcp_servers.sequentialthinking]
+command = "caveman-shrink"
+args = [
+    "mcp-server-sequential-thinking",
+]
+
+[mcp_servers.filesystem]
+command = "caveman-shrink"
+args = [
+    "mcp-server-filesystem",
+    "/home/kruase/projects",
+]
+
+[mcp_servers.mcpls]
+command = "mcpls"
+required = false
+startup_timeout_sec = 20
+tool_timeout_sec = 60
+
+# [mcp_servers.dap]
+# command = "dap-mcp"
+# args = ["--mode", "full"]
+# required = false
+# startup_timeout_sec = 10
+# tool_timeout_sec = 120
+
+[marketplaces.wakatime]
+last_updated = "2026-08-14T17:40:29Z"
+last_revision = "a0218436d549915c521287b9436782891e75e856"
+source_type = "git"
+source = "https://github.com/wakatime/codex-cli-wakatime.git"
+
+[marketplaces.ponytail]
+last_updated = "2026-09-21T15:13:48Z"
+last_revision = "e3ba2aa6f1e6f0bc4d69eb09c9f0d0a93af56156"
+source_type = "git"
+source = "https://github.com/DietrichGebert/ponytail.git"
+
+[plugins."codex-cli-wakatime@wakatime"]
+enabled = true
+
+[plugins."ponytail@ponytail"]
+enabled = true
+
+[hooks.state]
+
+[hooks.state."codex-cli-wakatime@wakatime:hooks/hooks.json:post_tool_use:0:0"]
+trusted_hash = "sha256:3019b5f39b02025bd4c40a156aef99bda28389107c16b8fa6ed6bc691a3928e4"
+
+[hooks.state."codex-cli-wakatime@wakatime:hooks/hooks.json:session_start:0:0"]
+trusted_hash = "sha256:3793f33bb324020d43751b6ce8548d7a1a2791fec8b4c76fc1dcc689f6671b7b"
+
+[hooks.state."codex-cli-wakatime@wakatime:hooks/hooks.json:user_prompt_submit:0:0"]
+trusted_hash = "sha256:84094d8aa7937a8545ef4d87ef03a0309f77bd2670fbc74560c922f3fe653dcc"
+
+[hooks.state."ponytail@ponytail:hooks/claude-codex-hooks.json:session_start:0:0"]
+trusted_hash = "sha256:defea43402fc8edba23234c694a1117cf80efc2da38968a40a1004cd9d63f725"
+
+[hooks.state."ponytail@ponytail:hooks/claude-codex-hooks.json:user_prompt_submit:0:0"]
+trusted_hash = "sha256:5aa5ec474e0bb546f207794993b37fdf7507e54a64e09216be164c5b7b42a197"
+
+[hooks.state."ponytail@ponytail:hooks/claude-codex-hooks.json:subagent_start:0:0"]
+trusted_hash = "sha256:5b2c1dfa8c7ecc5e8881c8e69479f65d46ed727e0bc5b8e7b4553cee9e5c3daf"
+
+[projects."/home/kruase/projects/_yahacks/tg-bot"]
+trust_level = "trusted"
+
+[projects."/home/kruase/projects/_yahacks/backend"]
+trust_level = "trusted"
+
+[projects."/home/kruase/temp/userspace-vpn"]
+trust_level = "trusted"
+
+[projects."/home/kruase/git/_mipt-review/python-final-project"]
+trust_level = "trusted"
+
+[projects."/home/kruase/projects/_playgrounds/python-playground"]
+trust_level = "trusted"
+
+[projects."/home/kruase"]
+trust_level = "trusted"
+
+[projects."/home/kruase/projects/grindex-pure"]
+trust_level = "trusted"
+
+[projects."/home/kruase/projects/dicefish"]
+trust_level = "trusted"
+
+[projects."/home/kruase/temp/caveman-compress"]
+trust_level = "trusted"
+
+[projects."/home/kruase/projects/_mipt/scarlett-physics"]
+trust_level = "trusted"
+
+[projects."/home/kruase/projects/_hacks/teplokontur_java_universal"]
+trust_level = "trusted"
+
+[projects."/home/kruase/projects/_mipt/shad-rust"]
+trust_level = "trusted"
+
+[projects."/home/kruase/projects/look"]
+trust_level = "trusted"

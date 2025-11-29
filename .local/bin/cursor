@@ -1,0 +1,3 @@
+#!/bin/bash
+
+~/appimages/cursor.AppImage $@ &> /dev/null &

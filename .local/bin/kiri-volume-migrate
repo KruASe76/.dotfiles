@@ -1,0 +1,100 @@
+#!/usr/bin/env fish
+
+set -l src_root /var/lib/docker/volumes
+set -l docker_cmd docker --host unix:///run/kiri/docker.sock
+
+if test (id -u) -ne 0
+    echo "Run with sudo fish migrate.fish"
+    exit 1
+end
+
+if not type -q rsync
+    echo "Error: rsync is required"
+    exit 1
+end
+
+if not $docker_cmd info >/dev/null 2>&1
+    echo "Error: Kiri is not running"
+    exit 1
+end
+
+if systemctl is-active --quiet docker.service
+    echo "Error: stop Docker first"
+    exit 1
+end
+
+set -l running ($docker_cmd ps -q)
+if test (count $running) -gt 0
+    echo "Error: stop Kiri containers first"
+    exit 1
+end
+
+set -l copied 0
+set -l skipped 0
+set -l failed 0
+
+for src in $src_root/*/_data
+    if not test -d "$src"
+        continue
+    end
+
+    set -l name (basename (dirname "$src"))
+    echo "Migrating: $name"
+
+    if not $docker_cmd volume create "$name" >/dev/null
+        echo "  Failed to create volume"
+        set failed (math $failed + 1)
+        continue
+    end
+
+    set -l dest ($docker_cmd volume inspect -f '{{.Mountpoint}}' "$name")
+    set -l expected "/var/lib/kiri/volumes/$name/_data"
+
+    if test "$dest" != "$expected"
+        echo "  Unexpected destination: $dest"
+        set failed (math $failed + 1)
+        continue
+    end
+
+    # Kiri initializes volume directories lazily.
+    if not test -d "$dest"
+        echo "  Initializing volume..."
+
+        if not $docker_cmd run --rm --network none \
+            --mount "type=volume,source=$name,target=/data,volume-nocopy" \
+            alpine:3.20 true
+            echo "  Initialization failed"
+            set failed (math $failed + 1)
+            continue
+        end
+    end
+
+    if not test -d "$dest"
+        echo "  Destination still missing: $dest"
+        set failed (math $failed + 1)
+        continue
+    end
+
+    set -l existing (find "$dest" -mindepth 1 -maxdepth 1 -print -quit)
+
+    if test (count $existing) -gt 0
+        echo "  Skipped: destination is not empty"
+        set skipped (math $skipped + 1)
+        continue
+    end
+
+    if rsync -aHAX --numeric-ids -- "$src/" "$dest/"
+        echo "  Done"
+        set copied (math $copied + 1)
+    else
+        echo "  Failed"
+        set failed (math $failed + 1)
+    end
+end
+
+echo ""
+echo "Complete: $copied copied, $skipped skipped, $failed failed"
+
+if test $failed -gt 0
+    exit 1
+end

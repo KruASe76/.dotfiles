@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist gettext-domain="sanket@narkagni">
+    <schema id="org.gnome.shell.extensions.sanket" path="/org/gnome/shell/extensions/sanket/">
+        <key name="scrollbar-mode" type="s">
+            <choices>
+                <choice value="auto"/>
+                <choice value="always"/>
+                <choice value="never"/>
+            </choices>
+            <default>'auto'</default>
+            <summary>Notification scrollbar visibility</summary>
+        </key>
+
+        <key name="animation-speed" type="d">
+            <range min="0.25" max="3.0"/>
+            <default>1.0</default>
+            <summary>Animation speed multiplier</summary>
+        </key>
+
+        <key name="compact-show-volume" type="b">
+            <default>true</default>
+            <summary>Keep the volume sliders in compact Quick Settings</summary>
+        </key>
+
+        <key name="compact-show-brightness" type="b">
+            <default>true</default>
+            <summary>Keep the brightness slider in compact Quick Settings</summary>
+        </key>
+        
+        <key name="calendar-layout" type="s">
+            <choices>
+                <choice value="stacked"/>
+                <choice value="wide"/>
+            </choices>
+            <default>'wide'</default>
+            <summary>Calendar popover layout</summary>
+        </key>
+
+        <key name="clock-style" type="s">
+            <choices>
+                <choice value="analog"/>
+                <choice value="compact"/>
+            </choices>
+            <default>'analog'</default>
+            <summary>World clocks style</summary>
+        </key>
+
+        <key name="show-events" type="b">
+            <default>true</default>
+            <summary>Show calendar events</summary>
+        </key>
+
+        <key name="show-setup-hints" type="b">
+            <default>true</default>
+            <summary>Show shortcuts to add world clocks and a weather location when none are set</summary>
+        </key>
+
+        <key name="weather-animated" type="b">
+            <default>true</default>
+            <summary>Animate the weather scene</summary>
+        </key>
+
+        <key name="show-date-header" type="b">
+            <default>true</default>
+            <summary>Show the date header above the calendar</summary>
+        </key>
+
+        <key name="toggle-order" type="as">
+            <default>[]</default>
+            <summary>Quick Settings toggle order</summary>
+            <description>Order of Quick Settings toggles, set by dragging them</description>
+        </key>
+
+        <key name="compact-mode" type="s">
+            <choices>
+                <choice value="auto"/>
+                <choice value="always"/>
+                <choice value="demand"/>
+            </choices>
+            <default>'auto'</default>
+            <summary>When Quick Settings toggles turn into circles</summary>
+        </key>
+
+        <key name="notification-layout" type="s">
+            <choices>
+                <choice value="island"/>
+                <choice value="merged"/>
+                <choice value="calendar"/>
+            </choices>
+            <default>'island'</default>
+            <summary>Where notifications appear</summary>
+            <description>In a floating island next to Quick Settings, inside Quick Settings, or in the calendar</description>
+        </key>
+
+        <key name="compact-layout" type="s">
+            <choices>
+                <choice value="single"/>
+                <choice value="double"/>
+            </choices>
+            <default>'single'</default>
+            <summary>Rows of compact toggles</summary>
+            <description>Show the circular toggles in one row or split over two rows</description>
+        </key>
+
+        <key name="compact-expanded" type="b">
+            <default>false</default>
+            <summary>Quick Settings expanded in On Demand mode</summary>
+            <description>Remembers whether Quick Settings were last expanded or collapsed in On Demand mode</description>
+        </key>
+    </schema>
+</schemalist>

@@ -1,0 +1,24 @@
+set constantshow
+set minibar
+set linenumbers
+
+# set mouse
+set zap
+set softwrap
+set atblanks
+set autoindent
+set tabsize 4
+set tabstospaces
+set smarthome
+
+bind M-Q verbatim main
+
+set titlecolor black,yellow
+set keycolor bold,black,red
+set functioncolor bold,green,black
+set statuscolor bold,black,blue
+set numbercolor bold,magenta,black
+set selectedcolor black,blue
+set spotlightcolor black,blue
+
+include "~/.nano/*.nanorc"

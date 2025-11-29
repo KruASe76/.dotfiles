@@ -1,0 +1,20 @@
+#!/usr/bin/env fish
+
+while true
+
+    ydotool mousemove -x 100 -y 0
+    sleep 5
+
+    ydotool mousemove -x 0 -y 100
+    sleep 5
+
+    ydotool mousemove -x -100 -y 0
+    sleep 5
+
+    ydotool mousemove -x 0 -y -100
+    sleep 5
+
+    ydotool click 0xC0
+    sleep 5
+
+end

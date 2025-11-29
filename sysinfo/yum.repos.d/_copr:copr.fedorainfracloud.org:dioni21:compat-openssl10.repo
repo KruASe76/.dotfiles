@@ -1,0 +1,10 @@
+[copr:copr.fedorainfracloud.org:dioni21:compat-openssl10]
+name=Copr repo for compat-openssl10 owned by dioni21
+baseurl=https://download.copr.fedorainfracloud.org/results/dioni21/compat-openssl10/fedora-$releasever-$basearch/
+type=rpm-md
+skip_if_unavailable=True
+gpgcheck=1
+gpgkey=https://download.copr.fedorainfracloud.org/results/dioni21/compat-openssl10/pubkey.gpg
+repo_gpgcheck=0
+enabled=0
+enabled_metadata=1

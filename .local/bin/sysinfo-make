@@ -1,0 +1,82 @@
+#!/bin/python3
+
+import os
+
+
+user = os.environ.get("USER")
+prefix = f"/home/{user}/sysinfo/"
+os.makedirs(prefix, exist_ok=True)
+
+flatpak_blacklist = (
+    "Platform",
+    "LinuxAudio.Plugins",
+    "Freedesktop SDK",
+    "Decoration",
+    "wine",
+    "theme",
+    "launcher.moe",
+    "fedora"
+)
+snap_blacklist = (
+    "base",
+    "snapd",
+    "gnome",
+    "gtk"
+)
+
+
+os.system(f"dnf5 list --installed > {prefix}dnf_raw.txt")
+with open(f"{prefix}dnf_raw.txt", "r") as raw, open(f"{prefix}dnf.txt", "w") as result:
+    lines = raw.readlines()[1:]
+    result.write(" ".join(map(lambda line: line.split()[0], lines)))
+
+
+os.system(f"flatpak list --app > {prefix}flatpak-flathub_raw.txt")
+with open(f"{prefix}flatpak-flathub_raw.txt", "r") as raw, open(f"{prefix}flatpak-flathub.txt", "w") as result:
+    lines = raw.readlines()
+    lines = filter(lambda line: all([entry not in line for entry in flatpak_blacklist]), lines)
+    result.write(" ".join(map(lambda line: line.split("\t")[1], lines)))
+
+
+os.system(f"snap list > {prefix}snap_raw.txt")
+with open(f"{prefix}snap_raw.txt", "r") as raw, open(f"{prefix}snap.txt", "w") as result:
+    lines = raw.readlines()[1:]
+    lines = filter(lambda line: all([entry not in line for entry in snap_blacklist]), lines)
+    result.write(" ".join(map(lambda line: line.split()[0], lines)))
+
+
+os.system(f"brew list --installed-on-request > {prefix}brew_raw.txt")
+with open(f"{prefix}brew_raw.txt", "r") as raw, open(f"{prefix}brew.txt", "w") as result:
+    result.write(" ".join(raw.read().strip().split()))
+
+
+os.system(f"uv tool list > {prefix}uv_tool_raw.txt")
+with open(f"{prefix}uv_tool_raw.txt", "r") as raw, open(f"{prefix}uv_tool.txt", "w") as result:
+    lines = raw.readlines()
+    lines = filter(lambda line: line.startswith("- "), lines)
+    result.write(" ".join(map(lambda line: line.strip()[2:], lines)))
+
+
+os.system(f"npm list -gp > {prefix}npm_global_raw.txt")
+with open(f"{prefix}npm_global_raw.txt", "r") as raw, open(f"{prefix}npm_global.txt", "w") as result:
+    lines = raw.readlines()[1:]
+    result.write(" ".join(map(lambda line: line.strip().removeprefix("/usr/local/lib/node_modules/") + "@latest", lines)))
+
+
+os.system(f"fish -c 'fisher list' > {prefix}fisher_raw.txt")
+with open(f"{prefix}fisher_raw.txt", "r") as raw, open(f"{prefix}fisher.txt", "w") as result:
+    non_fisher_plugins = raw.read().strip().split()
+    non_fisher_plugins.remove("jorgebucaran/fisher")
+    result.write(" ".join(non_fisher_plugins))
+
+
+os.system(f"rm {prefix}*_raw.txt")
+
+
+os.system(f"dconf dump ~/ > {prefix}gnome-dconf.ini")
+
+os.system(f"cp /etc/dnf/dnf.conf {prefix}")
+os.system(f"cp -r /etc/yum.repos.d {prefix}")
+os.system(f"cp /etc/fstab {prefix}")
+
+print(f"sudo cp /etc/ssh/sshd_config {prefix} && sudo chown {user}:{user} {prefix}sshd_config && chmod +r {prefix}sshd_config")

@@ -1,0 +1,15 @@
+[nodesource]
+name=Node.js Packages for Fedora Linux 36 - $basearch
+baseurl=https://rpm.nodesource.com/pub_18.x/fc/36/$basearch
+failovermethod=priority
+enabled=0
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/NODESOURCE-GPG-SIGNING-KEY-EL
+
+[nodesource-source]
+name=Node.js for Fedora Linux 36 - $basearch - Source
+baseurl=https://rpm.nodesource.com/pub_18.x/fc/36/SRPMS
+failovermethod=priority
+enabled=0
+gpgkey=file:///etc/pki/rpm-gpg/NODESOURCE-GPG-SIGNING-KEY-EL
+gpgcheck=1

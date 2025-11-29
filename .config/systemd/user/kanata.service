@@ -1,0 +1,10 @@
+[Unit]
+Description=Daemon for Kanata
+
+[Service]
+Type=exec
+ExecStart=%h/.cargo/bin/kanata -c %h/.config/kanata.kbd
+Restart=always
+
+[Install]
+WantedBy=default.target

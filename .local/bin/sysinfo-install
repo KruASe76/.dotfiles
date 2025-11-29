@@ -1,0 +1,64 @@
+#!/bin/bash
+
+if [ -d $HOME/sysinfo ]
+then
+    base_dir=$HOME/sysinfo/
+elif [ -d $HOME/.dotfiles/sysinfo ]
+then
+    base_dir=$HOME/.dotfiles/sysinfo/
+else
+    echo "Unable to locate a diretory with sysinfo." >&2
+    echo "Should be either ~/sysinfo/ or ~/.dotfiles/sysinfo/" >&2
+    exit 2
+fi
+
+
+echo "COPYING SYSTEM CONFIGURATION FILES..."
+sudo cp $base_dir/dnf.conf /etc/dnf/dnf.conf
+sudo cp -rn $base_dir/yum.repos.d/ /etc/
+# sudo cp $base_dir/fstab /etc/fstab
+sudo cp $base_dir/sshd_config /etc/ssh/sshd_config && sudo chown root:root /etc/ssh/sshd_config && sudo chmod a-rwx,u+rw /etc/ssh/sshd_config
+
+echo "INSTALLING DNF PACKAGES..."
+sudo dnf --refresh install -y gstreamer1-plugins-{bad-\*,good-\*,base} gstreamer1-plugin-openh264 gstreamer1-plugin-libav --exclude=gstreamer1-plugins-bad-free-devel
+sudo dnf install -y $(cat $base_dir/dnf-manual.txt)
+
+echo -e "\n\n"
+echo "INSTALLING FLATPAKS (FROM FLATHUB)..."
+flatpak install -y flathub $(cat $base_dir/flatpak-flathub.txt)
+
+if [ -s $base_dir/flatpak-fedora.txt ]
+then
+    echo -e "\n\n"
+    echo "INSTALLING FLATPAKS (FROM FEDORA)..."
+    flatpak install -y fedora $(cat $base_dir/flatpak-fedora.txt)
+fi
+
+if [ -s $base_dir/snap.txt ]
+then
+    echo -e "\n\n"
+    echo "INSTALLING SNAPS..."
+    sudo snap install $(cat $base_dir/snap.txt)
+fi
+
+echo "LOADING DCONF..."
+sudo dconf load ~/ < $base_dir/gnome-dconf.ini
+
+echo "INSTALLING BREW AND FORMULAS..."
+bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+brew install $(cat $base_dir/brew.txt)
+
+echo "INSTALLING UV TOOLS..."
+uv tool install $(cat $base_dir/uv_tool.txt)
+
+echo "INSTALLING GLOBAL NPM PACKAGES..."
+sudo npm install -g $(cat $base_dir/npm_global.txt)
+
+echo "INSTALLING SDKMAN!"
+curl -s "https://get.sdkman.io" | bash
+
+echo "TO INSTALL FISHER AND PLUGINS, RUN IN FISH:"
+echo "curl -sL https://raw.githubusercontent.com/jorgebucaran/fisher/main/functions/fisher.fish | source && fisher install jorgebucaran/fisher"
+echo "fisher install $(cat $base_dir/fisher.txt)"
+
+unset base_dir

@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=hiddify
+Comment=hiddify startup script
+Exec=/tmp/.mount_hiddifBKOapN/hiddify
+StartupNotify=false
+Terminal=false

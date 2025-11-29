@@ -1,0 +1,15 @@
+#!/bin/python3
+
+from pathlib import Path
+import os
+
+for path in sorted(Path().iterdir()):
+    if path.is_symlink():
+        target_string = str(path.resolve())
+
+        if target_string.startswith("/mnt/ext4_hdd"):
+            new_target_string = target_string.replace("/mnt/ext4_hdd", "/mnt/ext4")
+
+            temp_link_path = Path("./__temp")
+            os.symlink(new_target_string, temp_link_path)
+            temp_link_path.rename(path)

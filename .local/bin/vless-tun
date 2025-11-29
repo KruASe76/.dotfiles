@@ -1,0 +1,152 @@
+#!/usr/bin/env python3
+
+import argparse
+import urllib.parse
+import json
+import tempfile
+import subprocess
+import sys
+import shutil
+import os
+
+
+def parse_vless_to_tun(uri):
+    parsed = urllib.parse.urlparse(uri)
+    if parsed.scheme != "vless":
+        print("Error: Feed me a valid vless:// URI.")
+        sys.exit(1)
+
+    qs = urllib.parse.parse_qs(parsed.query)
+
+    vless_outbound = {
+        "type": "vless",
+        "tag": "proxy",
+        "server": parsed.hostname,
+        "server_port": int(parsed.port) if parsed.port else 443,
+        "uuid": parsed.username,
+    }
+
+    flow = qs.get("flow", [""])[0]
+    if flow:
+        vless_outbound["flow"] = flow
+
+    security = qs.get("security", [""])[0]
+    if security in ["tls", "reality"]:
+        tls = {
+            "enabled": True,
+            "server_name": qs.get("sni", [""])[0],
+            "utls": {
+                "enabled": True,
+                "fingerprint": qs.get("fp", ["chrome"])[0]
+            }
+        }
+        if security == "reality":
+            tls["reality"] = {
+                "enabled": True,
+                "public_key": qs.get("pbk", [""])[0],
+                "short_id": qs.get("sid", [""])[0]
+            }
+        vless_outbound["tls"] = tls
+
+    config = {
+        "log": {"level": "info"},
+        "dns": {
+            "servers": [
+                {
+                    "tag": "dns-remote",
+                    "type": "https",
+                    "server": "1.1.1.1",
+                    "detour": "proxy"
+                },
+                {
+                    "tag": "dns-local",
+                    "type": "local"
+                },
+                {
+                    "tag": "dns-fakeip",
+                    "type": "fakeip",
+                    "inet4_range": "198.18.0.0/15",
+                    "inet6_range": "fc00::/18"
+                }
+            ],
+            "rules": [
+                {"query_type": ["A", "AAAA"], "server": "dns-fakeip"}
+            ],
+            "independent_cache": True
+        },
+        "inbounds": [
+            {
+                "type": "tun",
+                "tag": "tun-in",
+                "interface_name": "tun0",
+                "address": [
+                    "172.19.0.1/30",
+                    "fdfe:dcba:9876::1/126"
+                ],
+                "auto_route": True,
+                "strict_route": True,
+                "stack": "system"
+                # sniff and sniff_override_destination have been nuked from here
+            }
+        ],
+        "outbounds": [
+            vless_outbound,
+            {"type": "direct", "tag": "direct"}
+        ],
+        "route": {
+            "default_domain_resolver": {
+                "server": "dns-local"
+            },
+            "rules": [
+                # Sniffing is now a routing middleware. 
+                # This catches everything, sniffs it, and passes it down the chain.
+                {"action": "sniff"},
+                {"protocol": "dns", "action": "hijack-dns"},
+                {"port": 53, "action": "hijack-dns"},
+                {
+                    "ip_cidr": ["198.18.0.0/15", "fc00::/18"],
+                    "outbound": "proxy"
+                }
+            ],
+            "auto_detect_interface": True
+        }
+    }
+
+    return config
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Spin up a system-wide TUN proxy from a VLESS link.")
+    parser.add_argument("uri", help="The vless:// URI string")
+    args = parser.parse_args()
+
+    if os.geteuid() != 0:
+        print("[!] Warning: You are not running as root. Creating a TUN device and altering routing tables will likely fail.")
+        print("[!] Suggestion: run with sudo.")
+
+    if not shutil.which("sing-box"):
+        print("Error: sing-box binary not found in PATH.")
+        sys.exit(1)
+
+    config_data = parse_vless_to_tun(args.uri)
+
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as tmp:
+        json.dump(config_data, tmp, indent=2)
+        tmp_path = tmp.name
+
+    print(f"[*] Built 1.13.0+ compliant TUN proxy blueprint at {tmp_path}")
+    print("[*] Hijacking system traffic via tun0...")
+    print("[*] Press Ctrl+C to restore normal routing and kill the connection.\n")
+
+    try:
+        subprocess.run(["sing-box", "run", "-c", tmp_path])
+    except KeyboardInterrupt:
+        print("\n[*] Shutting down routing core and restoring netlink rules...")
+    finally:
+        if os.path.exists(tmp_path):
+            os.remove(tmp_path)
+            print("[*] Cleaned up temporary config.")
+
+
+if __name__ == "__main__":
+    main()

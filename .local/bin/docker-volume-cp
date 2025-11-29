@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+old_volume=$1
+new_volume=$2
+
+if [ -z $new_volume ]; then
+    echo "usage: $0 <src> <dst>" >&2
+fi
+
+
+docker volume create $new_volume
+
+docker run --rm -it -v $old_volume:/from -v $new_volume:/to alpine ash -c "cd /from ; cp -av . /to"
+
+echo 'done'

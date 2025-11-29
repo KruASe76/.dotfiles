@@ -1,0 +1,80 @@
+[user]
+    email = kruanse@ya.ru
+    name = KruASe76
+[init]
+    defaultBranch = main
+[core]
+    quotepath = false
+    editor = nano
+[safe]
+    directory = *
+[push]
+    autoSetupRemote = true
+[rerere]
+    enabled = true
+[credential]
+    helper = store
+[filter "lfs"]
+    smudge = git-lfs smudge -- %f
+    process = git-lfs filter-process
+    required = true
+    clean = git-lfs clean -- %f
+[alias]
+    conf = config --global --edit
+    confl = config --edit
+    st = status -s
+    sta = status
+    a = add
+    aa = add --all
+    una = restore --staged
+    unaa = reset
+    rs = reset
+    rshard = reset --hard
+    cm = commit -m
+    cam = commit -am
+    amend = commit --amend
+    ane = commit --amend --no-edit
+    p = push
+    po = push origin
+    pom = push origin main
+    pf = push --force-with-lease
+    pfo = push --force-with-lease origin
+    pfom = push --force-with-lease origin main
+    f = fetch
+    fo = fetch origin
+    fa = fetch --all --prune
+    pu = pull
+    pur = pull --rebase
+    sw = switch
+    swc = switch -c
+    co = checkout
+    rst = restore
+    br = branch -vv
+    bra = branch -va
+    brd = branch -d
+    brdd = branch -D
+    brm = branch -m
+    bruu = branch --unset-upstream
+    rb = rebase
+    rbi = rebase --interactive
+    rbc = rebase --continue
+    rba = rebase --abort
+    chp = cherry-pick
+    chpc = cherry-pick --continue
+    chpa = cherry-pick --abort
+    rmc = rm --cached
+    graph = log --graph --oneline --decorate --all
+    gra = log --graph --oneline --decorate --all
+    gr = log --graph --oneline --decorate
+    sh = stash
+    shki = stash --keep-index
+    shm = stash push -m
+    sha = stash apply
+    shp = stash pop
+    shd = stash drop
+    shl = stash list
+    shs = stash show
+    wta = worktree add
+    wtr = worktree remove
+    wtl = worktree list
+    fame = !git-fame

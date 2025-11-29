@@ -1,0 +1,10 @@
+[copr:copr.fedorainfracloud.org:varlad:onefetch]
+name=Copr repo for onefetch owned by varlad
+baseurl=https://download.copr.fedorainfracloud.org/results/varlad/onefetch/fedora-$releasever-$basearch/
+type=rpm-md
+skip_if_unavailable=True
+gpgcheck=1
+gpgkey=https://download.copr.fedorainfracloud.org/results/varlad/onefetch/pubkey.gpg
+repo_gpgcheck=0
+enabled=1
+enabled_metadata=1

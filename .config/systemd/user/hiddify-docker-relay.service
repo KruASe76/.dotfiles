@@ -1,0 +1,12 @@
+[Unit]
+Description=Relay Hiddify mixed inbound to Docker
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/socat TCP4-LISTEN:12344,bind=172.30.255.1,reuseaddr,fork,range=172.30.255.0/29 TCP4-CONNECT:127.0.0.1:12334
+Restart=always
+RestartSec=2s
+
+[Install]
+WantedBy=default.target

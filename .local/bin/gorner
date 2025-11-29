@@ -1,0 +1,93 @@
+#!/bin/python3
+
+from fractions import Fraction
+
+try:
+    from sympy.ntheory import divisors
+except ModuleNotFoundError:
+    print("Installing missing module (sympy)...\n")
+    from os import system
+    system("pip install sympy")
+    from sympy.ntheory import divisors
+    print()
+
+
+class PrintableFraction(Fraction):
+    def __str__(self):
+        if self.numerator == 0:
+            return "0"
+
+        if self.denominator == 1:
+            return f"{self.numerator}"
+
+        return f"{self.numerator}/{self.denominator}"
+
+    def __repr__(self):
+        return self.__str__()
+
+    def __format__(self, __format_spec: str) -> str:
+        __format_spec = __format_spec.strip()
+        if __format_spec[0] == "<":
+            repr = self.__repr__()
+            return repr + " " * (int(__format_spec[1:]) - len(repr))
+
+
+def check_root(root: int | PrintableFraction) -> bool:
+    global coefs
+
+    new_coefs = [coefs[0]]
+    for coef in coefs[1:]:
+        new_coefs.append(root * new_coefs[-1] + coef)
+        if isinstance(new_coefs[-1], Fraction):
+            new_coefs[-1] = PrintableFraction(new_coefs[-1])
+
+    if new_coefs[-1] == 0:
+        print(f"{root: <7} | {' | '.join(map(lambda x: f'{x: <7}', new_coefs))}")
+        coefs = new_coefs[:-1]
+        return True
+    else:
+        return False
+
+
+if __name__ == "__main__":
+    print("Input coefficients one in each line, then press Enter twice:")
+
+    coefs = []
+    while True:
+        if (coef := input()) == "":
+            break
+        try:
+            coefs.append(int(coef))
+        except ValueError:
+            raise ValueError("Only integer coefficients are allowed")
+    print(header := f"root    | {' | '.join(map(lambda x: f'{x: <7}', coefs))}")
+    print("-" * len(header))
+
+    first_coef_divisors = divisors(coefs[0])
+    last_coef_divisors = divisors(coefs[-1])
+
+    possible_roots = sorted(
+        [
+            d0 if dn == 1 else (-d0 if dn == -1 else PrintableFraction(d0, dn))
+            for dn in first_coef_divisors
+            for d0 in last_coef_divisors + list(map(lambda n: -n, last_coef_divisors))
+        ],
+        key = lambda n: abs(n)
+    )
+
+
+    roots = set()
+    for root in possible_roots:
+        is_root = True
+        while is_root:
+            if is_root := check_root(root):
+                roots.add(root)
+        if len(coefs) == 2:
+            roots.add(PrintableFraction(-coefs[-1], coefs[0]))
+            break
+
+    print("\nRoots: ", end="")
+    print(*sorted(roots), sep=", ")
+    if len(coefs) > 2:
+        print(f"Coefficients left: {', '.join(map(str, coefs))}")
+

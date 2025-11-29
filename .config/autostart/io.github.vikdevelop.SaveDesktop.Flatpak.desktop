@@ -1,0 +1,4 @@
+[Desktop Entry]
+Name=SaveDesktop (Flatpak Apps installer)
+Type=Application
+Exec=python3 /home/kruase/.var/app/io.github.vikdevelop.SaveDesktop/data/install_flatpak_from_script.py

@@ -1,0 +1,112 @@
+#!/usr/bin/env python3
+
+import argparse
+import json
+import tempfile
+import subprocess
+import sys
+import shutil
+import os
+
+
+def prepare_config(config_template_path):
+    with open(config_template_path) as file:
+        config = json.loads(file.read())
+
+    proxy_outbound_tag = config["outbounds"][0]["tag"]
+
+    config["dns"] = {
+        "servers": [
+            {
+                "tag": "dns-remote",
+                "type": "https",
+                "server": "1.1.1.1",
+                "detour": proxy_outbound_tag
+            },
+            {
+                "tag": "dns-local",
+                "type": "local"
+            },
+            {
+                "tag": "dns-fakeip",
+                "type": "fakeip",
+                "inet4_range": "198.18.0.0/15",
+                "inet6_range": "fc00::/18"
+            }
+        ],
+        "rules": [
+            {"query_type": ["A", "AAAA"], "server": "dns-fakeip"}
+        ],
+        "independent_cache": True
+    }
+
+    config["inbounds"] = [
+        {
+            "type": "tun",
+            "tag": "tun-in",
+            "interface_name": "tun0",
+            "address": [
+                "172.19.0.1/30",
+                "fdfe:dcba:9876::1/126"
+            ],
+            "auto_route": True,
+            "strict_route": True,
+            "stack": "system"
+        }
+    ]
+
+    config["route"] = {
+        "default_domain_resolver": {
+            "server": "dns-local"
+        },
+        "rules": [
+            {"action": "sniff"},
+            {"protocol": "dns", "action": "hijack-dns"},
+            {"port": 53, "action": "hijack-dns"},
+            config["route"]["rules"][0],
+            {
+                "ip_cidr": ["198.18.0.0/15", "fc00::/18"],
+                "outbound": proxy_outbound_tag
+            },
+        ],
+        "auto_detect_interface": True
+    }
+
+    return config
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Spin up a system-wide TUN proxy from a sing-box config template.")
+    parser.add_argument("template", help="Config template for sing-box")
+    args = parser.parse_args()
+
+    if os.geteuid() != 0:
+        print("[!] Warning: You are not running as root. Creating a TUN device and altering routing tables will likely fail.")
+        print("[!] Suggestion: run with sudo.")
+
+    if not shutil.which("sing-box"):
+        print("Error: sing-box binary not found in PATH.")
+        sys.exit(1)
+
+    config_data = prepare_config(args.template)
+
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as tmp:
+        json.dump(config_data, tmp, indent=2)
+        tmp_path = tmp.name
+
+    print(f"[*] Built 1.13.0+ compliant TUN proxy blueprint at {tmp_path}")
+    print("[*] Hijacking system traffic via tun0...")
+    print("[*] Press Ctrl+C to restore normal routing and kill the connection.\n")
+
+    try:
+        subprocess.run(["sing-box", "run", "-c", tmp_path])
+    except KeyboardInterrupt:
+        print("\n[*] Shutting down routing core and restoring netlink rules...")
+    finally:
+        if os.path.exists(tmp_path):
+            os.remove(tmp_path)
+            print("[*] Cleaned up temporary config.")
+
+
+if __name__ == "__main__":
+    main()

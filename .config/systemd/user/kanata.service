@@ -1,0 +1,10 @@
+[Unit]
+Description=Daemon for Kanata
+
+[Service]
+Type=exec
+ExecStart=/usr/bin/fish -l -c 'kanata -c %h/.config/kanata/kanata.kbd'
+Restart=always
+
+[Install]
+WantedBy=default.target

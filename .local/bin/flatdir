@@ -1,0 +1,27 @@
+#!/bin/bash
+
+
+if [ ! $(command -v flatpak) ]
+then
+    exit 0
+fi
+
+apps=$(flatpak list --app --columns=application)
+
+
+for dir in $HOME/.var/app/*/
+do
+    dir_name=$(basename $dir)
+
+    if [[ ! $apps =~ $dir_name ]]
+    then
+        echo "Deleting $dir_name"
+        rm -rf $dir
+    fi
+done
+
+
+unset apps dir dir_name
+
+
+echo "Done"

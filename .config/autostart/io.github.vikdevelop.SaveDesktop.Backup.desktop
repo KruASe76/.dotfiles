@@ -1,0 +1,4 @@
+[Desktop Entry]
+Name=SaveDesktop (Periodic backups)
+Type=Application
+Exec=flatpak run io.github.vikdevelop.SaveDesktop --background

@@ -1,0 +1,733 @@
+<?xml version='1.0' encoding='utf-8'?>
+<interface domain="todotxt">
+  <object class="AdwPreferencesPage" id="general-page">
+    <property name="name">general</property>
+    <property name="title" translatable="yes">General</property>
+    <property name="icon-name">preferences-other-symbolic</property>
+    <child>
+      <object class="AdwPreferencesGroup" id="files-group">
+        <property name="title" translatable="yes">Files</property>
+        <child>
+          <object class="AdwActionRow" id="todotxt-location-path">
+            <property name="title" translatable="yes">Todo.txt location</property>
+            <property name="tooltip-text" translatable="yes">Location of the text file that contains the tasks in todo.txt syntax</property>
+            <property name="subtitle" />
+            <property name="activatable">True</property>
+            <child>
+              <object class="GtkImage" id="todotxt-location-image">
+                <property name="icon-name">document-open-symbolic</property>
+                <property name="valign">center</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="AdwActionRow" id="donetxt-location-path">
+            <property name="title" translatable="yes">Done.txt location</property>
+            <property name="tooltip-text" translatable="yes">Location of the text file that contains completed (archived) tasks</property>
+            <property name="subtitle" />
+            <property name="activatable">True</property>
+            <child>
+              <object class="GtkImage" id="donetxt-location-image">
+                <property name="icon-name">document-open-symbolic</property>
+                <property name="valign">center</property>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+    <child>
+      <object class="AdwPreferencesGroup" id="behavior-group">
+        <property name="title" translatable="yes">Behavior</property>
+        <child>
+          <object class="AdwActionRow" id="auto-archive-row">
+            <property name="title" translatable="yes">Auto-archive done tasks</property>
+            <property name="tooltip-text" translatable="yes">Whether completed tasks will be automatically archived (i.e. moved to the done.txt file)</property>
+            <property name="activatable-widget">auto-archive-switch</property>
+            <child>
+              <object class="GtkSwitch" id="auto-archive-switch">
+                <property name="valign">center</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="AdwActionRow" id="show-done-row">
+            <property name="title" translatable="yes">Show done tasks</property>
+            <property name="tooltip-text" translatable="yes">Whether completed tasks that are not archived will be shown</property>
+            <property name="activatable-widget">show-done-switch</property>
+            <child>
+              <object class="GtkSwitch" id="show-done-switch">
+                <property name="valign">center</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="AdwActionRow" id="add-creation-date-row">
+            <property name="title" translatable="yes">Auto-add creation date to new tasks</property>
+            <property name="tooltip-text" translatable="yes">Whether a creation date is automatically added to newly created tasks</property>
+            <property name="activatable-widget">add-creation-date-switch</property>
+            <child>
+              <object class="GtkSwitch" id="add-creation-date-switch">
+                <property name="valign">center</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="AdwComboRow" id="click-action-combo">
+            <property name="title" translatable="yes">Action on clicking task</property>
+            <property name="tooltip-text" translatable="yes">What to do when a task is clicked</property>
+            <property name="model">
+              <object class="GtkStringList">
+                <items>
+                  <item translatable="yes">Edit</item>
+                  <item translatable="yes">Mark as done or archive</item>
+                  <item translatable="yes">Nothing</item>
+                </items>
+              </object>
+            </property>
+          </object>
+        </child>
+        <child>
+          <object class="AdwActionRow" id="confirm-delete-row">
+            <property name="title" translatable="yes">Confirm task deletion</property>
+            <property name="tooltip-text" translatable="yes">Whether a confirmation dialog is shown before deleting a task</property>
+            <property name="activatable-widget">confirm-delete-switch</property>
+            <child>
+              <object class="GtkSwitch" id="confirm-delete-switch">
+                <property name="valign">center</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="AdwActionRow" id="keep-open-after-new-row">
+            <property name="title" translatable="yes">Keep open menu after adding new task</property>
+            <property name="tooltip-text" translatable="yes">Keeps open the tasks menu after a new task is added. The new task entry will be focused.</property>
+            <property name="activatable-widget">keep-open-after-new-switch</property>
+            <child>
+              <object class="GtkSwitch" id="keep-open-after-new-switch">
+                <property name="valign">center</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="AdwComboRow" id="task-insert-location-combo">
+            <property name="title" translatable="yes">Location to insert new task</property>
+            <property name="tooltip-text" translatable="yes">Where in the text-file the new task will be added. Also moves insert box to the top of the interface.</property>
+            <property name="model">
+              <object class="GtkStringList">
+                <items>
+                  <item translatable="yes">Bottom of the file</item>
+                  <item translatable="yes">Top of the file</item>
+                </items>
+              </object>
+            </property>
+          </object>
+        </child>
+      </object>
+    </child>
+    <child>
+      <object class="AdwPreferencesGroup" id="shortcuts-group">
+        <property name="title" translatable="yes">Shortcuts</property>
+        <child>
+          <object class="AdwActionRow" id="open-key-shortcut">
+            <property name="title">Open task list</property>
+            <property name="tooltip-text" translatable="yes">Keyboard shortcut to open the task list</property>
+            <property name="selectable">False</property>
+            <property name="activatable">True</property>
+            <child>
+              <object class="GtkLabel" id="open-key-shortcut-accelerator-label">
+                <property name="xalign">1.0</property>
+                <property name="use-markup">True</property>
+                <style>
+                  <class name="dim-label" />
+                </style>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+    <child>
+      <object class="AdwPreferencesGroup" id="debugging-group">
+        <property name="title" translatable="yes">Debugging</property>
+        <child>
+          <object class="AdwComboRow" id="debug-level-combo">
+            <property name="title" translatable="yes">Debug level</property>
+            <property name="tooltip-text" translatable="yes">Level of debug information</property>
+            <property name="model">
+              <object class="GtkStringList">
+                <items>
+                  <item translatable="yes">Flow</item>
+                  <item translatable="yes">Debug</item>
+                  <item translatable="yes">Detail</item>
+                  <item translatable="yes">Info</item>
+                  <item translatable="yes">Warning</item>
+                  <item translatable="yes">Error</item>
+                </items>
+              </object>
+            </property>
+          </object>
+        </child>
+      </object>
+    </child>
+  </object>
+  <object class="AdwPreferencesPage" id="display-page">
+    <property name="name">display</property>
+    <property name="title" translatable="yes">Display</property>
+    <property name="icon-name">applications-graphics-symbolic</property>
+    <child>
+      <object class="AdwPreferencesGroup" id="grouping-group">
+        <property name="title" translatable="yes">Grouping</property>
+        <child>
+          <object class="AdwComboRow" id="group-by-combo">
+            <property name="title" translatable="yes">Group tasks by</property>
+            <property name="tooltip-text" translatable="yes">Tasks can be grouped together based on the selected property</property>
+            <property name="model">
+              <object class="GtkStringList">
+                <items>
+                  <item translatable="yes">No grouping</item>
+                  <item translatable="yes">Projects</item>
+                  <item translatable="yes">Contexts</item>
+                </items>
+              </object>
+            </property>
+          </object>
+        </child>
+        <child>
+          <object class="AdwActionRow" id="group-ungrouped-row">
+            <property name="title" translatable="yes">Put ungrouped tasks in separate group</property>
+            <property name="tooltip-text" translatable="yes">Tasks that don't have the grouping priority can be put in a special 'ungrouped' group, or shown outside any groups</property>
+            <property name="activatable-widget">group-ungrouped-switch</property>
+            <child>
+              <object class="GtkSwitch" id="group-ungrouped-switch">
+                <property name="valign">center</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="AdwActionRow" id="show-number-of-group-elements-row">
+            <property name="title" translatable="yes">Show number of tasks in group</property>
+            <property name="tooltip-text" translatable="yes">The number of tasks in a subgroup can be shown in the interface</property>
+            <property name="activatable-widget">show-number-of-group-elements-switch</property>
+            <child>
+              <object class="GtkSwitch" id="show-number-of-group-elements-switch">
+                <property name="valign">center</property>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+    <child>
+      <object class="AdwPreferencesGroup" id="interface-elements-group">
+        <property name="title" translatable="yes">Interface elements</property>
+        <child>
+          <object class="AdwActionRow" id="show-done-or-archive-button-row">
+            <property name="title" translatable="yes">Show done/archive task button</property>
+            <property name="tooltip-text" translatable="yes">Whether a button is shown to mark active tasks as completed or to archive completed tasks, if auto-archive is off.</property>
+            <property name="activatable-widget">show-done-or-archive-button-switch</property>
+            <child>
+              <object class="GtkSwitch" id="show-done-or-archive-button-switch">
+                <property name="valign">center</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="AdwActionRow" id="show-delete-button-row">
+            <property name="title" translatable="yes">Show delete task button</property>
+            <property name="tooltip-text" translatable="yes">Whether a button is shown to delete a task</property>
+            <property name="activatable-widget">show-delete-button-switch</property>
+            <child>
+              <object class="GtkSwitch" id="show-delete-button-switch">
+                <property name="valign">center</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="AdwActionRow" id="show-edit-button-row">
+            <property name="title" translatable="yes">Show edit task button</property>
+            <property name="tooltip-text" translatable="yes">Whether a button is shown to edit a task</property>
+            <property name="activatable-widget">show-edit-button-switch</property>
+            <child>
+              <object class="GtkSwitch" id="show-edit-button-switch">
+                <property name="valign">center</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="AdwActionRow" id="show-priority-buttons-row">
+            <property name="title" translatable="yes">Show change task priority buttons</property>
+            <property name="tooltip-text" translatable="yes">Whether arrows are shown to increase or decrease the task priority</property>
+            <property name="activatable-widget">show-priority-buttons-switch</property>
+            <child>
+              <object class="GtkSwitch" id="show-priority-buttons-switch">
+                <property name="valign">center</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="AdwActionRow" id="show-projects-label-row">
+            <property name="title" translatable="yes">Show projects</property>
+            <property name="tooltip-text" translatable="yes">Whether projects are shown in the interface (does not affect grouping)</property>
+            <property name="activatable-widget">show-projects-label-switch</property>
+            <child>
+              <object class="GtkSwitch" id="show-projects-label-switch">
+                <property name="valign">center</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="AdwActionRow" id="show-contexts-label-row">
+            <property name="title" translatable="yes">Show contexts</property>
+            <property name="tooltip-text" translatable="yes">Whether contexts are shown in the interface (does not affect grouping)</property>
+            <property name="activatable-widget">show-contexts-label-switch</property>
+            <child>
+              <object class="GtkSwitch" id="show-contexts-label-switch">
+                <property name="valign">center</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="AdwActionRow" id="show-new-task-entry-row">
+            <property name="title" translatable="yes">Show new task entry</property>
+            <property name="tooltip-text" translatable="yes">Whether an entry field is shown to create new tasks (new tasks can also be added by modifying the todo.txt file)</property>
+            <property name="activatable-widget">show-new-task-entry-switch</property>
+            <child>
+              <object class="GtkSwitch" id="show-new-task-entry-switch">
+                <property name="valign">center</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="AdwActionRow" id="show-open-in-text-editor-row">
+            <property name="title" translatable="yes">Show 'open in text editor'</property>
+            <property name="tooltip-text" translatable="yes">Whether a menu element is shown to open the todo.txt file in the default text editor</property>
+            <property name="activatable-widget">show-open-in-text-editor-switch</property>
+            <child>
+              <object class="GtkSwitch" id="show-open-in-text-editor-switch">
+                <property name="valign">center</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="AdwActionRow" id="show-open-preferences-row">
+            <property name="title" translatable="yes">Show 'open preferences'</property>
+            <property name="tooltip-text" translatable="yes">Whether a menu element is shown to open the extension's preferences</property>
+            <property name="activatable-widget">show-open-preferences-switch</property>
+            <child>
+              <object class="GtkSwitch" id="show-open-preferences-switch">
+                <property name="valign">center</property>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+    <child>
+      <object class="AdwPreferencesGroup" id="done-task-style-group">
+        <property name="title" translatable="yes">Done Task Style</property>
+        <child>
+          <object class="AdwActionRow" id="done-task-italic-row">
+            <property name="title" translatable="yes">Italic</property>
+            <property name="tooltip-text" translatable="yes">Whether done tasks are styled in italics</property>
+            <property name="activatable-widget">done-task-italic-switch</property>
+            <child>
+              <object class="GtkSwitch" id="done-task-italic-switch">
+                <property name="valign">center</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="AdwActionRow" id="done-task-bold-row">
+            <property name="title" translatable="yes">Bold</property>
+            <property name="tooltip-text" translatable="yes">Whether done tasks are styled in bold</property>
+            <property name="activatable-widget">done-task-bold-switch</property>
+            <child>
+              <object class="GtkSwitch" id="done-task-bold-switch">
+                <property name="valign">center</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="AdwActionRow" id="done-task-strikethrough-row">
+            <property name="title" translatable="yes">Strikethrough</property>
+            <property name="tooltip-text" translatable="yes">Whether done tasks are styled in strikethrough</property>
+            <property name="activatable-widget">done-task-strikethrough-switch</property>
+            <child>
+              <object class="GtkSwitch" id="done-task-strikethrough-switch">
+                <property name="valign">center</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="AdwActionRow" id="color-done-tasks-row">
+            <property name="title" translatable="yes">Color done tasks</property>
+            <property name="tooltip-text" translatable="yes">If enabled, done tasks will use a custom color</property>
+            <property name="activatable-widget">color-done-tasks-switch</property>
+            <child>
+              <object class="GtkSwitch" id="color-done-tasks-switch">
+                <property name="valign">center</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="AdwActionRow" id="custom-done-tasks-color-color">
+            <property name="title" translatable="yes">Custom color for done tasks</property>
+            <property name="tooltip-text" translatable="yes">This color will be used for done tasks if 'Color done tasks' was enabled above</property>
+            <property name="activatable-widget">custom-done-tasks-color-color-button</property>
+            <child>
+              <object class="GtkColorButton" id="custom-done-tasks-color-color-button">
+                <property name="valign">center</property>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+    <child>
+      <object class="AdwPreferencesGroup" id="url-color-group">
+        <property name="title" translatable="yes">URL Color</property>
+        <child>
+          <object class="AdwComboRow" id="url-color-combo">
+            <property name="title" translatable="yes">Color for detected URLs</property>
+            <property name="tooltip-text" translatable="yes">When URLs are detected in a task, they will be displayed in this color</property>
+            <property name="model">
+              <object class="GtkStringList">
+                <items>
+                  <item translatable="yes">Same as task</item>
+                  <item translatable="yes">Get color from theme</item>
+                  <item translatable="yes">Custom color</item>
+                </items>
+              </object>
+            </property>
+          </object>
+        </child>
+        <child>
+          <object class="AdwActionRow" id="custom-url-color-color">
+            <property name="title" translatable="yes">Custom color for URLS</property>
+            <property name="tooltip-text" translatable="yes">This color will be used for URLs if 'Custom color' was selected above</property>
+            <property name="activatable-widget">custom-url-color-color-button</property>
+            <child>
+              <object class="GtkColorButton" id="custom-url-color-color-button">
+                <property name="valign">center</property>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+    <child>
+      <object class="AdwPreferencesGroup" id="truncating-group">
+        <property name="title" translatable="yes">Truncating</property>
+        <child>
+          <object class="AdwActionRow" id="truncate-long-tasks-row">
+            <property name="title" translatable="yes">Truncate long tasks</property>
+            <property name="tooltip-text" translatable="yes">Whether long tasks are truncated if they exceed a specified width</property>
+            <property name="activatable-widget">truncate-long-tasks-switch</property>
+            <child>
+              <object class="GtkSwitch" id="truncate-long-tasks-switch">
+                <property name="valign">center</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="AdwActionRow" id="long-tasks-max-width-spin">
+            <property name="title" translatable="yes">Maximum task width in pixels</property>
+            <property name="tooltip-text" translatable="yes">Tasks will be truncated to this width (specified in pixels) if truncating is enabled.</property>
+            <child>
+              <object class="GtkAdjustment" id="long-tasks-max-width-adjustment">
+                <property name="lower">1</property>
+                <property name="upper">65535</property>
+                <property name="step_increment">1</property>
+              </object>
+              <object class="GtkSpinButton" id="long-tasks-max-width-spin-button">
+                <property name="valign">center</property>
+                <property name="snap_to_ticks">true</property>
+                <property name="adjustment">long-tasks-max-width-adjustment</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="AdwComboRow" id="long-tasks-expansion-mode-combo">
+            <property name="title" translatable="yes">Method to expand/contract truncated tasks</property>
+            <property name="tooltip-text" translatable="yes">The action that will initiate expansion and contraction of tasks</property>
+            <property name="model">
+              <object class="GtkStringList">
+                <items>
+                  <item translatable="yes">Scroll up/down</item>
+                  <item translatable="yes">Dedicated button</item>
+                  <item translatable="yes">Both</item>
+                </items>
+              </object>
+            </property>
+          </object>
+        </child>
+        <child>
+          <object class="AdwComboRow" id="long-tasks-ellipsize-mode-combo">
+            <property name="title" translatable="yes">Location to truncate long tasks</property>
+            <property name="tooltip-text" translatable="yes">The location in the task text where the ellipsization will occur</property>
+            <property name="model">
+              <object class="GtkStringList">
+                <items>
+                  <item translatable="yes">Start</item>
+                  <item translatable="yes">Middle</item>
+                  <item translatable="yes">End</item>
+                </items>
+              </object>
+            </property>
+          </object>
+        </child>
+      </object>
+    </child>
+    <child>
+      <object class="AdwPreferencesGroup" id="top-bar-group">
+        <property name="title" translatable="yes">Top Bar</property>
+        <property name="header-suffix">
+          <object class="GtkButton" id="help-templates-help-button">
+            <property name="valign">center</property>
+            <property name="icon-name">system-help-symbolic</property>
+          </object>
+        </property>
+        <child>
+          <object class="AdwActionRow" id="show-status-icon-row">
+            <property name="title" translatable="yes">Show icon</property>
+            <property name="tooltip-text" translatable="yes">If this is true, an icon will be shown in the top bar</property>
+            <property name="activatable-widget">show-status-icon-switch</property>
+            <child>
+              <object class="GtkSwitch" id="show-status-icon-switch">
+                <property name="valign">center</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="AdwEntryRow" id="display-format-string-string">
+            <property name="title" translatable="yes">Template string for display</property>
+            <property name="tooltip-text" translatable="yes">Template that determines what is displayed in the top bar</property>
+          </object>
+        </child>
+        <child>
+          <object class="AdwComboRow" id="hide-if-pattern-zero-combo">
+            <property name="title" translatable="yes">Hide if pattern is zero</property>
+            <property name="tooltip-text" translatable="yes">If the specified pattern is zero, the elements specified here will be hidden</property>
+            <property name="model">
+              <object class="GtkStringList">
+                <items>
+                  <item translatable="yes">Nothing</item>
+                  <item translatable="yes">Text</item>
+                  <item translatable="yes">Icon</item>
+                  <item translatable="yes">Both</item>
+                </items>
+              </object>
+            </property>
+          </object>
+        </child>
+        <child>
+          <object class="AdwEntryRow" id="hide-pattern-string">
+            <property name="title" translatable="yes">Pattern to match for zero</property>
+            <property name="tooltip-text" translatable="yes">If this template evaluates to zero, the top bar element will be hidden. Shortcuts still work.</property>
+          </object>
+        </child>
+      </object>
+    </child>
+  </object>
+  <object class="AdwPreferencesPage" id="priorities-page">
+    <property name="name">priorities</property>
+    <property name="title" translatable="yes">Priorities</property>
+    <property name="icon-name">emblem-important-symbolic</property>
+    <child>
+      <object class="AdwPreferencesGroup" id="general-group">
+        <property name="title" translatable="yes">General</property>
+        <child>
+          <object class="AdwActionRow" id="style-priorities-row">
+            <property name="title" translatable="yes">Style priorities</property>
+            <property name="tooltip-text" translatable="yes">Whether tasks with a certain priority are shown in a specific style</property>
+            <property name="activatable-widget">style-priorities-switch</property>
+            <child>
+              <object class="GtkSwitch" id="style-priorities-switch">
+                <property name="valign">center</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="AdwComboRow" id="priority-on-done-combo">
+            <property name="title" translatable="yes">Priority on task completion</property>
+            <property name="tooltip-text" translatable="yes">What should be done with the priority of a task when that task is completed</property>
+            <property name="model">
+              <object class="GtkStringList">
+                <items>
+                  <item translatable="yes">Remove</item>
+                  <item translatable="yes">Keep with pri: prefix</item>
+                  <item translatable="yes">Keep as is (non-standard)</item>
+                </items>
+              </object>
+            </property>
+          </object>
+        </child>
+        <child>
+          <object class="AdwActionRow" id="order-by-priority-row">
+            <property name="title" translatable="yes">Order elements by their priority</property>
+            <property name="tooltip-text" translatable="yes">Whether the tasks with a higher priority should be shown higher up in the list or the order should be left as in the todo.txt file</property>
+            <property name="activatable-widget">order-by-priority-switch</property>
+            <child>
+              <object class="GtkSwitch" id="order-by-priority-switch">
+                <property name="valign">center</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="AdwEntryRow" id="only-show-priority-above-string">
+            <property name="title" translatable="yes">Only show tasks with a priority of or above</property>
+            <property name="tooltip-text" translatable="yes">Only show tasks with a given or higher priority. Leave empty to show all tasks.</property>
+          </object>
+        </child>
+      </object>
+    </child>
+    <child>
+      <object class="AdwPreferencesGroup" id="styles-group">
+        <property name="title" translatable="yes">Styles</property>
+        <child>
+          <object class="AdwBin" id="priorities-markup-row">
+            <property name="tooltip-text" translatable="yes" />
+            <style>
+              <class name="card" />
+            </style>
+            <child>
+              <object class="GtkBox" id="box-id">
+                <property name="valign">center</property>
+                <property name="spacing">6</property>
+                <property name="orientation">vertical</property>
+                <property name="margin-start">5</property>
+                <property name="margin-top">5</property>
+                <property name="margin-end">5</property>
+                <property name="margin-bottom">5</property>
+                <child>
+                  <object class="GtkScrolledWindow">
+                    <property name="min_content_height">200</property>
+                    <child>
+                      <object class="GtkColumnView" id="priorities-markup-view">
+                        <child>
+                          <object class="GtkColumnViewColumn" id="priorities-markup-prio-col">
+                            <property name="title" translatable="yes">Priority</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkColumnViewColumn" id="priorities-markup-change-color-col">
+                            <property name="title" translatable="yes">Change color</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkColumnViewColumn" id="priorities-markup-color-col">
+                            <property name="title" translatable="yes">Color</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkColumnViewColumn" id="priorities-markup-bold-col">
+                            <property name="title" translatable="yes">Bold</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkColumnViewColumn" id="priorities-markup-italic-col">
+                            <property name="title" translatable="yes">Italic</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkBox">
+                    <style>
+                      <class name="toolbar" />
+                    </style>
+                    <child>
+                      <object class="GtkButton" id="priorities-markup-add-button">
+                        <property name="icon_name">list-add</property>
+                        <property name="label" translatable="yes">Add style</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="priorities-markup-delete-button">
+                        <property name="icon_name">edit-delete</property>
+                        <property name="label" translatable="yes">Delete</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+  </object>
+  <object class="AdwPreferencesPage" id="extensions-page">
+    <property name="name">extensions</property>
+    <property name="title" translatable="yes">Extensions</property>
+    <property name="icon-name">applications-utilities-symbolic</property>
+    <child>
+      <object class="AdwPreferencesGroup" id="extensions-group">
+        <property name="title" translatable="yes">Extensions</property>
+        <child>
+          <object class="AdwActionRow" id="enable-hidden-extension-row">
+            <property name="title" translatable="yes">Hidden tasks extension</property>
+            <property name="tooltip-text" translatable="yes">If the hidden extension is enabled, tasks containing 'h:1' will not be shown</property>
+            <property name="activatable-widget">enable-hidden-extension-switch</property>
+            <child>
+              <object class="GtkSwitch" id="enable-hidden-extension-switch">
+                <property name="valign">center</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="AdwActionRow" id="enable-due-date-extension-row">
+            <property name="title" translatable="yes">Due date extension</property>
+            <property name="tooltip-text" translatable="yes">If the due date extension is enabled, tasks containing 'due:&lt;some date&gt;' will be shown differently</property>
+            <property name="activatable-widget">enable-due-date-extension-switch</property>
+            <child>
+              <object class="GtkSwitch" id="enable-due-date-extension-switch">
+                <property name="valign">center</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="AdwActionRow" id="enable-comments-extension-row">
+            <property name="title" translatable="yes">Comments extension</property>
+            <property name="tooltip-text" translatable="yes">If the comments extension is enabled, tasks starting with a # will be hidden</property>
+            <property name="activatable-widget">enable-comments-extension-switch</property>
+            <child>
+              <object class="GtkSwitch" id="enable-comments-extension-switch">
+                <property name="valign">center</property>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+  </object>
+</interface>

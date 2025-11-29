@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+
+if [[ $# -ne 1 ]]; then
+    echo "need exactly one argument (namespace name)" >&2
+    exit 1
+fi
+
+ns_name=$1
+
+sudo ip netns add $ns_name
+
+sudo ip link add veth0 type veth peer name veth1
+sudo ip link set veth1 netns $ns_name
+sudo ip addr add 10.200.0.1/24 dev veth0
+sudo ip link set veth0 up
+
+sudo ip netns exec $ns_name ip addr add 10.200.0.2/24 dev veth1
+sudo ip netns exec $ns_name ip link set veth1 up
+sudo ip netns exec $ns_name ip link set lo up
+sudo ip netns exec $ns_name ip route add default via 10.200.0.1
+
+sudo iptables -t nat -A POSTROUTING -s 10.200.0.0/24 -j MASQUERADE
+
+EXT_IF=$(ip route get 8.8.8.8 | awk '{for(i=1;i<=NF;i++) if($i=="dev") print $(i+1)}' | head -n1)
+echo "external if: $EXT_IF"
+
+# allow forwarding from ns subnet to outside and back (insert at top to beat Docker chains)
+sudo iptables -I FORWARD 1 -s 10.200.0.0/24 -o "$EXT_IF" -j ACCEPT
+sudo iptables -I FORWARD 1 -d 10.200.0.0/24 -i "$EXT_IF" -m state --state RELATED,ESTABLISHED -j ACCEPT
+
+# also allow forwarding between veth0 and any interface (optional; useful if EXT_IF detection fails)
+sudo iptables -I FORWARD 1 -i veth0 -o veth0 -j ACCEPT 2>/dev/null

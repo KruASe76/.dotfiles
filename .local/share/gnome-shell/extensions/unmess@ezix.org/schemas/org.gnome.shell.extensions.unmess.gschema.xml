@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+	<schema id="org.gnome.shell.extensions.unmess" path="/org/gnome/shell/extensions/unmess/">
+    <key name="name" type="s">
+	    <default>"{}"</default>
+    </key>
+    <key name="application" type="s">
+	    <default>"{}"</default>
+    </key>
+    <key name="classinstance" type="s">
+	    <default>"{}"</default>
+    </key>
+    <key name="classgroup" type="s">
+	    <default>"{}"</default>
+    </key>
+    <key name="type" type="s">
+	    <default>"{}"</default>
+    </key>
+  </schema>
+</schemalist>

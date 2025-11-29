@@ -1,0 +1,21 @@
+#!/bin/bash
+
+CURRENT_USER=$(whoami)
+
+USER_PATH="$PATH"
+USER_HOME="$HOME"
+
+if [ -z "$1" ]; then
+    EXEC_CMD=( "fish" )
+else
+    printf -v ESCAPED_ARGS "%q " "$@"
+    EXEC_CMD=( "fish" "-c" "$ESCAPED_ARGS" )
+fi
+
+sudo ip netns exec vless-space sudo -u "$CURRENT_USER" env \
+    DISPLAY="$DISPLAY" \
+    WAYLAND_DISPLAY="$WAYLAND_DISPLAY" \
+    XDG_RUNTIME_DIR="/run/user/$(id -u "$CURRENT_USER")" \
+    PATH="$USER_PATH" \
+    HOME="$USER_HOME" \
+    "${EXEC_CMD[@]}"

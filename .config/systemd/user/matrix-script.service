@@ -1,0 +1,12 @@
+[Unit]
+Description=Daemon for matrix_script.py
+After=ydotool.service
+
+[Service]
+Type=exec
+ExecStart=/usr/bin/sudo %h/.local/bin/matrix_start
+Environment="SUDO_USER=%u"
+Restart=always
+
+[Install]
+WantedBy=default.target

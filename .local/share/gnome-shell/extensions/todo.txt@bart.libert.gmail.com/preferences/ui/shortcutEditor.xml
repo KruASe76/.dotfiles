@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface domain="todotxt">
+    <object class="AdwWindow" id="shortcut-editor-dialog">
+        <property name="modal">True</property>
+        <property name="default-width">440</property>
+        <property name="hide-on-close">True</property>
+        <property name="content">
+            <object class="GtkWindowHandle">
+                <property name="vexpand">True</property>
+                <property name="hexpand">True</property>
+                <child>
+                    <object class="GtkOverlay">
+                        <child type="overlay">
+                            <object class="AdwHeaderBar">
+                                <property name="title-widget">
+                                    <object class="GtkBox" />
+                                </property>
+                                <property name="valign">start</property>
+                                <style>
+                                    <class name="flat" />
+                                </style>
+                            </object>
+                        </child>
+                        <child>
+                            <object class="AdwStatusPage">
+                                <property name="title" translatable="yes">Press keyboard shortcut</property>
+                                <property name="icon-name">preferences-desktop-keyboard-shortcuts-symbolic</property>
+                                <property name="vexpand">true</property>
+                            </object>
+                        </child>
+                    </object>
+                </child>
+            </object>
+        </property>
+        <child>
+            <object class="GtkEventControllerKey" id="shortcut-editor-event-controller" />
+        </child>
+    </object>
+</interface>

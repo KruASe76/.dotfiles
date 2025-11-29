@@ -1,0 +1,5 @@
+#!/bin/bash
+
+appimage-build() { VERSION=$1 ~/tools/appimagetool-730-x86_64.AppImage $2; }
+mcrun() { java -Xms2048M -Xmx2048M -jar $1 nogui; }
+mcdebug() { java -Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005 -Xms2048M -Xmx2048M -jar $1 nogui; }

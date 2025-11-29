@@ -1,0 +1,6 @@
+[Desktop Entry]
+Type=Application
+Name=me.timschneeberger.jdsp4linux
+X-XDP-Autostart=me.timschneeberger.jdsp4linux
+Exec=flatpak run --command=jamesdsp me.timschneeberger.jdsp4linux --tray
+X-Flatpak=me.timschneeberger.jdsp4linux

@@ -1,0 +1,7 @@
+[home_Maroxy_AAT-Apps]
+name=An Anime Team Apps (Fedora_Rawhide)
+type=rpm-md
+baseurl=https://download.opensuse.org/repositories/home:/Maroxy:/AAT-Apps/Fedora_Rawhide/
+gpgcheck=1
+gpgkey=https://download.opensuse.org/repositories/home:/Maroxy:/AAT-Apps/Fedora_Rawhide/repodata/repomd.xml.key
+enabled=0

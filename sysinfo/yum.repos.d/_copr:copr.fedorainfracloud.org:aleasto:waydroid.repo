@@ -1,0 +1,10 @@
+[copr:copr.fedorainfracloud.org:aleasto:waydroid]
+name=Copr repo for waydroid owned by aleasto
+baseurl=https://download.copr.fedorainfracloud.org/results/aleasto/waydroid/fedora-$releasever-$basearch/
+type=rpm-md
+skip_if_unavailable=True
+gpgcheck=1
+gpgkey=https://download.copr.fedorainfracloud.org/results/aleasto/waydroid/pubkey.gpg
+repo_gpgcheck=0
+enabled=0
+enabled_metadata=1

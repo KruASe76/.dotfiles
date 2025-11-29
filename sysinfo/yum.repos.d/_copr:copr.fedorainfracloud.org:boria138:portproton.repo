@@ -1,0 +1,10 @@
+[copr:copr.fedorainfracloud.org:boria138:portproton]
+name=Copr repo for portproton owned by boria138
+baseurl=https://download.copr.fedorainfracloud.org/results/boria138/portproton/fedora-$releasever-$basearch/
+type=rpm-md
+skip_if_unavailable=True
+gpgcheck=1
+gpgkey=https://download.copr.fedorainfracloud.org/results/boria138/portproton/pubkey.gpg
+repo_gpgcheck=0
+enabled=1
+enabled_metadata=1

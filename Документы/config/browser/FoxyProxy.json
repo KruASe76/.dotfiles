@@ -1,0 +1,235 @@
+{
+  "mode": "pattern",
+  "sync": false,
+  "autoBackup": false,
+  "passthrough": "",
+  "theme": "moonlight",
+  "container": {
+    "container-8": "127.0.0.1:12334"
+  },
+  "commands": {
+    "setProxy": "",
+    "setTabProxy": "127.0.0.1:12334",
+    "includeHost": "",
+    "excludeHost": ""
+  },
+  "data": [
+    {
+      "active": true,
+      "title": "hiddify",
+      "type": "socks5",
+      "hostname": "127.0.0.1",
+      "port": "12334",
+      "username": "",
+      "password": "",
+      "cc": "NL",
+      "city": "",
+      "color": "#613583",
+      "pac": "",
+      "pacString": "",
+      "proxyDNS": true,
+      "include": [
+        {
+          "type": "regex",
+          "title": "youtube",
+          "pattern": "^[a-zA-Z0-9-]+://([^/?:#]*\\.)?()()()(youtube\\.com|youtu\\.be|ytimg\\.com|ggpht\\.com|googlevideo\\.com)()()()([:/?#]|$)",
+          "active": true
+        },
+        {
+          "type": "regex",
+          "title": "astral.sh",
+          "pattern": "^[a-zA-Z0-9-]+://([^/?:#]*\\.)?()()()(astral\\.sh)()()()([:/?#]|$)",
+          "active": true
+        },
+        {
+          "type": "regex",
+          "title": "tiangolo",
+          "pattern": "^[a-zA-Z0-9-]+://([^/?:#]*\\.)?()()()(tiangolo\\.com)()()()([:/?#]|$)",
+          "active": true
+        },
+        {
+          "type": "regex",
+          "title": "22cm",
+          "pattern": "^[a-zA-Z0-9-]+://([^/?:#]*\\.)?()()()(pizza22cm\\.ru)()()()([:/?#]|$)",
+          "active": true
+        },
+        {
+          "type": "regex",
+          "title": "dell",
+          "pattern": "^[a-zA-Z0-9-]+://([^/?:#]*\\.)?()()()(dell\\.com)()()()([:/?#]|$)",
+          "active": true
+        },
+        {
+          "type": "regex",
+          "title": "minecraft",
+          "pattern": "^[a-zA-Z0-9-]+://([^/?:#]*\\.)?()()()((modrinth|curseforge)\\.com|spigotmc\\.org|bxteam\\.org|purpurmc\\.org)()()()([:/?#]|$)",
+          "active": true
+        },
+        {
+          "type": "regex",
+          "title": "gitguardian",
+          "pattern": "^[a-zA-Z0-9-]+://([^/?:#]*\\.)?()()()(gitguardian\\.com)()()()([:/?#]|$)",
+          "active": true
+        },
+        {
+          "type": "regex",
+          "title": "jetbra",
+          "pattern": "^[a-zA-Z0-9-]+://([^/?:#]*\\.)?()()()(3\\.jetbra\\.in)()()()([:/?#]|$)",
+          "active": true
+        },
+        {
+          "type": "regex",
+          "title": "chatgpt",
+          "pattern": "^[a-zA-Z0-9-]+://([^/?:#]*\\.)?()()()((chatgpt|openai|oaistatic|oaiusercontent)\\.com)()()()([:/?#]|$)",
+          "active": true
+        },
+        {
+          "type": "regex",
+          "title": "refactoring.guru",
+          "pattern": "^[a-zA-Z0-9-]+://([^/?:#]*\\.)?()()()(refactoring\\.guru)()()()([:/?#]|$)",
+          "active": true
+        },
+        {
+          "type": "regex",
+          "title": "notion",
+          "pattern": "^[a-zA-Z0-9-]+://([^/?:#]*\\.)?()()()(notion\\.so)()()()([:/?#]|$)",
+          "active": true
+        },
+        {
+          "type": "regex",
+          "title": "genshin",
+          "pattern": "^[a-zA-Z0-9-]+://([^/?:#]*\\.)?()()()(appsample\\.com|lemonapi\\.com|keqingmains\\.com|kqm.gg|enka\\.network|genshin-impact\\.fandom\\.com|paimon\\.moe)()()()([:/?#]|$)",
+          "active": true
+        },
+        {
+          "type": "regex",
+          "title": "canva",
+          "pattern": "^[a-zA-Z0-9-]+://([^/?:#]*\\.)?()()()(canva\\.com)()()()([:/?#]|$)",
+          "active": true
+        },
+        {
+          "type": "regex",
+          "title": "zen-browser",
+          "pattern": "^[a-zA-Z0-9-]+://([^/?:#]*\\.)?()()()(zen-browser\\.app)()()()([:/?#]|$)",
+          "active": true
+        },
+        {
+          "type": "regex",
+          "title": "kemono",
+          "pattern": "^[a-zA-Z0-9-]+://([^/?:#]*\\.)?()()()(kemono\\.cr)()()()([:/?#]|$)",
+          "active": true
+        },
+        {
+          "type": "regex",
+          "title": "ngrok",
+          "pattern": "^[a-zA-Z0-9-]+://([^/?:#]*\\.)?()()()(ngrok\\.com)()()()([:/?#]|$)",
+          "active": true
+        },
+        {
+          "type": "regex",
+          "title": "wiki.mipt",
+          "pattern": "^[a-zA-Z0-9-]+://([^/?:#]*\\.)?()()()(wiki\\.mipt\\.tech)()()()([:/?#]|$)",
+          "active": true
+        },
+        {
+          "type": "regex",
+          "title": "rxresume",
+          "pattern": "^[a-zA-Z0-9-]+://([^/?:#]*\\.)?()()()(rxresu\\.me)()()()([:/?#]|$)",
+          "active": true
+        },
+        {
+          "type": "regex",
+          "title": "telegram...",
+          "pattern": "^[a-zA-Z0-9-]+://([^/?:#]*\\.)?()()()(telegram\\.org|t\\.me|telegram-mini-apps\\.com)()()()([:/?#]|$)",
+          "active": true
+        },
+        {
+          "type": "regex",
+          "title": "amnezia",
+          "pattern": "^[a-zA-Z0-9-]+://([^/?:#]*\\.)?()()()(amnezia\\.org)()()()([:/?#]|$)",
+          "active": true
+        },
+        {
+          "type": "regex",
+          "title": "hiddify",
+          "pattern": "^[a-zA-Z0-9-]+://([^/?:#]*\\.)?()()()(hiddify\\.com|guru-widget\\.pages\\.dev)()()()([:/?#]|$)",
+          "active": true
+        },
+        {
+          "type": "regex",
+          "title": "discord",
+          "pattern": "^[a-zA-Z0-9-]+://([^/?:#]*\\.)?()()()(discord.*)()()()([:/?#]|$)",
+          "active": true
+        },
+        {
+          "type": "regex",
+          "title": "swagger.io",
+          "pattern": "^[a-zA-Z0-9-]+://([^/?:#]*\\.)?()()()(swagger\\.io)()()()([:/?#]|$)",
+          "active": true
+        },
+        {
+          "type": "regex",
+          "title": "docs",
+          "pattern": "^[a-zA-Z0-9-]+://([^/?:#]*\\.)?()()()(docs\\.aiogram\\.dev|docs\\.aiohttp\\.org|docs\\.streamlit\\.io)()()()([:/?#]|$)",
+          "active": true
+        },
+        {
+          "type": "regex",
+          "title": "mathcha",
+          "pattern": "^[a-zA-Z0-9-]+://([^/?:#]*\\.)?()()()(mathcha\\.io)()()()([:/?#]|$)",
+          "active": true
+        },
+        {
+          "type": "regex",
+          "title": "WHY PIANO",
+          "pattern": "^[a-zA-Z0-9-]+://([^/?:#]*\\.)?()()()(recursivearts\\.com)()()()([:/?#]|$)",
+          "active": true
+        },
+        {
+          "type": "regex",
+          "title": "gemini",
+          "pattern": "^[a-zA-Z0-9-]+://([^/?:#]*\\.)?()()()(gemini\\.google\\.com|aistudio\\.google\\.com|alkalimakersuite[^/]*\\.google\\.com|signaler-pa\\.[^/]*\\.google\\.com|notebooklm)()()()([:/?#]|$)",
+          "active": true
+        },
+        {
+          "type": "regex",
+          "title": "GITHUB NO",
+          "pattern": "^[a-zA-Z0-9-]+://([^/?:#]*\\.)?()()()(github\\.(com|blog))()()()([:/?#]|$)",
+          "active": false
+        },
+        {
+          "type": "regex",
+          "title": "cloudflare...",
+          "pattern": "^[a-zA-Z0-9-]+://([^/?:#]*\\.)?()()()(cloudflare\\.com)()()()([:/?#]|$)",
+          "active": true
+        },
+        {
+          "type": "regex",
+          "title": "dicechess",
+          "pattern": "^[a-zA-Z0-9-]+://([^/?:#]*\\.)?()()()(dicechess\\.com)()()()([:/?#]|$)",
+          "active": true
+        },
+        {
+          "type": "regex",
+          "title": "windsurf",
+          "pattern": "^[a-zA-Z0-9-]+://([^/?:#]*\\.)?()()()(windsurf\\.com)()()()([:/?#]|$)",
+          "active": true
+        },
+        {
+          "type": "regex",
+          "title": "grammarly",
+          "pattern": "^[a-zA-Z0-9-]+://([^/?:#]*\\.)?()()()(grammarly\\.com|did0rp9pm2ntw\\.cloudfront\\.net)()()()([:/?#]|$)",
+          "active": true
+        },
+        {
+          "type": "regex",
+          "title": "pydantic.dev",
+          "pattern": "^[a-zA-Z0-9-]+://([^/?:#]*\\.)?()()()(pydantic\\.dev)()()()([:/?#]|$)",
+          "active": true
+        }
+      ],
+      "exclude": [],
+      "tabProxy": []
+    }
+  ]
+}

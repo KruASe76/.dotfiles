@@ -1,0 +1,7 @@
+[home_qr243vbi]
+name=Branch project for package nekobox (Fedora_Rawhide)
+type=rpm-md
+baseurl=https://download.opensuse.org/repositories/home:/qr243vbi/Fedora_Rawhide/
+gpgcheck=1
+gpgkey=https://download.opensuse.org/repositories/home:/qr243vbi/Fedora_Rawhide/repodata/repomd.xml.key
+enabled=1
